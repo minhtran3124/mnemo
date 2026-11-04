@@ -23,9 +23,10 @@ done
 IFS=$OLDIFS
 
 # 2. Key pattern on added lines of the staged diff only.
-hits=$(git diff --cached -U0 --no-color --diff-filter=ACMR | awk '
+hits=$(git -c core.quotePath=false diff --cached -U0 --no-color \
+  --src-prefix=a/ --dst-prefix=b/ --diff-filter=ACMR | awk '
   /^diff --git / { inhunk = 0; next }
-  !inhunk && /^\+\+\+ / { file = substr($0, 7); next }
+  !inhunk && /^\+\+\+ / { file = substr($0, 7); sub(/\t.*$/, "", file); next }
   /^@@ / {
     inhunk = 1
     s = $3; sub(/^\+/, "", s); sub(/,.*/, "", s); line = s + 0; next

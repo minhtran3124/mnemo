@@ -84,3 +84,13 @@ def test_key_on_line_starting_with_plus_plus_space_is_blocked(repo):
     assert result.returncode != 0
     assert "a.txt:1" in result.stderr
     assert key not in result.stdout + result.stderr
+
+
+def test_location_is_right_with_noprefix_and_odd_names(repo):
+    git(repo, "config", "diff.noprefix", "true")
+    key = fake_key()
+    stage(repo, "dir/my café file.txt", f"ok\n{key}\n")
+    result = run_hook(repo)
+    assert result.returncode != 0
+    assert "dir/my café file.txt:2" in result.stderr
+    assert key not in result.stdout + result.stderr
