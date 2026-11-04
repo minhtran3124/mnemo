@@ -41,7 +41,7 @@ The name was chosen by you. Other software already uses "mnemo" (see [naming](re
 ## Known gaps
 
 - You have not chosen your 5 or 6 starter folders yet.
-- No visual design direction is chosen. Five mockups exist (see [design review](reviews/design-review-v1-v5.md)).
+- The design is chosen (V3, light and dark) but only as a mockup. It is not checked in a rendered page (see [design review](reviews/design-review-v1-v5.md) and [theming spec](feature-specs/theming-and-design-tokens.md)).
 - Render price and storage rules are not checked (see [hosting check](research/hosting-check.md)).
 - Claude API prices, model names and PDF limits are not checked (see [API notes](reference/api-notes.md)).
 

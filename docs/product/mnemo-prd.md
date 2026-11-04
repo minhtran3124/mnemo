@@ -95,4 +95,4 @@ Budget about $10 per month for hosting and API together (Unverified). 30-minute 
 1. You stop using the app. 2. One wrong summary breaks trust. 3. The reason field stays empty. 4. Many pages cannot be read. 5. An online server spends your money. Details: [risk review](../reviews/risk-review.md).
 
 ## 11. Open questions
-See [open questions](../research/open-questions.md). Examples: starter folders, real sessions per week, visual direction (D-016).
+See [open questions](../research/open-questions.md). Examples: starter folders, real sessions per week, laptop Settings screen and cover images (Q-15).

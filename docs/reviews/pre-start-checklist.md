@@ -28,7 +28,7 @@ This file lists everything you need before phase 0. Tick each box. Nothing here 
 
 ## Decisions to confirm
 - [ ] D-013: accept `docs` and `other` types.
-- [ ] D-016: understand it is Open.
+- [ ] D-016 and D-019: read them. V3 with light and dark is accepted.
 - [ ] D-017: private mode, yes or no.
 - [ ] Weekly API spend limit (Q-12).
 - [ ] Sessions per week (Q-05).

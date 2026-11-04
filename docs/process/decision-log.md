@@ -21,10 +21,11 @@ Status values: Accepted (agreed), Proposed (suggested, not yet built or agreed),
 | D-012 | The host may not keep files between deploys. | All storage goes through `store.py`. | Accepted | If the host loses files, only the inside of `store.py` changes (to a database). See NF-03. |
 | D-013 | Two sample links did not fit the seven types. | Add types `docs` and `other`. | Proposed | Not yet built. The eval will show if more types help. |
 | D-014 | The project needed a name. | The name is Mnemo (was Bookmark Brain). | Accepted | Other software uses the name. Re-check before any public release. See [naming](../research/naming.md). |
-| D-015 | People scan lists in different ways. | The bookmark page has a Grid, List and Compact switcher (F-05). | Accepted | Grid and List in phase 1; Compact in phase 3. The CSS `:has()` approach is unverified. |
-| D-016 | Five mockups (V1 to V5) exist, and earlier ones felt like "AI slop". | Visual direction is not decided. | Open | Pick after phase 1 with real links. See [design review](../reviews/design-review-v1-v5.md). |
+| D-015 | People scan lists in different ways. | The bookmark page has a Grid, List and Compact switcher (F-05). In the V3 mockup, List is called Ledger and Grid is called Cards. | Accepted | Grid and List in phase 1; Compact in phase 3. The CSS `:has()` approach is unverified. |
+| D-016 | Five mockups (V1 to V5) exist, and earlier ones felt like "AI slop". | Visual direction is V3, the ledger (serif, folder in the margin, "guess" labels). | Accepted | You chose V3 after seeing it in light and dark. V1, V2, V4, V5 are dropped. Unverified: it was chosen from mockups, not from real links in a running page. Re-check after phase 1. See [design review](../reviews/design-review-v1-v5.md). |
 | D-017 | Page text goes to the API even for links you want to keep private. | Private mode (F-19): a link marked private is saved as link only and nothing is sent to the API. | Proposed | Ships in phase 3 if accepted. Adds a `private` field (proposed). |
 | D-018 | Page text goes to the API. | Public links only while building. | Accepted | Check your company's AI policy before saving work links. |
+| D-019 | The page must be comfortable in a bright room and at night. | Light and dark themes. Default: follow the system setting. The user can override with Light or Dark, and the choice is remembered on the device. | Accepted | Needs a token set for both themes. See [theming spec](../feature-specs/theming-and-design-tokens.md). Contrast was measured on the mockup colours only; measure again in the real page. |
 
 ## How to change a decision
 1. Write the new row or change the status.
@@ -32,7 +33,7 @@ Status values: Accepted (agreed), Proposed (suggested, not yet built or agreed),
 3. Update the specs that mention the decision.
 
 ## Open items
-- D-016 is Open. Do not build final visual styling before it is decided.
+- D-016 and D-019 are Accepted. Re-check them after phase 1 with real links in a rendered page.
 - D-013 and D-017 are Proposed. Confirm or reject them before phase 3.
 
 Related: [open questions](../research/open-questions.md), [risk review](../reviews/risk-review.md).
