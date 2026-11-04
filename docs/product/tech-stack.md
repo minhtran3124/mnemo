@@ -117,5 +117,5 @@ The module path `app.main:app` is a proposal. Keep it in sync with the real layo
 - **Temperature:** do not set `temperature` in `config.py` until the current model docs confirm it is accepted (unverified).
 - **Phase A login:** not chosen. SA-03 and PV-03 need a method (for example one token checked by middleware).
 - **Render pricing and sleep behaviour:** Unverified. See hosting-check.md.
-- **Anthropic SDK and model names:** check the current model names and prefill support before phase 0 (api-notes.md, items 1 and 4).
+- **Anthropic SDK and model names:** model name checked: `claude-haiku-5-5` is current (api-notes.md, item 1). Prefill support is still Unverified (item 4).
 - **Frontend fonts:** self-hosting or Google Fonts is still open (Q-16).
