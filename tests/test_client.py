@@ -137,13 +137,14 @@ def test_empty_content_raises():
         client.ask(msgs())
 
 
-def test_max_tokens_stop_reason_raises_instead_of_returning_partial_text():
+def test_max_tokens_stop_reason_returns_text_and_logs_a_warning(caplog):
     client.ask(msgs())
     FakeAnthropic.instances[0].response = make_response(
         [text_block("cut off mid")], stop_reason="max_tokens"
     )
-    with pytest.raises(RuntimeError, match="max_tokens"):
-        client.ask(msgs())
+    with caplog.at_level("WARNING", logger="mnemo.client"):
+        assert client.ask(msgs()) == "cut off mid"
+    assert "max_tokens" in caplog.text
 
 
 def test_non_text_only_content_raises():

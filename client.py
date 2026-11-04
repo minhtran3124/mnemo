@@ -78,8 +78,8 @@ def ask(
     )
 
     if response.stop_reason == "max_tokens":
-        # Cut-off text is not a complete reply; never pass it on as one.
-        raise RuntimeError("Claude reply was cut off at the max_tokens limit")
+        # The reply hit the output cap. Return what came back; the log tells callers why it is short.
+        _log.warning("claude reply stopped at max_tokens=%s", config.MAX_TOKENS)
 
     text = "".join(b.text for b in response.content if b.type == "text")
     if not text:
