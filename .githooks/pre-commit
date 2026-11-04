@@ -10,7 +10,7 @@ status=0
 #    .env.example and a staged deletion of such a file. -z gives raw names, so
 #    a tab, a quote or a non-ASCII letter in the path cannot hide the basename.
 #    A newline in a name splits it into pieces; that can only block more.
-names=$(git diff --cached --name-only -z | tr '\0' '\n')
+names=$(git diff --cached --name-only --no-renames -z | tr '\0' '\n')
 OLDIFS=$IFS
 IFS='
 '

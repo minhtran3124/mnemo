@@ -126,6 +126,7 @@ def test_env_files_with_odd_paths_are_blocked(repo, name):
     stage(repo, name, "ANTHROPIC_API_KEY=\n")
     result = run_hook(repo)
     assert result.returncode != 0
+    assert f"staged file name starts with .env: {name}" in result.stderr
 
 
 def test_staged_deletion_of_env_file_is_blocked(repo):
@@ -134,4 +135,13 @@ def test_staged_deletion_of_env_file_is_blocked(repo):
     git(repo, "rm", "-q", "--cached", ".env")
     result = run_hook(repo)
     assert result.returncode != 0
-    assert ".env" in result.stderr
+    assert "staged file name starts with .env: .env\n" in result.stderr
+
+
+def test_rename_of_env_file_is_blocked(repo):
+    stage(repo, ".env", "NOTHING=1\n")
+    git(repo, "-c", "core.hooksPath=/dev/null", "commit", "-qm", "seed")
+    git(repo, "mv", ".env", "config.bak")
+    result = run_hook(repo)
+    assert result.returncode != 0
+    assert "staged file name starts with .env: .env\n" in result.stderr

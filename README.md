@@ -60,3 +60,11 @@ You need Node 20 or newer (`node -v`) and Claude Code.
 
 - The design direction is V3, the ledger (D-016). Colours come from tokens only (UI-09). Impeccable suggestions must not break these.
 - If `PRODUCT.md` and `docs/feature-specs/frontend-ui.md` disagree, fix both in the same session.
+
+## Environment variables
+
+Put these in a local `.env` file in the repo root. It is gitignored, and the pre-commit hook blocks every `.env*` file, so do not commit one.
+
+| Variable | Purpose |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | Your Claude API key. Read by `config.py`. Never print it or paste it in a chat. |
