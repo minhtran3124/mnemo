@@ -116,10 +116,32 @@ def test_tech_stack_doc_says_hook_is_implemented() -> None:
     assert "is listed in" not in secrets
 
 
-def test_env_example_in_non_ascii_directory_is_blocked(repo):
-    # Without core.quotePath=false git C-quotes the path and the basename
-    # gets a trailing quote, so the name would not match.
-    stage(repo, "tài liệu/.env.example", "ANTHROPIC_API_KEY=\n")
+@pytest.mark.parametrize(
+    "name",
+    ["tài liệu/.env", "tài liệu/.env.example", "dir/.env\tbak", 'q"uote/.env'],
+)
+def test_env_files_with_odd_paths_are_blocked(repo, name):
+    # Git C-quotes a path with a tab, a quote or non-ASCII letters unless the
+    # hook reads raw names with -z, and a quoted basename would not match.
+    stage(repo, name, "ANTHROPIC_API_KEY=\n")
     result = run_hook(repo)
     assert result.returncode != 0
-    assert "tài liệu/.env.example" in result.stderr
+    assert f"staged file name starts with .env: {name}" in result.stderr
+
+
+def test_staged_deletion_of_env_file_is_blocked(repo):
+    stage(repo, ".env", "NOTHING=1\n")
+    git(repo, "-c", "core.hooksPath=/dev/null", "commit", "-qm", "seed")
+    git(repo, "rm", "-q", "--cached", ".env")
+    result = run_hook(repo)
+    assert result.returncode != 0
+    assert "staged file name starts with .env: .env\n" in result.stderr
+
+
+def test_rename_of_env_file_is_blocked(repo):
+    stage(repo, ".env", "NOTHING=1\n")
+    git(repo, "-c", "core.hooksPath=/dev/null", "commit", "-qm", "seed")
+    git(repo, "mv", ".env", "config.bak")
+    result = run_hook(repo)
+    assert result.returncode != 0
+    assert "staged file name starts with .env: .env\n" in result.stderr
