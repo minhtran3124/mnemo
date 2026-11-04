@@ -1,1 +1,56 @@
 # mnemo
+
+A personal AI bookmark app. Paste a link in a chat, the app reads the page, summarises it and files it. Ask in your own words to find it again. Docs: [docs/README.md](docs/README.md). Product record for design work: [PRODUCT.md](PRODUCT.md).
+
+The server is Python. A small Node setup (`package.json`) holds dev tools for the web UI only.
+
+## Setup when you start the project
+
+You need Node 20 or newer (`node -v`) and Claude Code.
+
+1. Install the dev tools:
+
+   ```bash
+   npm install
+   ```
+
+2. Install the Impeccable design skills into Claude Code (D-020). This writes into `.claude/`:
+
+   ```bash
+   npm run design:install
+   ```
+
+3. Restart Claude Code in this folder so it loads the new skill and hooks. Approve the hooks when asked.
+4. Check the design hook is on (in the Claude Code chat):
+
+   ```
+   /impeccable hooks status
+   ```
+
+   If it is off, run `/impeccable hooks on`.
+
+`PRODUCT.md` already exists. Do not run `/impeccable init` again unless the product facts changed.
+
+## Daily commands (in the Claude Code chat)
+
+| Command | Use it to |
+| --- | --- |
+| `/impeccable shape <screen>` | Plan a screen before you build it |
+| `/impeccable critique` | Get a design review of what exists |
+| `/impeccable audit` | Check accessibility and quality |
+| `/impeccable polish` | Final pass before you finish a screen |
+| `/impeccable document` | Write `DESIGN.md` from the built UI (do this after phase 1) |
+
+## npm scripts
+
+| Script | What it does |
+| --- | --- |
+| `npm run design:install` | Install or repair the Impeccable skills for Claude Code |
+| `npm run design:update` | Update the skills to the latest version |
+| `npm run design:check` | Say whether an update is available |
+| `npm run design:detect` | Scan the `web/` folder for UI design problems (once it exists) |
+
+## Rules to keep
+
+- The design direction is V3, the ledger (D-016). Colours come from tokens only (UI-09). Impeccable suggestions must not break these.
+- If `PRODUCT.md` and `docs/feature-specs/frontend-ui.md` disagree, fix both in the same session.
