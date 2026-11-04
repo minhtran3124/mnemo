@@ -98,6 +98,15 @@ def test_missing_key_raises_clear_error_without_key_text(monkeypatch, caplog):
     assert FAKE_KEY not in caplog.text
 
 
+@pytest.mark.parametrize("blank", ["", "   "])
+def test_empty_key_raises_clear_error(monkeypatch, blank):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", blank)
+    with pytest.raises(RuntimeError, match="ANTHROPIC_API_KEY"):
+        client.ask(msgs())
+    assert FakeAnthropic.instances == []
+    assert client._client is None
+
+
 def test_key_never_in_logs_or_errors(caplog):
     caplog.set_level(logging.DEBUG)
     client.ask(msgs())

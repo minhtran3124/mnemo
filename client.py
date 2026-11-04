@@ -31,8 +31,14 @@ def _get_client() -> anthropic.Anthropic:
             raise RuntimeError(
                 "ANTHROPIC_API_KEY is missing or empty; set it in the environment or .env"
             ) from None
+        api_key = settings.api_key.get_secret_value()
+        if not api_key.strip():
+            # Settings accepts an empty string, so check it here.
+            raise RuntimeError(
+                "ANTHROPIC_API_KEY is missing or empty; set it in the environment or .env"
+            )
         _client = anthropic.Anthropic(
-            api_key=settings.api_key.get_secret_value(),
+            api_key=api_key,
             timeout=TIMEOUT_SECONDS,
             max_retries=MAX_RETRIES,
         )
