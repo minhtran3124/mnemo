@@ -1,0 +1,80 @@
+# Storage (`store.py`)
+
+Status: Draft v0.1 · Owner: KhoiTran · Phase: 1, A
+
+This file describes the one module that reads and writes bookmarks.
+
+## Purpose
+
+All access to bookmarks goes through `store.py` (NF-03, D-012). Then the inside can change from files to a database and nothing else changes.
+
+## Scope
+
+In: function list, JSON files now, database swap, atomic writes, backups.
+Out: the record shape ([data-model.md](data-model.md)).
+
+## Requirements
+
+| ID | Requirement |
+| --- | --- |
+| ST-01 | No other module opens `data/` files directly. |
+| ST-02 | Storage is plain JSON and text files in version 1. No database. |
+| ST-03 | Writes are atomic: write a temporary file, then rename it, so a crash cannot leave half a file. |
+| ST-04 | Data is backed up. |
+| ST-05 | `store.py` validates records before writing ([data-model.md](data-model.md)). |
+
+## Interface (proposed function list)
+
+| Function | Purpose |
+| --- | --- |
+| `add_bookmark(record)` | Validate and add; write the page file; log |
+| `get_bookmark(id)` | Return one record |
+| `list_bookmarks(filters)` | Return records by folder, type, tag |
+| `update_bookmark(id, fields)` | Change fields (for example folder) |
+| `delete_bookmark(id)` | Remove record and page file |
+| `read_page(id)` | Return saved page text |
+| `list_folders()` | Folders with counts |
+| `log_event(event)` | Append a line to `log.jsonl` |
+| `find_by_url_clean(url)` | Used by the duplicate check |
+
+Names may change. The point is a small, fixed surface.
+
+## Behavior and rules
+
+- Files: `data/bookmarks.json`, `data/pages/<id>.txt`, `data/log.jsonl`.
+- IDs are never reused.
+- Undo needs the previous folder to be remembered. Open question: where it is kept (a field or the log).
+- Backup: copy `data/` regularly. How and how often: Open question. Keep backups out of git if they contain page text.
+
+### Database swap
+
+Phase A: you plan to use Render. Unverified: Render price and whether its disk keeps files between deploys. Check before phase A ([hosting-check.md](../research/hosting-check.md)). If the disk is not persistent, replace the inside of `store.py` with a database and change nothing else. The budget in the plan is about $10 per month for hosting and the API together (unverified prices).
+
+## Edge cases
+
+| Case | Behavior |
+| --- | --- |
+| Crash during a write | Old file is still whole (atomic write). |
+| Two writes at once | Open question: a lock, or one worker only. |
+| Missing page file | `read_page` returns nothing; the record stays. |
+| Corrupt `bookmarks.json` | Server stops with a clear message; restore from backup. |
+
+## Acceptance criteria
+
+| # | Check |
+| --- | --- |
+| 1 | A search of the code finds no direct open of `data/` outside `store.py`. |
+| 2 | A test that kills the process during a write leaves a valid file. |
+| 3 | An invalid record is rejected. |
+| 4 | A backup can be restored in a test. |
+| 5 | Swapping to a database (when needed) passes the same store tests. |
+
+## Tests
+
+Unit tests per function. A shared test set can run against both file and database versions.
+
+## Open questions
+
+- Render disk behavior and price.
+- Backup method.
+- Lock for two writers.

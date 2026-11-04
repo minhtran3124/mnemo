@@ -1,0 +1,80 @@
+# Classification and filing
+
+Status: Draft v0.1 · Owner: KhoiTran · Phase: 1, 3
+
+This file describes what Claude returns for each save, and how the result becomes a filed bookmark.
+
+## Purpose
+
+One Claude call turns page text into type, tags, summary, reason and a folder choice. Code checks every part. Supports F-01, F-03, NF-04.
+
+## Scope
+
+In: type list, tag and summary rules, reason, faithful-summary rule, output contract, filing choice.
+Out: folder rules in detail (see [folders.md](folders.md)).
+
+## Requirements
+
+| ID | Requirement |
+| --- | --- |
+| CF-01 | `type` is one value from the type list. |
+| CF-02 | 3 to 6 tags, all lowercase. |
+| CF-03 | Summary is at most 60 words. |
+| CF-04 | `reason_source` is `user` if you typed a reason, `guess` if Claude wrote it. |
+| CF-05 | The summary has only facts that are in the page text (NF-04). |
+| CF-06 | Claude returns clean JSON. Code parses and validates it. |
+| CF-07 | The folder is one existing folder name or `Unsorted`. |
+
+## Type list
+
+`github_repo`, `article`, `video_page`, `tool`, `pdf`, `image`, `note`. Proposed (D-013, not built): `docs` for API reference pages, `other` for index pages and unclear pages. Without them, two sample links get a wrong type. An arXiv paper is `article` with the tag `paper`. Whether this confuses the eval: Open question.
+
+## Behavior and rules
+
+- Reason: optional, one line. If missing, Claude writes a guess and `reason_source` = `guess`. The card shows "guess".
+- Faithful-summary rule: if the page text does not say it, the summary does not say it. A screenshot post that claims "Anthropic published this" is reported as "the post claims it" or left out.
+- Page text is placed inside XML tags in the prompt. Instructions are outside them.
+- Prompts live in `prompts/`, one file per version. Change one thing per run (phase 3).
+
+### Claude output contract
+
+| Part | Rule |
+| --- | --- |
+| Format | One JSON object: `type`, `title`, `summary`, `tags`, `reason`, `folder`. |
+| Prefill | The assistant message starts with `{` so Claude continues with JSON. |
+| Stop sequence | A closing marker stops output after the JSON. |
+| Temperature | Low. |
+| If prefill fails | Unverified: which models accept prefill. Fallback: ask for JSON inside tags and parse it in code. Test in phase 1. |
+
+### Filing choice
+
+Claude picks from the folders that exist, or `Unsorted`. If unsure, it must choose `Unsorted`. Code rejects any other name. Details: [folders.md](folders.md).
+
+## Edge cases
+
+| Case | Behavior |
+| --- | --- |
+| Invalid JSON | One retry. Then save link only and say so. |
+| Tag count is 2 or 7 | Reject. Retry once. |
+| Summary is 61 words | Reject. Retry once. |
+| Unreadable page | No Claude call for a summary. `summary` = `null`. |
+| Private link (F-19, proposed) | No Claude call at all. |
+
+## Acceptance criteria
+
+| # | Check |
+| --- | --- |
+| 1 | Code check passes for JSON, tags, summary length (see the checks table in [save-golden-set.md](test-cases/save-golden-set.md)). |
+| 2 | Faithful-summary grader finds 0 unsupported statements. |
+| 3 | Type matches expected type on the Save set. Target: set after first baseline. |
+| 4 | Filing: the Route set scores the folder choice ([route-set.md](test-cases/route-set.md)). |
+
+## Tests
+
+[save-golden-set.md](test-cases/save-golden-set.md), [route-set.md](test-cases/route-set.md).
+
+## Open questions
+
+- Whether `docs` and `other` are added.
+- Passing score for each check.
+- Whether you really type the reason (checked after phase 3).
