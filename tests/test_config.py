@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -76,3 +77,8 @@ def test_api_notes_checked_rows_cite_a_url_and_intro_allows_them():
     assert rows
     for row in rows:
         assert "https://" in row
+
+
+def test_api_notes_has_no_calendar_dates():
+    text = (Path(config.__file__).parent / "docs/reference/api-notes.md").read_text()
+    assert not re.search(r"\b\d{4}-\d{2}-\d{2}\b", text)
