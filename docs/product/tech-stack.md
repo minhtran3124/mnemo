@@ -3,6 +3,8 @@ Status: Draft v0.1 · Owner: KhoiTran · Phase: all
 
 This file chooses the tools for each layer of Mnemo. Decision: D-021. It follows the rules already set in the PRD and specs (D-001, D-002, D-006, D-007, D-012, NF-03).
 
+Visual page: [Architecture](https://claude.ai/artifact/HRJ54QxYXpooHoemp6uSgV). It is a snapshot of `main` at commit `ce40e28` and is private until you share it. This file is the source of truth; if they differ, fix the page.
+
 Versions are the latest on PyPI and npm at the research date (2026-11-04). Pin the exact versions in the lockfile when you install them. Nothing here is tested in a running app yet.
 
 ## Stack by layer

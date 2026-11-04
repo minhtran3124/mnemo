@@ -4,6 +4,8 @@ Status: Draft v0.1 · Owner: KhoiTran · Phase: all
 
 This file states what leaves your machine and how the key and the server are protected.
 
+Visual page: [Architecture](https://claude.ai/artifact/HRJ54QxYXpooHoemp6uSgV). It is a snapshot of `main` at commit `ce40e28` and is private until you share it. This file is the source of truth; if they differ, fix the page.
+
 ## Purpose
 
 Supports NF-01 (key only on the server), NF-02 (cost limits), F-11 and F-19.

@@ -13,6 +13,21 @@ The name was chosen by you. Other software already uses "mnemo" (see [naming](re
 3. [Roadmap](product/roadmap.md) and [phases overview](product/phases-overview.md): in what order.
 4. [Open questions](research/open-questions.md): what you still need to answer. None blocks phase 0.
 
+## Visual pages
+
+Four pages draw these docs as pictures. They are snapshots of `main` at commit `ce40e28`. They are private until you share them. The docs are the source of truth; if a page and a doc differ, fix the page.
+
+| Page | Shows | Linked from |
+| --- | --- | --- |
+| [Roadmap](https://claude.ai/artifact/AJJLCpqJSUq927cvXRbBPx) | Phases, releases, sessions, decision points, what to cut | [roadmap](product/roadmap.md), [phases overview](product/phases-overview.md) |
+| [User workflow](https://claude.ai/artifact/PH6PBSCNxy76aeVVijwsgQ) | How you save, find, file and ask; who decides each step | [PRD](product/mnemo-prd.md), [chat and intent](feature-specs/chat-and-intent.md) |
+| [Architecture](https://claude.ai/artifact/HRJ54QxYXpooHoemp6uSgV) | Pages, server, `store.py`, Claude API, MCP; trust boundary; all decisions | [tech stack](product/tech-stack.md), [server API](feature-specs/server-api.md), [privacy](feature-specs/privacy-and-security.md) |
+| [Data model](https://claude.ai/artifact/RjucLkUNCY5pWzD3RxJkpt) | Records, fields, files, bookmark lifecycle | [data model](feature-specs/data-model.md), [storage](feature-specs/storage.md) |
+
+The design mockup (V3, light and dark) is linked from [frontend UI](feature-specs/frontend-ui.md).
+
+Building these pages found conflicts between docs. They are not fixed yet: JSON output method (classification vs tech stack), Render disk (storage vs tech stack), two writers (storage vs D-022), empty `folder` (data model vs folders), what is logged (data model vs folders), duplicate check in import (import vs phase 5), private mode details. Open question: fix them in a separate PR.
+
 ## Folder map
 
 | Folder | What is inside |

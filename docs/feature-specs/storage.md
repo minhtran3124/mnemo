@@ -4,6 +4,8 @@ Status: Draft v0.1 · Owner: KhoiTran · Phase: 1, A
 
 This file describes the one module that reads and writes bookmarks.
 
+Visual page: [Data model](https://claude.ai/artifact/RjucLkUNCY5pWzD3RxJkpt). It is a snapshot of `main` at commit `ce40e28` and is private until you share it. This file is the source of truth; if they differ, fix the page.
+
 ## Purpose
 
 All access to bookmarks goes through `store.py` (NF-03, D-012). Then the inside can change from files to a database and nothing else changes.

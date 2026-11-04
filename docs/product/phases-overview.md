@@ -3,6 +3,8 @@ Status: Draft v0.1 · Owner: KhoiTran · Phase: all
 
 One table of all phases, with links to each phase plan.
 
+Visual page: [Roadmap](https://claude.ai/artifact/AJJLCpqJSUq927cvXRbBPx). It is a snapshot of `main` at commit `ce40e28` and is private until you share it. This file is the source of truth; if they differ, fix the page.
+
 | Phase | Goal | Features | Sessions | Lessons | Done when | Depends on | Plan |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 0 | Safe, ready project | setup | 1 | 1-5, 58, 59 | Script gets an answer; second call remembers; key in `.env`, not git | none | [plan](plans/phase-0-setup.md) |

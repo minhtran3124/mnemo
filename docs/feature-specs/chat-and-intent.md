@@ -4,6 +4,8 @@ Status: Draft v0.1 · Owner: KhoiTran · Phase: 1
 
 This file describes the chat screen and how plain code decides if a message is a link or a question.
 
+Visual page: [User workflow](https://claude.ai/artifact/PH6PBSCNxy76aeVVijwsgQ). It is a snapshot of `main` at commit `ce40e28` and is private until you share it. This file is the source of truth; if they differ, fix the page.
+
 ## Purpose
 
 The chat is the main way to save and to ask. It supports F-01, F-02, F-03 and F-04, and decision D-003 (chat plus bookmark page, not a command line) and D-004.
