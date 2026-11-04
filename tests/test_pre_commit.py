@@ -51,19 +51,21 @@ def test_key_on_added_line_is_blocked_without_echoing_it(repo):
     assert "sk-ant" not in output
 
 
-@pytest.mark.parametrize("name", [".env", ".env.example.bak", "sub/dir/.env.local"])
+@pytest.mark.parametrize(
+    "name",
+    [
+        ".env",
+        ".env.example",
+        ".env.example.bak",
+        "sub/dir/.env.local",
+        "sub/dir/.env.example",
+    ],
+)
 def test_env_files_are_blocked(repo, name):
     stage(repo, name, "NOTHING=1\n")
     result = run_hook(repo)
     assert result.returncode != 0
     assert name in result.stderr
-
-
-@pytest.mark.parametrize("name", [".env.example", "sub/dir/.env.example"])
-def test_env_example_placeholder_is_allowed(repo, name):
-    stage(repo, name, "ANTHROPIC_API_KEY=your-key-here\n")
-    result = run_hook(repo)
-    assert result.returncode == 0
 
 
 def test_clean_commit_passes(repo):
@@ -114,9 +116,10 @@ def test_tech_stack_doc_says_hook_is_implemented() -> None:
     assert "is listed in" not in secrets
 
 
-def test_env_example_in_non_ascii_directory_is_allowed(repo):
+def test_env_example_in_non_ascii_directory_is_blocked(repo):
     # Without core.quotePath=false git C-quotes the path and the basename
-    # gets a trailing quote, so the exemption would not match.
+    # gets a trailing quote, so the name would not match.
     stage(repo, "tài liệu/.env.example", "ANTHROPIC_API_KEY=\n")
     result = run_hook(repo)
-    assert result.returncode == 0, result.stderr
+    assert result.returncode != 0
+    assert "tài liệu/.env.example" in result.stderr
