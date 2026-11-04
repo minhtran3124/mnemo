@@ -1,3 +1,7 @@
+import os
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -40,11 +44,28 @@ def test_missing_key_raises_clear_error(monkeypatch):
         config.Settings(_env_file=None)
 
 
-def test_env_file_independent_of_working_directory(tmp_path, monkeypatch):
-    monkeypatch.chdir(tmp_path)
-    env_file = Path(config.Settings.model_config["env_file"])
-    assert env_file.is_absolute()
-    assert env_file == Path(config.__file__).resolve().parent / ".env"
+def test_env_file_independent_of_working_directory(tmp_path):
+    app = tmp_path / "app"
+    elsewhere = tmp_path / "elsewhere"
+    app.mkdir()
+    elsewhere.mkdir()
+    shutil.copy(config.__file__, app / "config.py")
+    (app / ".env").write_text(f"ANTHROPIC_API_KEY={FAKE_KEY}\n")
+    script = (
+        "import sys; sys.path.insert(0, sys.argv[1]); import config; "
+        "print(config.get_settings().api_key.get_secret_value())"
+    )
+    env = {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}
+    result = subprocess.run(
+        [sys.executable, "-c", script, str(app)],
+        check=False,
+        cwd=elsewhere,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == FAKE_KEY
 
 
 def test_api_notes_checked_rows_cite_a_url_and_intro_allows_them():
