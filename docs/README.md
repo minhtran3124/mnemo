@@ -1,0 +1,50 @@
+# Mnemo docs
+
+Status: Draft v0.1 · Owner: KhoiTran · Phase: all
+
+Mnemo is a personal AI bookmark app. You paste a link in a chat. The app reads the page, writes a short summary, picks a folder and saves it. You find things again by asking in your own words. It uses the Claude API only. These docs hold everything we decided before the first line of code.
+
+The name was chosen by you. Other software already uses "mnemo" (see [naming](research/naming.md)). That is fine for a personal project. Check again before any public release.
+
+## Start here
+
+1. [Pre-start checklist](reviews/pre-start-checklist.md): what must be true before phase 0.
+2. [PRD](product/mnemo-prd.md): what we build and why.
+3. [Roadmap](product/roadmap.md) and [phases overview](product/phases-overview.md): in what order.
+4. [Open questions](research/open-questions.md): what you still need to answer. None blocks phase 0.
+
+## Folder map
+
+| Folder | What is inside |
+| --- | --- |
+| [`product/`](product/) | PRD, roadmap, phases overview. [`product/plans/`](product/plans/) has one plan per phase (0 to 10, A, B, C). |
+| [`feature-specs/`](feature-specs/) | One spec per feature area: data model, chat, page reading, filing, folders, views, search, import, API, privacy, storage. [`test-cases/`](feature-specs/test-cases/) has the golden sets and hard cases. |
+| [`manual-testing/`](manual-testing/) | Test strategy, smoke checklist, the two-week user test, phone and Shortcut test. |
+| [`process/`](process/) | How we work: agreements, definition of done, eval process, secrets, session log, decision log. |
+| [`reference/`](reference/) | Glossary, course map, competitors, API notes to verify, sample links. |
+| [`research/`](research/) | Open questions, local vs online, naming, hosting check, embeddings alternatives. |
+| [`reviews/`](reviews/) | Risk review, design review of the five mockups, pre-start checklist. |
+| [`solutions/`](solutions/) | Short notes on problems we already solved on paper: honest failure, URL cleaning, Slack pages, big PDFs, safe auto-filing. |
+
+## IDs used in all docs
+
+- **F-01 to F-20**: features. **NF-01 to NF-05**: non-functional rules. See the [PRD](product/mnemo-prd.md).
+- **D-001 to D-018**: decisions. See the [decision log](process/decision-log.md).
+- **Phases**: 0 to 10, then A, B, C. See the [phases overview](product/phases-overview.md).
+
+## Rules for these docs
+
+- Plain English. No calendar dates. Phases and sessions only.
+- Anything not checked is marked **Unverified** or **Open question**. Do not treat it as fact.
+- If a doc and the code disagree, fix the doc in the same session.
+
+## Known gaps
+
+- You have not chosen your 5 or 6 starter folders yet.
+- No visual design direction is chosen. Five mockups exist (see [design review](reviews/design-review-v1-v5.md)).
+- Render price and storage rules are not checked (see [hosting check](research/hosting-check.md)).
+- Claude API prices, model names and PDF limits are not checked (see [API notes](reference/api-notes.md)).
+
+## Use with Claude Code
+
+Put this `docs/` folder in the project root (`mnemo/docs/`). In `CLAUDE.md`, say: "Read `docs/README.md` first. Follow the spec for the feature you are building. Do not build anything that is not in a phase plan." See [working agreements](process/working-agreements.md).
