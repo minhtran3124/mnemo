@@ -8,7 +8,7 @@ paths:
 ## Secrets and config
 - Read secrets from environment variables or a gitignored `.env`. Never hardcode them, log them, return them in a response, or put them in client code.
 - Keep tunable values (model names, limits, timeouts, sizes) in one config module. No magic numbers scattered through the code.
-- Commit a `.env.example` with placeholder values whenever a new variable is added.
+- Never commit any `.env*` file, including `.env.example` (the pre-commit hook blocks them). List each new variable and its purpose in `README.md` instead.
 
 ## Structure
 - One module, one job. Keep I/O (network, disk, external APIs) at the edges and business logic in plain functions that are easy to test.
