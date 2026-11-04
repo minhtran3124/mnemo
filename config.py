@@ -4,6 +4,8 @@ The model name and the size limits live here and nowhere else. The API key is
 read from the environment or a gitignored `.env` and is never printed.
 """
 
+from pathlib import Path
+
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -19,13 +21,16 @@ MAX_TOKENS = 1024
 # cheap (NF-02).
 MAX_PAGE_CHARS = 20_000
 
+# The .env sits next to this file, so the key is found from any working directory.
+ENV_FILE = Path(__file__).resolve().parent / ".env"
+
 # No default temperature: not confirmed for current models (tech-stack.md).
 
 
 class Settings(BaseSettings):
     """Secrets read from the environment. Build it only where the key is needed."""
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=ENV_FILE, extra="ignore")
 
     api_key: SecretStr = Field(alias="ANTHROPIC_API_KEY")
 

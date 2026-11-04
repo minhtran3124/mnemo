@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
 
@@ -36,3 +38,10 @@ def test_missing_key_raises_clear_error(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     with pytest.raises(ValidationError, match="ANTHROPIC_API_KEY"):
         config.Settings(_env_file=None)
+
+
+def test_env_file_independent_of_working_directory(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    env_file = Path(config.Settings.model_config["env_file"])
+    assert env_file.is_absolute()
+    assert env_file == Path(config.__file__).resolve().parent / ".env"
