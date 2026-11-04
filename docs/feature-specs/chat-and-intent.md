@@ -48,9 +48,9 @@ Final wording: Open question.
 
 | Input | Result |
 | --- | --- |
-| Two links in one message | Open question: save both, or ask. |
+| Two links in one message | Save both, one card each. Do not ask (decided). The text that is not a link is the reason for each link. |
 | A link inside a question | Treated as a link (regex wins). |
-| Text with no link that is meant as a note | Treated as a question. Open question: a note path. |
+| Text with no link that is meant as a note | Treated as a question until a note path exists. A note path is wanted (decided); how the user marks a note is an open question. |
 | Empty message | Ignored. |
 
 ## Acceptance criteria
@@ -68,6 +68,8 @@ Final wording: Open question.
 
 ## Open questions
 
-- Several links in one message.
-- A way to save a plain note.
+- How the user marks a plain note, since CI-02 sends text without a link to the question path.
+- How long Undo stays available (skipped for now; no time limit is set).
 - Final message wording.
+
+Decided: several links in one message are all saved, with no question asked.

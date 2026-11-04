@@ -17,7 +17,7 @@ Out: a laptop Settings screen (only the phone Settings screen is designed). Cove
 
 | ID | Requirement |
 | --- | --- |
-| UI-01 | Two screens: Chat ([chat-and-intent.md](chat-and-intent.md)) and Bookmark page ([bookmark-page-and-views.md](bookmark-page-and-views.md)). |
+| UI-01 | Two main screens: Chat ([chat-and-intent.md](chat-and-intent.md)) and Bookmark page ([bookmark-page-and-views.md](bookmark-page-and-views.md)). The phone adds a Settings tab for the theme control (see Out of scope for the laptop). |
 | UI-02 | Touch targets are at least 44px (NF-05). |
 | UI-03 | Text contrast is at least 4.5:1 (NF-05). |
 | UI-04 | Focus is always visible (NF-05). |
@@ -92,3 +92,5 @@ Manual: see `manual-testing`.
 - Where the theme choice is saved (browser storage or server).
 - Cover fallback style.
 - Wording of empty and error states.
+- Fonts: the three fonts load from Google Fonts. That sends a request to Google on every page load and fails offline, which clashes with local-first (D-007). See Q-16.
+- Tooling: UI edits are checked by the Impeccable design hook (D-020). `PRODUCT.md` in the project root is the product record for design work; keep it in step with this spec.

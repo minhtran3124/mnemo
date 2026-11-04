@@ -46,7 +46,7 @@ Out: cover images, a laptop Settings screen (not designed), any other theme.
 | warn | #7A4B00 | #E9C46A | Warning mark |
 | warn-text | #5C3800 | #F3DC9C | Warning text |
 
-Fonts: Newsreader (serif, headings), Public Sans (body), Spline Sans Mono (labels and URLs). All three come from Google Fonts. Use a fallback stack. Check the fonts load on the host you choose.
+Fonts: Newsreader (serif, headings), Public Sans (body), Spline Sans Mono (labels and URLs). All three come from Google Fonts. Use a fallback stack. Check the fonts load on the host you choose. Proposed: self-host the font files so the page works offline and sends nothing to Google (Q-16).
 
 ## Contrast (measured on the mockup colours)
 
@@ -95,5 +95,6 @@ Notes:
 - Where the choice is saved.
 - A laptop Settings screen, or keep the header control only.
 - Whether the accent needs a second colour for success and error states.
+- Q-16: self-host the fonts or load them from Google Fonts.
 
 Related: [frontend UI](frontend-ui.md), [bookmark page](bookmark-page-and-views.md), [decision log](../process/decision-log.md), [design review](../reviews/design-review-v1-v5.md).
