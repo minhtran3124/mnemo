@@ -29,9 +29,10 @@ def text_block(text):
     return SimpleNamespace(type="text", text=text)
 
 
-def make_response(blocks, input_tokens=11, output_tokens=7):
+def make_response(blocks, input_tokens=11, output_tokens=7, stop_reason="end_turn"):
     return SimpleNamespace(
         content=blocks,
+        stop_reason=stop_reason,
         usage=SimpleNamespace(input_tokens=input_tokens, output_tokens=output_tokens),
     )
 
@@ -124,6 +125,15 @@ def test_empty_content_raises():
     client.ask(msgs())
     FakeAnthropic.instances[0].response = make_response([])
     with pytest.raises(RuntimeError, match="no text"):
+        client.ask(msgs())
+
+
+def test_max_tokens_stop_reason_raises_instead_of_returning_partial_text():
+    client.ask(msgs())
+    FakeAnthropic.instances[0].response = make_response(
+        [text_block("cut off mid")], stop_reason="max_tokens"
+    )
+    with pytest.raises(RuntimeError, match="max_tokens"):
         client.ask(msgs())
 
 

@@ -71,6 +71,10 @@ def ask(
         latency_ms,
     )
 
+    if response.stop_reason == "max_tokens":
+        # Cut-off text is not a complete reply; never pass it on as one.
+        raise RuntimeError("Claude reply was cut off at the max_tokens limit")
+
     text = "".join(b.text for b in response.content if b.type == "text")
     if not text:
         raise RuntimeError("Claude returned no text")
