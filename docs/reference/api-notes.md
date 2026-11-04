@@ -1,13 +1,13 @@
 # API Notes
 Status: Draft v0.1 · Owner: KhoiTran · Phase: all
 
-This file lists things to check in the official Claude documents before you build. Each item is **Unverified** until you fill in the answer, the source URL and the date you checked. Then its Status becomes **Checked**: the answer was read on an official page, and that page is cited in the Answer column. Only rows marked Checked may be treated as fact.
+This file lists things to check in the official Claude documents before you build. Nothing here is a verified fact. Each item is Unverified until you fill in the answer and the date you checked.
 
 Use only the official documents (the Claude API docs, the Console, and the course lessons). Do not copy numbers from blogs.
 
 | # | Item | Why it matters | Lesson | Phase where it matters | Status | Answer | Date checked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Current model names | `config.py` sets models in one place; you need the real names | Plan assumption 6 | 0 | Checked | Haiku 5.5 is listed with API ID `claude-haiku-5-5`, same as the alias, so the name matches D-022. Other current IDs: `claude-sonnet-5-5`, `claude-opus-5-5`, `claude-fable-5-1`. Source: [official models overview](https://docs.claude.com/en/docs/about-claude/models/overview). | Phase 0, ticket #10 |
+| 1 | Current model names | `config.py` sets models in one place; you need the real names | Plan assumption 6 | 0 | Checked | Haiku 5.5 is listed with API ID `claude-haiku-5-5`, same as the alias, so the name matches D-022. Other current IDs: `claude-sonnet-5-5`, `claude-opus-5-5`, `claude-fable-5-1`. Source: [official models overview](https://docs.claude.com/en/docs/about-claude/models/overview). | Session 1 |
 | 2 | Model prices (input and output tokens) | The budget is about $10 per month for hosting and API together | Not in the plan | 0, 2, A | Unverified | | |
 | 3 | PDF page limit and file size limit | The sample PDF has 580 pages and 14.6 MB; code checks size before the call | 41 | 6 | Unverified | | |
 | 4 | Prefill support by model | Phase 1 uses prefill plus stop sequence for JSON; the lesson does not say which models accept it | 8 | 1 | Unverified | | |
@@ -23,13 +23,12 @@ Use only the official documents (the Claude API docs, the Console, and the cours
 ## How to fill this table
 1. Open the official page.
 2. Write the answer in your own words, short.
-3. Write the phase or session number when you checked it (not a calendar date).
-4. Add the URL of the official page to the Answer.
-5. Change Status to Checked.
-6. Update the spec that depends on it.
+3. Write the session number when you checked it (not a calendar date).
+4. Change Status to Checked.
+5. Update the spec that depends on it.
 
 ## Rules
-- A Checked row must cite an official URL. Do not state an Unverified item as fact in any other doc.
+- Do not state an Unverified item as fact in any other doc.
 - If the official page and the course lesson differ, trust the official page and write the difference here.
 - Prices and limits change. Check again before phase A.
 

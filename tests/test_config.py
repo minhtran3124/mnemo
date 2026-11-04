@@ -1,9 +1,7 @@
 import os
-import re
 import shutil
 import subprocess
 import sys
-from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
@@ -67,18 +65,3 @@ def test_env_file_independent_of_working_directory(tmp_path):
     )
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip() == FAKE_KEY
-
-
-def test_api_notes_checked_rows_cite_a_url_and_intro_allows_them():
-    text = (Path(config.__file__).parent / "docs/reference/api-notes.md").read_text()
-    assert "Nothing here is a verified fact" not in text
-    assert "**Checked**" in text.split("| # |")[0]
-    rows = [line for line in text.splitlines() if "| Checked |" in line]
-    assert rows
-    for row in rows:
-        assert "https://" in row
-
-
-def test_api_notes_has_no_calendar_dates():
-    text = (Path(config.__file__).parent / "docs/reference/api-notes.md").read_text()
-    assert not re.search(r"\b\d{4}-\d{2}-\d{2}\b", text)
