@@ -3,6 +3,8 @@ Status: Draft v0.1 · Owner: KhoiTran · Phase: all
 
 This file says what Mnemo must do, for whom, and how we will know it works. Mnemo was called "Bookmark Brain" before. The name is used by other software, so check it again before any public release (see [naming](../research/naming.md)).
 
+Visual page: [User workflow](https://claude.ai/artifact/PH6PBSCNxy76aeVVijwsgQ). It is a snapshot of `main` at commit `ce40e28` and is private until you share it. This file is the source of truth; if they differ, fix the page.
+
 ## 1. Problem and promise
 **Problem.** You save links in three places: browser bookmarks, a notes app and messages to yourself. You cannot find a link you saved. Links go in and never come out. Unverified guess: you also forget why you saved a link, and you stop opening the pile.
 

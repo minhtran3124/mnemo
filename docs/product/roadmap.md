@@ -3,6 +3,8 @@ Status: Draft v0.1 · Owner: KhoiTran · Phase: all
 
 This file puts the phases in order, in releases. It uses sessions (about 30 minutes each), not dates.
 
+Visual page: [Roadmap](https://claude.ai/artifact/AJJLCpqJSUq927cvXRbBPx). It is a snapshot of `main` at commit `ce40e28` and is private until you share it. This file is the source of truth; if they differ, fix the page.
+
 ## Release order
 | Release | Phases | What you get | Sessions |
 | --- | --- | --- | --- |

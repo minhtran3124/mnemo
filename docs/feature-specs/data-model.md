@@ -4,6 +4,8 @@ Status: Draft v0.1 · Owner: KhoiTran · Phase: all
 
 This file fixes the shape of one bookmark record and the files in `data/`, so every phase reads and writes the same thing.
 
+Visual page: [Data model](https://claude.ai/artifact/RjucLkUNCY5pWzD3RxJkpt). It is a snapshot of `main` at commit `ce40e28` and is private until you share it. This file is the source of truth; if they differ, fix the page.
+
 ## Purpose
 
 Every phase reads and writes the same bookmark record. If the record changes, all phases change. So we fix it now. Supports NF-03 (plain files) and D-012 (all access through `store.py`, see [storage.md](storage.md)).

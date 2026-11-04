@@ -4,6 +4,8 @@ Status: Draft v0.1 · Owner: KhoiTran · Phase: 1, A, B
 
 This file proposes a small set of HTTP endpoints for the web pages. It is a proposed design, not yet built. Names and fields may change.
 
+Visual page: [Architecture](https://claude.ai/artifact/HRJ54QxYXpooHoemp6uSgV). It is a snapshot of `main` at commit `ce40e28` and is private until you share it. This file is the source of truth; if they differ, fix the page.
+
 ## Purpose
 
 The screens are thin and call one Python server. The server holds the key (NF-01, D-002). Supports F-04, F-11, F-12.
