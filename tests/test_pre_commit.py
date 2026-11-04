@@ -73,3 +73,14 @@ def test_removing_a_key_passes(repo):
     stage(repo, "a.txt", "clean\n")
     result = run_hook(repo)
     assert result.returncode == 0
+
+
+def test_key_on_line_starting_with_plus_plus_space_is_blocked(repo):
+    # The added line "++ <key>" shows up in the diff as "+++ <key>", which must
+    # not be mistaken for a file header.
+    key = fake_key()
+    stage(repo, "a.txt", f"++ {key}\n")
+    result = run_hook(repo)
+    assert result.returncode != 0
+    assert "a.txt:1" in result.stderr
+    assert key not in result.stdout + result.stderr
