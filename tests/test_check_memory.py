@@ -3,6 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import ClassVar
 
+import anthropic
 import pytest
 
 import client
@@ -95,3 +96,14 @@ def test_other_runtime_error_is_not_swallowed(monkeypatch):
     monkeypatch.setattr(client, "ask", boom)
     with pytest.raises(RuntimeError, match="no text"):
         check_memory.main()
+
+
+def test_api_error_exits_3_without_a_traceback(monkeypatch, capsys):
+    def boom(messages):
+        raise anthropic.APIConnectionError(request=SimpleNamespace())
+
+    monkeypatch.setattr(client, "ask", boom)
+    assert check_memory.main() == 3
+    out = capsys.readouterr().out
+    assert "memory check: ERROR" in out
+    assert "APIConnectionError" in out

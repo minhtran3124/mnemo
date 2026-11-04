@@ -58,7 +58,7 @@ You need Node 20 or newer (`node -v`) and Claude Code.
 
 ## Memory check
 
-`uv run python scripts/check_memory.py` makes two real Claude calls and checks that the second answer remembers a fact from the first. It prints `memory check: PASS` and exits 0, or prints `memory check: FAIL` and exits 1. It exits 2 if `ANTHROPIC_API_KEY` is not set. It costs money, so CI does not run it.
+`uv run python scripts/check_memory.py` makes two real Claude calls and checks that the second answer remembers a fact from the first. It prints `memory check: PASS` and exits 0, or prints `memory check: FAIL` and exits 1. It exits 2 if `ANTHROPIC_API_KEY` is not set, and exits 3 with `memory check: ERROR` if an API call fails (bad key, network, timeout). It costs money, so CI does not run it.
 
 ## Rules to keep
 
