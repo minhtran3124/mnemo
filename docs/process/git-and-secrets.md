@@ -18,7 +18,7 @@ Make `.gitignore` with at least these lines before you commit anything:
 
 ```text
 .env
-data/
+/data/
 __pycache__/
 ```
 
@@ -29,8 +29,20 @@ Open question: whether `data/` should be committed. It holds your bookmarks and 
 2. Make sure `.env` is not in the list.
 3. Search the staged changes for the start of your key.
 
-## Pre-commit check idea
-A pre-commit check is a small script that runs before each commit. This one would stop the commit if a file contains something that looks like a key, or if `.env` is staged. Ask Claude Code to write it in phase 0. Do not show it the real key to test it; use a fake string.
+## Pre-commit check
+The hook is `.githooks/pre-commit` (POSIX sh). It runs before each commit and stops it when:
+- A staged file has a name starting with `.env`, in any folder. That includes `.env.example` and the deletion of such a file.
+- An added line of the staged diff matches `sk-ant-[A-Za-z0-9_-]{20,}`. Only added lines are checked, so a commit that removes a key passes.
+
+The message names the file and line, never the matched text. Old git history is not scanned.
+
+Turn it on once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Known limit: `git commit --no-verify` skips the hook. The check is a safety net, not a guarantee. A CI secret scan is planned for phase A. Tests are in `tests/test_pre_commit.py` and build the fake key at runtime. Do not show Claude the real key to test it.
 
 ## If the key leaks
 Do these steps in order, quickly:

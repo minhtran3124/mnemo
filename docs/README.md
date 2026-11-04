@@ -58,7 +58,7 @@ Building these pages found conflicts between docs. They are not fixed yet: JSON 
 - You have not chosen your 5 or 6 starter folders yet.
 - The design is chosen (V3, light and dark) but only as a mockup. It is not checked in a rendered page (see [design review](reviews/design-review-v1-v5.md) and [theming spec](feature-specs/theming-and-design-tokens.md)).
 - Render price and storage rules are not checked (see [hosting check](research/hosting-check.md)).
-- Claude API prices, model names and PDF limits are not checked (see [API notes](reference/api-notes.md)).
+- Claude API prices and PDF limits are not checked. The model name is checked (see [API notes](reference/api-notes.md)).
 
 ## Use with Claude Code
 

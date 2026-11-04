@@ -20,8 +20,14 @@ You need Node 20 or newer (`node -v`) and Claude Code.
    npm run design:install
    ```
 
-3. Restart Claude Code in this folder so it loads the new skill and hooks. Approve the hooks when asked.
-4. Check the design hook is on (in the Claude Code chat):
+3. Turn on the secrets pre-commit hook (once per clone). It blocks any staged file whose name starts with `.env` and any added line that looks like an Anthropic key. `git commit --no-verify` skips it, so do not use that flag:
+
+   ```bash
+   git config core.hooksPath .githooks
+   ```
+
+4. Restart Claude Code in this folder so it loads the new skill and hooks. Approve the hooks when asked.
+5. Check the design hook is on (in the Claude Code chat):
 
    ```
    /impeccable hooks status
@@ -50,7 +56,19 @@ You need Node 20 or newer (`node -v`) and Claude Code.
 | `npm run design:check` | Say whether an update is available |
 | `npm run design:detect` | Scan the `web/` folder for UI design problems (once it exists) |
 
+## Memory check
+
+`uv run python scripts/check_memory.py` makes two real Claude calls and checks that the second answer remembers a fact from the first. It prints `memory check: PASS` and exits 0, or prints `memory check: FAIL` and exits 1. It exits 2 if `ANTHROPIC_API_KEY` is not set, and exits 3 with `memory check: ERROR` if an API call fails (bad key, network, timeout). It costs money, so CI does not run it.
+
 ## Rules to keep
 
 - The design direction is V3, the ledger (D-016). Colours come from tokens only (UI-09). Impeccable suggestions must not break these.
 - If `PRODUCT.md` and `docs/feature-specs/frontend-ui.md` disagree, fix both in the same session.
+
+## Environment variables
+
+Put these in a local `.env` file in the repo root. It is gitignored, and the pre-commit hook blocks every `.env*` file, so do not commit one.
+
+| Variable | Purpose |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | Your Claude API key. Read by `config.py`. Never print it or paste it in a chat. |

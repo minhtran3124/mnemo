@@ -1,0 +1,56 @@
+#!/bin/sh
+# Block a commit that stages a .env* file or adds a line that looks like an
+# Anthropic API key. Prints file and line only, never the matched text.
+# Enable once per clone: git config core.hooksPath .githooks
+# Accepted limit: git commit --no-verify skips this hook.
+
+status=0
+
+# 1. Any staged file whose name starts with .env (any folder), including
+#    .env.example and a staged deletion of such a file. -z gives raw names, so
+#    a tab, a quote or a non-ASCII letter in the path cannot hide the basename.
+#    A newline in a name splits it into pieces; that can only block more.
+names=$(git diff --cached --name-only --no-renames -z | tr '\0' '\n')
+OLDIFS=$IFS
+IFS='
+'
+for f in $names; do
+  case "${f##*/}" in
+    .env*)
+      echo "pre-commit: blocked, staged file name starts with .env: $f" >&2
+      status=1
+      ;;
+  esac
+done
+IFS=$OLDIFS
+
+# 2. Key pattern on added lines of the staged diff only.
+hits=$(git -c core.quotePath=false diff --cached -U0 --no-color \
+  --src-prefix=a/ --dst-prefix=b/ --diff-filter=ACMR | awk '
+  /^diff --git / { inhunk = 0; next }
+  !inhunk && /^\+\+\+ / { file = substr($0, 7); sub(/\t.*$/, "", file); next }
+  /^@@ / {
+    inhunk = 1
+    s = $3; sub(/^\+/, "", s); sub(/,.*/, "", s); line = s + 0; next
+  }
+  /^\+/ {
+    if ($0 ~ /sk-ant-[A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-][A-Za-z0-9_-]/)
+      print file ":" line
+    line++
+  }
+')
+if [ -n "$hits" ]; then
+  OLDIFS=$IFS
+  IFS='
+'
+  for h in $hits; do
+    echo "pre-commit: blocked, key-like string at $h" >&2
+  done
+  IFS=$OLDIFS
+  status=1
+fi
+
+if [ "$status" -ne 0 ]; then
+  echo "pre-commit: commit stopped. Unstage the file or remove the key." >&2
+fi
+exit "$status"

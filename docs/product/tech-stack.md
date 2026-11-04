@@ -105,8 +105,8 @@ The module path `app.main:app` is a proposal. Keep it in sync with the real layo
 - **Phase A:** Render, as planned. Verified in [Render persistent disks](https://render.com/docs/disks): the disk attaches to a paid web service, keeps files across deploys and restarts (only under the mount path), takes a snapshot every 24 hours, keeps snapshots 7 days, and allows only one instance. Price: Unverified (Q-01); the official page lists no per-GB price.
 - **Data risk:** the disk persists, but `bookmarks.json` is rewritten whole on each save. Use one worker plus a file lock in `store.py`, and export data off the host on a schedule (storage.md).
 - **Backups:** copy `data/` on a schedule. How often is an open question (storage.md).
-- **Secrets:** the key is an environment variable on the host, never in the repo (NF-01). A pre-commit check for keys is listed in git-and-secrets.md.
-- **CI:** not set up. When phase A starts, a GitHub Actions workflow running `ruff` and `pytest` is the minimum.
+- **Secrets:** the key is an environment variable on the host, never in the repo (NF-01). A pre-commit hook (`.githooks/pre-commit`) blocks a commit that stages a key; see git-and-secrets.md.
+- **CI:** `.github/workflows/ci.yml` (added in phase 0, #9) runs `uv sync --locked`, `ruff check`, `ruff format --check` and `pytest` on every pull request and on pushes to `main`. The autopilot merge gate needs a CI check on each PR.
 
 ## Notes and open items
 
@@ -117,5 +117,5 @@ The module path `app.main:app` is a proposal. Keep it in sync with the real layo
 - **Temperature:** do not set `temperature` in `config.py` until the current model docs confirm it is accepted (unverified).
 - **Phase A login:** not chosen. SA-03 and PV-03 need a method (for example one token checked by middleware).
 - **Render pricing and sleep behaviour:** Unverified. See hosting-check.md.
-- **Anthropic SDK and model names:** check the current model names and prefill support before phase 0 (api-notes.md, items 1 and 4).
+- **Anthropic SDK and model names:** model name checked: `claude-haiku-5-5` is current (api-notes.md, item 1). Prefill support is still Unverified (item 4).
 - **Frontend fonts:** self-hosting or Google Fonts is still open (Q-16).
