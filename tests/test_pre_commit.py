@@ -94,3 +94,14 @@ def test_location_is_right_with_noprefix_and_odd_names(repo):
     assert result.returncode != 0
     assert "dir/my café file.txt:2" in result.stderr
     assert key not in result.stdout + result.stderr
+
+
+def test_tech_stack_doc_says_hook_is_implemented() -> None:
+    doc = HOOK.parent.parent / "docs" / "product" / "tech-stack.md"
+    secrets = next(
+        line
+        for line in doc.read_text().splitlines()
+        if line.startswith("- **Secrets:**")
+    )
+    assert ".githooks/pre-commit" in secrets
+    assert "is listed in" not in secrets
