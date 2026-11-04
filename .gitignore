@@ -5,3 +5,6 @@ node_modules/
 .impeccable/hook.cache.json
 .claude/skills/impeccable/
 .claude/agents/impeccable-*
+data/
+__pycache__/
+.venv/
