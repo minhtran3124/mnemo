@@ -18,7 +18,7 @@ Make `.gitignore` with at least these lines before you commit anything:
 
 ```text
 .env
-data/
+/data/
 __pycache__/
 ```
 
