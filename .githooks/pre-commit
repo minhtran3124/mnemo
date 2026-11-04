@@ -9,7 +9,7 @@ status=0
 # 1. Any staged file whose name starts with .env (any folder), except the
 #    placeholder file named exactly .env.example.
 #    Deleted files are allowed so a leaked .env can be removed.
-names=$(git diff --cached --name-only --diff-filter=ACMR)
+names=$(git -c core.quotePath=false diff --cached --name-only --diff-filter=ACMR)
 OLDIFS=$IFS
 IFS='
 '

@@ -112,3 +112,11 @@ def test_tech_stack_doc_says_hook_is_implemented() -> None:
     )
     assert ".githooks/pre-commit" in secrets
     assert "is listed in" not in secrets
+
+
+def test_env_example_in_non_ascii_directory_is_allowed(repo):
+    # Without core.quotePath=false git C-quotes the path and the basename
+    # gets a trailing quote, so the exemption would not match.
+    stage(repo, "tài liệu/.env.example", "ANTHROPIC_API_KEY=\n")
+    result = run_hook(repo)
+    assert result.returncode == 0, result.stderr
