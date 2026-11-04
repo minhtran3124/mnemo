@@ -29,7 +29,7 @@ The name was chosen by you. Other software already uses "mnemo" (see [naming](re
 ## IDs used in all docs
 
 - **F-01 to F-20**: features. **NF-01 to NF-05**: non-functional rules. See the [PRD](product/mnemo-prd.md).
-- **D-001 to D-018**: decisions. See the [decision log](process/decision-log.md).
+- **D-001 to D-020**: decisions. See the [decision log](process/decision-log.md).
 - **Phases**: 0 to 10, then A, B, C. See the [phases overview](product/phases-overview.md).
 
 ## Rules for these docs

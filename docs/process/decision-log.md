@@ -26,6 +26,7 @@ Status values: Accepted (agreed), Proposed (suggested, not yet built or agreed),
 | D-017 | Page text goes to the API even for links you want to keep private. | Private mode (F-19): a link marked private is saved as link only and nothing is sent to the API. | Proposed | Ships in phase 3 if accepted. Adds a `private` field (proposed). |
 | D-018 | Page text goes to the API. | Public links only while building. | Accepted | Check your company's AI policy before saving work links. |
 | D-019 | The page must be comfortable in a bright room and at night. | Light and dark themes. Default: follow the system setting. The user can override with Light or Dark, and the choice is remembered on the device. | Accepted | Needs a token set for both themes. See [theming spec](../feature-specs/theming-and-design-tokens.md). Contrast was measured on the mockup colours only; measure again in the real page. |
+| D-020 | The UI needs design checks, and the owner is not a designer. | Use Impeccable (`npx impeccable`) for UI work. `PRODUCT.md` holds product truth for design commands. Its design hook checks UI edits in Claude Code. | Accepted | Node is needed for dev tools only. The server stays Python. Setup: see the README. `DESIGN.md` is not written until a UI exists. The hook's rules must not override D-016 (V3) or UI-09 (tokens). |
 
 ## How to change a decision
 1. Write the new row or change the status.
@@ -34,6 +35,7 @@ Status values: Accepted (agreed), Proposed (suggested, not yet built or agreed),
 
 ## Open items
 - D-016 and D-019 are Accepted. Re-check them after phase 1 with real links in a rendered page.
+- D-020: when the first page is built, run `/impeccable document` to write `DESIGN.md` from the real tokens, and check that the detector does not flag the V3 fonts or tokens.
 - D-013 and D-017 are Proposed. Confirm or reject them before phase 3.
 
 Related: [open questions](../research/open-questions.md), [risk review](../reviews/risk-review.md).
