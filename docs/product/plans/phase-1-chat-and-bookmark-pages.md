@@ -22,7 +22,7 @@ Phase 0 done. A list of 5 public links to test (see [sample links](../../referen
 4. Write `save.py`: system prompt, low temperature, page text in XML tags, prefill plus stop sequence for clean JSON. Test prefill first; if the model rejects it, ask for JSON in tags and parse in code (Unverified).
 5. Honest failure: if fetch fails or text is too short, save link only, `page_status = unreadable`, `summary = null`. Never invent a summary (NF-04).
 6. Add a max page length in `config.py` (NF-02).
-7. Start a small web server bound to `127.0.0.1` only. Claude Code picks the framework.
+7. Start a small web server bound to `127.0.0.1` only. Use FastAPI (D-021, [tech stack](../tech-stack.md)).
 8. Chat page: message box, card reply (title, type, 3 tags, summary, reason), a "Page not read" card with a Paste text box. Plain code (a URL pattern) decides link versus question (D-004).
 9. Bookmark page: list with title, reason or "guess", date, "page not read" badge, Open/Move/Delete. Every bookmark goes to Unsorted; list grouped by type.
 10. Add the Grid and List switcher (F-05, D-015). Add `note <id>` to edit a reason.
