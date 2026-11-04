@@ -1,0 +1,18 @@
+{
+  "name": "mnemo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Mnemo: tooling for the web UI. The server itself is Python; this file only holds Node dev tools.",
+  "scripts": {
+    "design:install": "impeccable install --yes --providers=claude-code --project",
+    "design:update": "impeccable update",
+    "design:check": "impeccable check",
+    "design:detect": "impeccable detect web"
+  },
+  "devDependencies": {
+    "impeccable": "^4.8.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
