@@ -10,7 +10,7 @@ web
 
 ## Stack
 
-Delegated (D-020): plain server-rendered or static pages served by a small Python server bound to `127.0.0.1`. Phase 1 says "Claude Code picks the framework" ([phase 1 plan](docs/product/plans/phase-1-chat-and-bookmark-pages.md)). Whatever is chosen must keep the page thin: no API key in the page (UI-07, D-002).
+Python with FastAPI, serving plain HTML, CSS and JS pages with no build step, bound to `127.0.0.1` (D-021). Full list in [tech stack](docs/product/tech-stack.md). Whatever is chosen must keep the page thin: no API key in the page (UI-07, D-002).
 
 ## Users
 
