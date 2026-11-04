@@ -34,7 +34,7 @@ Out: visual style (see [frontend-ui.md](frontend-ui.md)); how search works (see 
 | List | One row per bookmark: title, reason or "guess", date, badge, actions | Phase 1 |
 | Compact | Dense rows: title and the most useful fields only | Phase 3 |
 
-- Default view: Open question. The mockups lean to List for scanning.
+- Default view: List. In the V3 design it is called Ledger, and Grid is called Cards (D-016).
 - Remembered choice (proposed): the page remembers the last view.
 - In phase 1, folders are not real yet: every bookmark is in `Unsorted` and the list is grouped by type. Real folders come in phase 3.
 - A reason marked "guess" is labeled so you can tell your words from the app's.
@@ -69,6 +69,5 @@ Manual smoke test in `manual-testing`. Data from [data-model.md](data-model.md).
 
 ## Open questions
 
-- Default view.
 - Which fields Compact shows.
 - Whether the view choice is remembered, and where.
