@@ -20,8 +20,14 @@ You need Node 20 or newer (`node -v`) and Claude Code.
    npm run design:install
    ```
 
-3. Restart Claude Code in this folder so it loads the new skill and hooks. Approve the hooks when asked.
-4. Check the design hook is on (in the Claude Code chat):
+3. Turn on the secrets pre-commit hook (once per clone). It blocks any staged file whose name starts with `.env` and any added line that looks like an Anthropic key. `git commit --no-verify` skips it, so do not use that flag:
+
+   ```bash
+   git config core.hooksPath .githooks
+   ```
+
+4. Restart Claude Code in this folder so it loads the new skill and hooks. Approve the hooks when asked.
+5. Check the design hook is on (in the Claude Code chat):
 
    ```
    /impeccable hooks status
