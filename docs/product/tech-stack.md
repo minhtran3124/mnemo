@@ -106,7 +106,7 @@ The module path `app.main:app` is a proposal. Keep it in sync with the real layo
 - **Data risk:** the disk persists, but `bookmarks.json` is rewritten whole on each save. Use one worker plus a file lock in `store.py`, and export data off the host on a schedule (storage.md).
 - **Backups:** copy `data/` on a schedule. How often is an open question (storage.md).
 - **Secrets:** the key is an environment variable on the host, never in the repo (NF-01). A pre-commit check for keys is listed in git-and-secrets.md.
-- **CI:** not set up. When phase A starts, a GitHub Actions workflow running `ruff` and `pytest` is the minimum.
+- **CI:** `.github/workflows/ci.yml` (added in phase 0, #9) runs `uv sync --locked`, `ruff check`, `ruff format --check` and `pytest` on every pull request and on pushes to `main`. The autopilot merge gate needs a CI check on each PR.
 
 ## Notes and open items
 

@@ -2,16 +2,16 @@
 name = "mnemo"
 version = "0.1.0"
 description = "Personal AI bookmark app"
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.12"
 dependencies = [
-    "anthropic",
-    "pydantic-settings",
+    "anthropic>=2.4.0,<3",
+    "pydantic-settings>=2.16.2,<3",
 ]
 
 [dependency-groups]
 dev = [
-    "pytest",
-    "ruff",
+    "pytest>=9.2.0,<10",
+    "ruff>=0.17.3,<0.18",
 ]
 
 [tool.uv]
