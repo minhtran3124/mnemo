@@ -31,7 +31,7 @@ Open question: whether `data/` should be committed. It holds your bookmarks and 
 
 ## Pre-commit check
 The hook is `.githooks/pre-commit` (POSIX sh). It runs before each commit and stops it when:
-- A staged file has a name starting with `.env`, in any folder. This includes `.env.example`. Deleting such a file is allowed.
+- A staged file has a name starting with `.env`, in any folder. The one exception is a file named exactly `.env.example`, which holds placeholders only. Deleting such a file is allowed.
 - An added line of the staged diff matches `sk-ant-[A-Za-z0-9_-]{20,}`. Only added lines are checked, so a commit that removes a key passes.
 
 The message names the file and line, never the matched text. Old git history is not scanned.

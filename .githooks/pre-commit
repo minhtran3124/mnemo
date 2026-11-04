@@ -6,7 +6,8 @@
 
 status=0
 
-# 1. Any staged file whose name starts with .env (any folder, .env.example too).
+# 1. Any staged file whose name starts with .env (any folder), except the
+#    placeholder file named exactly .env.example.
 #    Deleted files are allowed so a leaked .env can be removed.
 names=$(git diff --cached --name-only --diff-filter=ACMR)
 OLDIFS=$IFS
@@ -14,6 +15,7 @@ IFS='
 '
 for f in $names; do
   case "${f##*/}" in
+    .env.example) ;;
     .env*)
       echo "pre-commit: blocked, staged file name starts with .env: $f" >&2
       status=1

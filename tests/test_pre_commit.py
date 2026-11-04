@@ -51,12 +51,19 @@ def test_key_on_added_line_is_blocked_without_echoing_it(repo):
     assert "sk-ant" not in output
 
 
-@pytest.mark.parametrize("name", [".env", ".env.example", "sub/dir/.env.local"])
+@pytest.mark.parametrize("name", [".env", ".env.example.bak", "sub/dir/.env.local"])
 def test_env_files_are_blocked(repo, name):
     stage(repo, name, "NOTHING=1\n")
     result = run_hook(repo)
     assert result.returncode != 0
     assert name in result.stderr
+
+
+@pytest.mark.parametrize("name", [".env.example", "sub/dir/.env.example"])
+def test_env_example_placeholder_is_allowed(repo, name):
+    stage(repo, name, "ANTHROPIC_API_KEY=your-key-here\n")
+    result = run_hook(repo)
+    assert result.returncode == 0
 
 
 def test_clean_commit_passes(repo):
