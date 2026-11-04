@@ -45,3 +45,13 @@ def test_env_file_independent_of_working_directory(tmp_path, monkeypatch):
     env_file = Path(config.Settings.model_config["env_file"])
     assert env_file.is_absolute()
     assert env_file == Path(config.__file__).resolve().parent / ".env"
+
+
+def test_api_notes_checked_rows_cite_a_url_and_intro_allows_them():
+    text = (Path(config.__file__).parent / "docs/reference/api-notes.md").read_text()
+    assert "Nothing here is a verified fact" not in text
+    assert "**Checked**" in text.split("| # |")[0]
+    rows = [line for line in text.splitlines() if "| Checked |" in line]
+    assert rows
+    for row in rows:
+        assert "https://" in row
