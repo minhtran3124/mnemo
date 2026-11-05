@@ -25,28 +25,29 @@ Out: the record shape ([data-model.md](data-model.md)).
 | ST-04 | Data is backed up. |
 | ST-05 | `store.py` validates records before writing ([data-model.md](data-model.md)). |
 
-## Interface (proposed function list)
+## Interface
 
 | Function | Purpose |
 | --- | --- |
-| `add_bookmark(record)` | Validate and add; write the page file; log |
+| `add_bookmark(record, page_text=None)` | Validate and add; the server sets `id`, `saved_at` and `page_file`; write the page file |
 | `get_bookmark(id)` | Return one record |
-| `list_bookmarks(filters)` | Return records by folder, type, tag |
-| `update_bookmark(id, fields)` | Change fields (for example folder) |
+| `list_bookmarks(filters)` | Return records in saved order; filters `folder`, `type`, `tag` |
+| `update_bookmark(id, fields)` | Change fields (for example folder) and validate again; `id`, `saved_at` and `page_file` cannot change |
 | `delete_bookmark(id)` | Remove record and page file |
-| `read_page(id)` | Return saved page text |
-| `list_folders()` | Folders with counts |
-| `log_event(event)` | Append a line to `log.jsonl` |
-| `append_chat(message)` | Append a line to `chat.jsonl` |
+| `read_page(id)` | Return saved page text, or `None` if the file is missing |
+| `list_folders()` | Named folders with counts (`{folder, count}`); Unsorted is not listed |
+| `log_event(event)` | Append a line to `log.jsonl`; the server adds `time` (UTC) |
+| `append_chat(message)` | Append a line to `chat.jsonl`; the server sets `id` (counts on from the last line) and `time` (UTC) |
 | `list_chat(limit)` | Return the latest chat messages, oldest first |
 | `find_by_url_clean(url)` | Used by the duplicate check |
 
-Names may change. The point is a small, fixed surface.
+Errors: `InvalidRecord` (a `ValueError`) for a bad record, `NotFound` for an unknown id, `StoreError` for a corrupt file. All three share the base `StoreError`. The point is a small, fixed surface.
 
 ## Behavior and rules
 
 - Files: `data/bookmarks.json`, `data/pages/<id>.txt`, `data/chat.jsonl`, `data/log.jsonl`.
-- IDs are never reused.
+- `bookmarks.json` is `{"next_id": n, "bookmarks": [...]}`. `next_id` only goes up, so an ID is never reused, even after a delete.
+- `DATA_DIR` in `store.py` is read at call time, so tests point it at a temp folder.
 - Undo needs the previous folder to be remembered. Open question: where it is kept (a field or the log).
 - Backup: copy `data/` regularly. How and how often: Open question. Keep backups out of git if they contain page text.
 
@@ -61,7 +62,7 @@ Phase A: you plan to use Render. Unverified: Render price and whether its disk k
 | Crash during a write | Old file is still whole (atomic write). |
 | Two writes at once | Open question: a lock, or one worker only. |
 | Missing page file | `read_page` returns nothing; the record stays. |
-| Corrupt `bookmarks.json` | Server stops with a clear message; restore from backup. |
+| Corrupt `bookmarks.json` | `store.py` raises `StoreError` with a clear message and never overwrites the file; restore from backup. |
 
 ## Acceptance criteria
 
