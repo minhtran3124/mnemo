@@ -32,6 +32,28 @@ def client(monkeypatch):
     return TestClient(server.app)
 
 
+def rule_body(css: str, selector: str) -> str:
+    """Body of the rule whose selector is exactly `selector` (not a list)."""
+    match = re.search(rf"^{re.escape(selector)}\s*\{{([^}}]*)\}}", css, re.MULTILINE)
+    assert match, f"no standalone `{selector}` rule found in base.css"
+    return match.group(1)
+
+
+def token_blocks(text: str) -> tuple[str, str, str]:
+    """Light, system-dark and explicit-dark token blocks of tokens.css."""
+    pattern = (
+        r"^:root\s*\{(.*?)\}"
+        r".*?prefers-color-scheme:\s*dark\)\s*\{\s*"
+        r":root:not\(\[data-theme=\"light\"\]\)\s*\{(.*?)\}\s*\}"
+        r".*?:root\[data-theme=\"dark\"\]\s*\{(.*?)\}"
+    )
+    match = re.search(pattern, text, re.DOTALL | re.MULTILINE)
+    assert match, (
+        "tokens.css must define :root, the system-dark media block and :root[data-theme=dark]"
+    )
+    return match.group(1), match.group(2), match.group(3)
+
+
 def css_files() -> list[Path]:
     return sorted(WEB.rglob("*.css"))
 
@@ -60,14 +82,7 @@ def test_no_css_loads_anything_from_the_network():
 
 def test_tokens_defined_for_light_system_dark_and_explicit_dark():
     text = (WEB / "css" / "tokens.css").read_text(encoding="utf-8")
-    light, dark_media, dark_attr = re.search(
-        r"^:root\s*\{(.*?)\}"
-        r".*?prefers-color-scheme:\s*dark\)\s*\{\s*"
-        r":root:not\(\[data-theme=\"light\"\]\)\s*\{(.*?)\}\s*\}"
-        r".*?:root\[data-theme=\"dark\"\]\s*\{(.*?)\}",
-        text,
-        re.DOTALL | re.MULTILINE,
-    ).groups()
+    light, dark_media, dark_attr = token_blocks(text)
     for block in (light, dark_media, dark_attr):
         for token in TOKENS:
             assert re.search(rf"--{re.escape(token)}\s*:", block), token
@@ -76,18 +91,12 @@ def test_tokens_defined_for_light_system_dark_and_explicit_dark():
 
 def test_system_dark_and_explicit_dark_hold_identical_values():
     text = (WEB / "css" / "tokens.css").read_text(encoding="utf-8")
-    _, dark_media, dark_attr = re.search(
-        r"^:root\s*\{(.*?)\}"
-        r".*?prefers-color-scheme:\s*dark\)\s*\{\s*"
-        r":root:not\(\[data-theme=\"light\"\]\)\s*\{(.*?)\}\s*\}"
-        r".*?:root\[data-theme=\"dark\"\]\s*\{(.*?)\}",
-        text,
-        re.DOTALL | re.MULTILINE,
-    ).groups()
+    _, dark_media, dark_attr = token_blocks(text)
 
     def declarations(block):
-        return dict(re.findall(r"(--?[\w-]+)\s*:\s*([^;]+);", block))
+        return dict(re.findall(r"(-{0,2}[\w-]+)\s*:\s*([^;]+?)\s*;", block))
 
+    assert "color-scheme" in declarations(dark_media)
     assert declarations(dark_media) == declarations(dark_attr)
 
 
@@ -124,20 +133,20 @@ def test_settings_page_has_appearance_radios_and_remember_line(client):
 
 def test_theme_control_does_not_clip_the_focus_ring():
     css = (WEB / "css" / "base.css").read_text(encoding="utf-8")
-    block = re.search(r"\.theme-control\s*\{([^}]*)\}", css).group(1)
+    block = rule_body(css, ".theme-control")
     assert "overflow" not in block
 
 
 def test_focused_theme_button_paints_above_its_siblings():
     css = (WEB / "css" / "base.css").read_text(encoding="utf-8")
-    block = re.search(r"\.theme-btn:focus-visible\s*\{([^}]*)\}", css).group(1)
+    block = rule_body(css, ".theme-btn:focus-visible")
     assert re.search(r"position:\s*relative", block)
-    assert re.search(r"z-index:\s*1", block)
+    assert re.search(r"z-index:\s*1\s*;", block)
 
 
 def test_site_nav_wraps_on_narrow_phones():
     css = (WEB / "css" / "base.css").read_text(encoding="utf-8")
-    block = re.search(r"\.site-nav\s*\{([^}]*)\}", css).group(1)
+    block = rule_body(css, ".site-nav")
     assert re.search(r"flex-wrap:\s*wrap", block)
 
 
