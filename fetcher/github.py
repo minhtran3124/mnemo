@@ -132,26 +132,16 @@ def _attempt(owner: str, repo: str, transport: httpx2.BaseTransport | None) -> F
             description = (json.loads(info or b"{}").get("description") or "").strip()
         except (ValueError, AttributeError):
             raise AttemptError("GitHub answered with an unexpected response") from None
-        try:
-            readme = _get(
-                client,
-                f"{base}/readme",
-                "application/vnd.github.raw+json",
-                started,
-                optional=True,
-            )
-        except AttemptError as err:
-            # A rate limit or a transient error stands, so the link is saved
-            # link only or retried (PR-03). Any other README failure leaves
-            # the description alone, but only when it is long enough to stand
-            # as text; a thin one would hide the real reason, so it stands.
-            if (
-                err.transient
-                or err.reason == _RATE_LIMIT_REASON
-                or len(description) < config.MIN_TEXT_CHARS_GITHUB
-            ):
-                raise
-            readme = None
+        # A repo with no README is a 404 and gives None. Any other README
+        # failure (too large, moved, 4xx, 5xx, bad token, rate limit) stands,
+        # so it is never mistaken for a repo with no README.
+        readme = _get(
+            client,
+            f"{base}/readme",
+            "application/vnd.github.raw+json",
+            started,
+            optional=True,
+        )
     readme_text = (readme or b"").decode("utf-8", errors="replace").strip()
     text = "\n\n".join(part for part in (description, readme_text) if part)
     if not text:
