@@ -3,9 +3,11 @@
 Every error response uses one JSON shape: {"error": {"code": ..., "message": ...}}.
 """
 
+import html
 import logging
 import threading
 from pathlib import Path
+from urllib.parse import urlparse
 
 import uvicorn
 from fastapi import FastAPI, Request
@@ -46,6 +48,122 @@ def render_page(name: str) -> str:
 @app.get("/settings", response_class=HTMLResponse)
 def settings() -> str:
     return render_page("settings.html")
+
+
+# Groups on the Bookmark page, in a fixed order. Empty groups are skipped.
+TYPE_ORDER = ("github_repo", "article", "video_page", "tool", "pdf", "image", "note")
+TYPE_LABELS = {
+    "github_repo": "GitHub repos",
+    "article": "Articles",
+    "video_page": "Videos",
+    "tool": "Tools",
+    "pdf": "PDFs",
+    "image": "Images",
+    "note": "Notes",
+}
+
+
+# Phase 1 has no folder picker, so the page names the one folder every bookmark
+# is in. A null folder in the data means Unsorted (docs/feature-specs/storage.md).
+UNSORTED_FOLDER = "Unsorted"
+
+
+def _esc(value: object) -> str:
+    return html.escape(str(value), quote=True)
+
+
+def _bookmark_row(item: dict) -> str:
+    title = item.get("title") or item["url"]
+    host = urlparse(item["url"]).hostname or ""
+    unreadable = item.get("page_status") == "unreadable"
+    bid = int(item["id"])
+    parts = [
+        f'<li class="bm-row" data-id="{bid}"'
+        + (' data-unreadable="true"' if unreadable else "")
+        + ">",
+        '<div class="bm-main">',
+        (
+            f'<a class="bm-title" href="{_esc(item["url"])}" target="_blank" '
+            f'rel="noopener noreferrer" data-open-url="/api/bookmarks/{bid}/open">'
+            f"{_esc(title)}</a>"
+        ),
+        (
+            f'<p class="bm-meta"><span>{_esc(item.get("type", ""))}</span> '
+            f"<span>{_esc(host)}</span> "
+            f"<span>{_esc(str(item.get('saved_at') or '')[:10])}</span></p>"
+        ),
+    ]
+    if unreadable:
+        parts.append('<p><span class="badge badge-warn">page not read</span></p>')
+    elif item.get("summary"):
+        parts.append(f'<p class="bm-summary">{_esc(item["summary"])}</p>')
+    if item.get("reason"):
+        flag = ""
+        if item.get("reason_source") == "guess":
+            flag = ' <span class="badge">guess</span>'
+        parts.append(f'<p class="bm-reason">{_esc(item["reason"])}{flag}</p>')
+    raw_tags = item.get("tags")
+    if isinstance(raw_tags, list) and raw_tags:
+        tags = "".join(f"<li>{_esc(tag)}</li>" for tag in raw_tags)
+        parts.append(f'<ul class="bm-tags" aria-label="Tags">{tags}</ul>')
+    parts.append("</div>")
+    parts.append(
+        f'<button type="button" class="bm-delete" '
+        f'data-delete-url="/api/bookmarks/{bid}" '
+        f'data-confirm="{_esc(f"Delete {title}? This cannot be undone.")}">Delete</button>'
+    )
+    parts.append("</li>")
+    return "".join(parts)
+
+
+def _empty_message(hidden: bool) -> str:
+    return (
+        f'<p class="empty" id="bm-empty"{" hidden" if hidden else ""}>'
+        "Nothing saved yet. Paste a link in the chat to save your first bookmark.</p>"
+    )
+
+
+def _bookmark_groups(items: list[dict]) -> str:
+    if not items:
+        return _empty_message(hidden=False)
+    sections = [
+        f'<p class="bm-folder" id="bm-folder">Folder: <strong>{UNSORTED_FOLDER}</strong></p>'
+    ]
+    known = set(TYPE_ORDER)
+    # A record with a type outside TYPE_ORDER (hand-edited data) must still show.
+    groups = [(kind, TYPE_LABELS[kind], kind) for kind in TYPE_ORDER]
+    groups.append(("other", "Other", None))
+    for kind, label, match in groups:
+        if match is None:
+            rows = [item for item in items if item.get("type") not in known]
+        else:
+            rows = [item for item in items if item.get("type") == match]
+        if not rows:
+            continue
+        sections.append(
+            f'<section class="bm-group" data-type="{kind}">'
+            f'<h2>{label} <span class="count">{len(rows)}</span></h2>'
+            f'<ul class="bm-list">{"".join(_bookmark_row(r) for r in rows)}</ul>'
+            "</section>"
+        )
+    # Hidden until the page script removes the last row after a delete.
+    sections.append(_empty_message(hidden=True))
+    return "".join(sections)
+
+
+@app.get("/bookmarks", response_class=HTMLResponse)
+def bookmarks_page() -> str:
+    items = store.list_bookmarks()
+    banner = ""
+    if any(item.get("page_status") == "unreadable" for item in items):
+        banner = (
+            '<p class="banner" id="bm-banner" role="note"><strong>Needs a look.</strong> '
+            "Some pages could not be read. They are saved as links only.</p>"
+        )
+    page = render_page("bookmarks.html")
+    return page.replace("<!--BANNER-->", banner).replace(
+        "<!--BOOKMARKS-->", _bookmark_groups(items)
+    )
 
 
 # Sync routes run in a threadpool. This lock makes each read-modify-write on

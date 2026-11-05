@@ -97,4 +97,4 @@ Manual: see `manual-testing`.
 
 ## Layout of the web folder
 
-- `web/css`, `web/js` and `web/fonts` are served at `/static/css`, `/static/js` and `/static/fonts` (pages and partials are not served as files); `web/partials/header.html` is the shared header (inserted by `render_page` in `server.py`); Settings is at `/settings`.
+- `web/css`, `web/js` and `web/fonts` are served at `/static/css`, `/static/js` and `/static/fonts` (pages and partials are not served as files); `web/partials/header.html` is the shared header (inserted by `render_page` in `server.py`); Settings is at `/settings`. The Bookmark page is `GET /bookmarks`, built from `web/bookmarks.html` with `web/css/bookmarks.css` and `web/js/bookmarks.js`; the server draws the rows (every value escaped) and fills them in at `<!--BOOKMARKS-->`.

@@ -40,6 +40,15 @@ Out: visual style (see [frontend-ui.md](frontend-ui.md)); how search works (see 
 - A reason marked "guess" is labeled so you can tell your words from the app's.
 - Cover images follow the rule in [frontend-ui.md](frontend-ui.md).
 
+### Built in phase 1 (list view)
+
+- Served at `GET /bookmarks`. The server draws the list, grouped by type in a fixed order (empty groups skipped). A bookmark whose type is not in that list (for example hand-edited data) is shown in a final "Other" group, never dropped. A record missing optional fields (title, type, date, summary, reason, tags) still renders: the title falls back to the URL and the missing parts are left out. All bookmarks are in Unsorted, and the page says so with a "Folder: Unsorted" line above the groups (removed when the list is empty, including after the last delete).
+- Each row shows title, type, host, date, tags, the reason (with a "guess" flag only when `reason_source` is `guess`), and a "page not read" badge for unreadable pages (no summary shown).
+- Test hooks in the markup: `data-open-url` on the title link, `data-delete-url` and `data-confirm` on the Delete button. There is no Move button before phase 3.
+- A "Needs a look" banner shows only when at least one unreadable bookmark exists. After a delete, the page script removes the banner when the last unreadable row is gone, and shows the empty message when the last bookmark is gone.
+- Not built here: the Grid/List switcher, folders panel, filters and search.
+- **Unverified**: the click flow (open logs a count, Delete confirm and row removal, error message) and the 390px layout have not been checked in a real browser.
+
 ### Mockups
 
 Five mockups (V1 to V5) exist in the Claude design canvas. They are not in this repo. They are mockups only. A view switcher built with the CSS `:has()` selector was used in a mockup. Unverified: that `:has()` works in the real viewer. Test it in the real browser.
