@@ -127,17 +127,24 @@ def _attempt(owner: str, repo: str, transport: httpx2.BaseTransport | None) -> F
     base = f"/repos/{owner}/{repo}"
     with new_client(transport) as client:
         info = _get(client, base, "application/vnd.github+json", started)
-        readme = _get(
-            client,
-            f"{base}/readme",
-            "application/vnd.github.raw+json",
-            started,
-            optional=True,
-        )
-    try:
-        description = (json.loads(info or b"{}").get("description") or "").strip()
-    except (ValueError, AttributeError):
-        raise AttemptError("GitHub answered with an unexpected response") from None
+        try:
+            description = (json.loads(info or b"{}").get("description") or "").strip()
+        except (ValueError, AttributeError):
+            raise AttemptError("GitHub answered with an unexpected response") from None
+        try:
+            readme = _get(
+                client,
+                f"{base}/readme",
+                "application/vnd.github.raw+json",
+                started,
+                optional=True,
+            )
+        except (AttemptError, httpx2.HTTPError):
+            # The repo call worked: keep the description alone. Without one,
+            # there is nothing to keep, so the failure stands.
+            if not description:
+                raise
+            readme = None
     readme_text = (readme or b"").decode("utf-8", errors="replace").strip()
     text = "\n\n".join(part for part in (description, readme_text) if part)
     if not text:

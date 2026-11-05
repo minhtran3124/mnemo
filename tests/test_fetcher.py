@@ -149,6 +149,26 @@ def test_github_repo_uses_api_and_returns_description_and_readme():
     assert fetcher.github.parse_repo("https://github.com/octo/hello/issues") is None
 
 
+def test_github_readme_failure_keeps_the_description():
+    def handler(request):
+        if request.url.path == "/repos/octo/hello":
+            return httpx2.Response(
+                200, content=json.dumps({"description": "A greeter"}).encode()
+            )
+        return httpx2.Response(403, headers={"X-RateLimit-Remaining": "0"})
+
+    result = fetcher.github.fetch_repo("octo", "hello", transport(handler))
+    assert result == FetchOk(text="A greeter", source="github")
+
+    def empty(request):
+        if request.url.path == "/repos/octo/hello":
+            return httpx2.Response(200, content=b"{}")
+        return httpx2.Response(403, headers={"X-RateLimit-Remaining": "0"})
+
+    failed = fetcher.github.fetch_repo("octo", "hello", transport(empty))
+    assert failed == FetchFail("GitHub rate limit reached")
+
+
 def test_github_403_is_a_rate_limit_only_when_headers_say_so():
     limited = fetcher.github.fetch_repo(
         "octo",
