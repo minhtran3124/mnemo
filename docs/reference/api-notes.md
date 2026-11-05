@@ -10,7 +10,7 @@ Use only the official documents (the Claude API docs, the Console, and the cours
 | 1 | Current model names | `config.py` sets models in one place; you need the real names | Plan assumption 6 | 0 | Checked | Haiku 5.5 is listed with API ID `claude-haiku-5-5`, same as the alias, so the name matches D-022. Other current IDs: `claude-sonnet-5-5`, `claude-opus-5-5`, `claude-fable-5-1`. Source: [official models overview](https://docs.claude.com/en/docs/about-claude/models/overview). | Session 1 |
 | 2 | Model prices (input and output tokens) | The budget is about $10 per month for hosting and API together | Not in the plan | 0, 2, A | Unverified | | |
 | 3 | PDF page limit and file size limit | The sample PDF has 580 pages and 14.6 MB; code checks size before the call | 41 | 6 | Unverified | | |
-| 4 | Prefill support by model | Phase 1 uses prefill plus stop sequence for JSON; the lesson does not say which models accept it | 8 | 1 | Unverified | | |
+| 4 | Prefill support by model | The course uses prefill for JSON; phase 1 does not (D-025). Per the structured outputs page, prefill is incompatible with JSON outputs. Which models accept prefill is still unknown | 8 | none now | Unverified | | |
 | 5 | Minimum length for prompt caching | Below the minimum, caching is skipped with no error | 44 | 8 | Unverified | | |
 | 6 | Citations: how they work with PDFs and text | Needed for quotes that exist in the page text | 42 | 6 | Unverified | | |
 | 7 | Rate limits for your account | Import runs in batches of about 20 | Not in the plan | 4 | Unverified | | |
@@ -19,6 +19,7 @@ Use only the official documents (the Claude API docs, the Console, and the cours
 | 10 | Spending limit in the Console: how to set it and what it does | NF-02 needs a spending cap | Not in the plan | 0, A | Unverified | | |
 | 11 | Web search tool options (`max_uses`, `allowed_domains`) | Only if you build the optional replacement search | 31 | 10 | Unverified | | |
 | 12 | Extended thinking: which models and cost | Tried on `folders` only | 45 | 8 | Unverified | | |
+| 13 | Structured outputs (`output_config.format`, SDK `messages.parse`) | Phase 1 gets clean JSON this way (D-025) | Not in the course | 1 | Checked | `claude-haiku-5-5` is listed as supported. No beta header (the older `output_format` request parameter and the `structured-outputs-2025-11-13` header are deprecated). Unsupported in schemas: `minLength`, `maxLength`, `maxItems`, numeric limits, recursive schemas. `refusal` and `max_tokens` can break the schema. Incompatible with citations (400) and with prefill. First use of a schema adds latency; grammars are cached 24 hours. Source: [structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs). A 2025 blog post still shows `client.beta` and the beta header; the official page replaces it. | Session 2 |
 
 ## How to fill this table
 1. Open the official page.

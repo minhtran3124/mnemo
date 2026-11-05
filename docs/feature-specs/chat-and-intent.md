@@ -21,7 +21,7 @@ Out: how Claude classifies (see [classification-and-filing.md](classification-an
 | --- | --- |
 | CI-01 | Plain code decides if a message is a link or a question. Claude does not decide (D-004). |
 | CI-02 | The rule uses a URL regex (a pattern that finds web addresses). A message with a web address is a save. Otherwise it is a question. |
-| CI-03 | A saved link shows a card: title, type, 3 tags, summary, "Filed in", and the buttons Move and Undo. |
+| CI-03 | A saved link shows a card: title, type, 3 tags, summary, "Filed in". From phase 3 the card also has the buttons Move and Undo. Phase 1 has no folders, so "Filed in" is always Unsorted and there are no buttons. |
 | CI-04 | An unreadable page shows a "Page not read" card with a Paste text field (F-02). |
 | CI-05 | The reason is optional and one line. If skipped, the app guesses and marks it "guess". |
 | CI-06 | A question returns up to 3 bookmarks (see [ask-and-answers.md](ask-and-answers.md)). |
@@ -30,7 +30,7 @@ Out: how Claude classifies (see [classification-and-filing.md](classification-an
 
 - Saving needs no choices. You paste a link and get a card.
 - You can write the link and a reason in the same message, for example a link followed by "for login test cases". The reason is the text that is not the link.
-- Move and Undo stay visible on every card (D-005). See [folders.md](folders.md).
+- From phase 3, Move and Undo stay visible on every card (D-005). See [folders.md](folders.md).
 - The paste-text path: when a page cannot be read, you paste the page text. The app then runs the normal save on that text. It is the same path used for Slack messages: you paste the message text and the app finds the links in it (see [import.md](import.md)).
 - The app never writes a summary of text it did not see (NF-04).
 
@@ -62,7 +62,7 @@ Final wording: Open question.
 | 1 | A message with a URL never goes to the question path, and the reverse. Tested with code, no API call. |
 | 2 | A readable page gives a card with all CI-03 parts. |
 | 3 | An unreadable page gives the "Page not read" card and a null summary. |
-| 4 | Undo returns the bookmark to its earlier folder. |
+| 4 | From phase 3: Undo returns the bookmark to its earlier folder. |
 
 ## Tests
 

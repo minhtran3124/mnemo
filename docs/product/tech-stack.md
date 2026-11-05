@@ -18,7 +18,7 @@ Versions are the latest on PyPI and npm at the research date (2026-11-04). Pin t
 | Form and file upload | python-multipart | 0.0.33 | Needed by FastAPI for uploads (PDF, screenshots; phases 4 and 6) |
 | Claude API | Anthropic Python SDK | 2.4.0 | The only model provider (D-001). JSON output via `client.messages.parse()` with a Pydantic model (verified in the SDK source) |
 | MCP server | MCP Python SDK (`MCPServer`, in mcp 2.x; the old `FastMCP` name was removed) | 2.3.0 (MIT) | Phase 9. The MCP server calls the web server's HTTP API, which uses `store.py`; it does not write files itself (decision D-022) |
-| Web fetch | httpx2 | 2.16.0 | Timeouts, redirects and size limits in one client (PR-03, PR-05). Chosen (D-022): `anthropic` and `mcp` already depend on it, so the app runs one HTTP stack. Verified by names only: `Client`, `Timeout`, `follow_redirects`, `max_redirects`, `stream`. Run a test fetch before relying on it |
+| Web fetch | httpx2 | 2.16.0 | Timeouts, redirects and size limits in one client (PR-03, PR-05). Chosen (D-022): `anthropic` and `mcp` already depend on it, so the app runs one HTTP stack. Verified by names only: `Client`, `Timeout`, `follow_redirects`, `max_redirects`, `stream`. The timeout, redirect and size values come from its wheel source, not from the docs site; limits are in [page reading](../feature-specs/page-reading.md). Run a test fetch before relying on it |
 | Page text extraction | trafilatura | 2.3.1 | Main text and metadata from HTML (PR-01 to PR-05) |
 | PDF text | pypdf | 6.21.4 | Plain text for PDFs in phase 6; BSD-3-Clause |
 | Search | bm25s | 0.3.16 | BM25 for the two indexes, behind a thin wrapper that gives SE-03's `add_document()` and `search()`. The wrapper rebuilds the index after each change; this is fast enough for hundreds of bookmarks (D-022) |
@@ -113,8 +113,8 @@ The module path `app.main:app` is a proposal. Keep it in sync with the real layo
 - **PyMuPDF licence:** AGPL-3.0 or commercial. This is why pypdf is chosen.
 - **pypdf licence:** BSD-3-Clause (checked in the wheel metadata).
 - **Two writers:** the MCP server (phase 9) runs as a separate process. If it writes through `store.py` while the web server runs, `store.py` needs a lock or the MCP server must call the HTTP API instead. Open question.
-- **Claude JSON output:** use structured output (`messages.parse()`, or `output_config.format` on the API) instead of prefill. This is documented and validates the schema. Whether prefill still works on current models is not verified; the choice does not depend on it.
-- **Temperature:** do not set `temperature` in `config.py` until the current model docs confirm it is accepted (unverified).
+- **Claude JSON output:** use structured outputs (`client.messages.parse(output_format=Model)`; D-025) instead of prefill. Checked on the [official page](https://platform.claude.com/docs/en/build-with-claude/structured-outputs): `claude-haiku-5-5` is supported, no beta header is needed, and prefill is incompatible with JSON outputs. The schema cannot enforce string length or array size, so code still checks them.
+- **Temperature:** `Messages.create()` and `Messages.parse()` in the installed `anthropic` 2.4.0 have no `temperature` parameter (checked by inspecting the SDK; passing it raises `TypeError`). Do not set it. Whether the HTTP API itself accepts it for current models is unverified.
 - **Phase A login:** not chosen. SA-03 and PV-03 need a method (for example one token checked by middleware).
 - **Render pricing and sleep behaviour:** Unverified. See hosting-check.md.
 - **Anthropic SDK and model names:** model name checked: `claude-haiku-5-5` is current (api-notes.md, item 1). Prefill support is still Unverified (item 4).

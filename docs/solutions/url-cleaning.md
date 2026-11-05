@@ -14,7 +14,7 @@ Your sample list had one repeat: the same GitHub repo (`gyoridavid/ai_agents_az`
 2. Remove the query parameter `fbclid`.
 3. Remove query parameters that start with `utm_`.
 4. Keep every other part of the link.
-5. Save the clean link. The record field `url_clean` is proposed; the plan stores `url`. Open question: whether to keep the original link as well.
+5. Save both: `url` keeps the link as pasted, and `url_clean` holds the clean link (decided). Fetching, opening and the duplicate check use `url_clean`.
 6. Compare clean links to find an exact duplicate.
 
 ## Other parameters

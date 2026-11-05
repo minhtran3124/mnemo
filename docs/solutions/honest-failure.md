@@ -36,7 +36,7 @@ F-01, F-02, F-04. See [page reading](../feature-specs/page-reading.md) and [phas
 | Test | Expected |
 | --- | --- |
 | Save the X post link | `page_status` unreadable, `summary` null, card says it |
-| Save a link where fetch fails | One retry, then link-only card |
+| Save a link where the fetch fails with a transient error (timeout, 5xx) | One retry, then link-only card |
 | Paste text on a failed card | Summary uses only the pasted text |
 | Eval code check | Unreadable page gives a null summary on every run |
 | Screenshot with cut text | Card says "based on the visible text only" |

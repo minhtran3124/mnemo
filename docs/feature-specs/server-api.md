@@ -30,8 +30,8 @@ Out: the MCP interface ([mcp-server.md](mcp-server.md)).
 | --- | --- | --- | --- |
 | `POST /api/chat` | Send a message. Code decides link or question. | `message`, optional `pasted_text` | A card, or an answer with up to 3 bookmarks |
 | `GET /api/bookmarks` | List bookmarks | Optional `folder`, `type`, `tag`, `q` | List of records ([data-model.md](data-model.md)) |
-| `PATCH /api/bookmarks/:id` | Move to another folder | `folder` | Updated record. Rejects unknown folder |
-| `POST /api/bookmarks/:id/undo` | Undo last filing or move | none | Updated record |
+| `PATCH /api/bookmarks/:id` | Move to another folder (phase 3) | `folder` | Updated record. Rejects unknown folder |
+| `POST /api/bookmarks/:id/undo` | Undo last filing or move (phase 3) | none | Updated record |
 | `DELETE /api/bookmarks/:id` | Delete | none | Confirmation |
 | `POST /api/import` | Start or continue an import | File or pasted text; `stage` (estimate, run) | Count, cost estimate, batch result |
 | `POST /api/share` | Save from the iPhone Shortcut | `url`, token | Same card data as chat |

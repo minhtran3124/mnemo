@@ -14,7 +14,7 @@ This file lists the real links you sent while we made the plan, what a fetch too
 
 | # | Link | Result | Type (proposed) | What it tests |
 | --- | --- | --- | --- | --- |
-| 1 | An X (Twitter) post | Not readable. The tool is not allowed to read it. | link only | Honest failure. Summary is null. Paste-text path. |
+| 1 | `https://x.com/addyosmani/article/2117512471930167377` (an X post; link given by the owner on 2026-11-05) | The planning tool could not read X posts. Unverified: whether Mnemo's own fetcher can. | link only | Honest failure. Summary is null. Paste-text path. |
 | 2 | `dev.to/fisher_shenfisher_1c32/pocket-alternative-2026-the-complete-guide-after-pockets-shutdown-4mpe` | Readable. Article about Pocket alternatives. Promotional. | article | Normal path. Check that the summary has only facts from the page. |
 | 3 | `airtable.com` (home page) | Readable, mostly marketing text. | tool | Weak page. Summary must stay general. |
 | 4 | `huggingface.co/blog/sionic-ai/claude-code-skills-training` | Readable. | article | Normal article. |
@@ -36,6 +36,18 @@ This file lists the real links you sent while we made the plan, what a fetch too
 | 19 | `arxiv.org/html/2606.09498v1` | Readable. Math appears as raw markup. | article + tag `paper` | Summary must not copy raw math. |
 | 20 | `uber.com/us/en/blog/ai-code-cleanup/` | Readable. Code is in images. | article | Summary may miss facts that are only in images. |
 | 21 | `contextfirst.blog/superlite-hand-an-agent-a-spec/` | Readable. Long first-person article. | article | Normal long article. |
+
+## Phase 1 test set
+
+The 5 links for the [phase 1 plan](../product/plans/phase-1-chat-and-bookmark-pages.md). All have a full address and fit the existing types (no `docs` or `other` needed).
+
+| # | Link row | Why it is in the set |
+| --- | --- | --- |
+| 1 | #1, the X post | The unreadable case: link only, null summary, paste text works. |
+| 2 | #2, dev.to Pocket guide | A promotional article: the summary must hold only facts from the page. |
+| 3 | #4, Hugging Face blog | A normal article. |
+| 4 | #7, `subframe7536/maple-font` | A GitHub repo through the GitHub API; tags must not be forced into AI topics. |
+| 5 | #8, `gyoridavid/ai_agents_az` | A GitHub repo. Then paste it again with `?fbclid=abc` added: it must be recognized as the same `url_clean`. |
 
 ## Hard cases that are not in the 20
 

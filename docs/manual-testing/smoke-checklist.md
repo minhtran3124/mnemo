@@ -9,8 +9,8 @@ Use links from [sample links](../reference/sample-links.md). Mark each row Pass 
 | --- | --- | --- | --- | --- | --- |
 | 1 | Save a readable link | Paste one public article link in the chat | Card with title, type, 3 tags, a short summary, "Filed in" | | |
 | 2 | Save an unreadable link | Paste a Slack message link | "Page not read" card, summary empty, Paste text field shown, no invented summary | | |
-| 3 | Move | Click Move on a card and pick another folder | The folder changes; the bookmark page shows it there | | |
-| 4 | Undo | Click Undo after a filing | The folder goes back; the count on the bookmark page matches | | |
+| 3 | Move (from phase 3) | Click Move on a card and pick another folder | The folder changes; the bookmark page shows it there | | |
+| 4 | Undo (from phase 3) | Click Undo after a filing | The folder goes back; the count on the bookmark page matches | | |
 | 5 | Search | Search a word from a saved title on the bookmark page | The bookmark appears, even if it is in another folder | | |
 | 6 | Ask | Type a question about a saved link in your own words | Up to 3 bookmarks with a reason (or "guess") | | |
 | 7 | Trick question | Ask about a topic you never saved | "Nothing found" and no invented bookmark | | |
@@ -22,6 +22,7 @@ Use links from [sample links](../reference/sample-links.md). Mark each row Pass 
 ## Notes
 - Rows 1 to 7 map to features F-01, F-02, F-03 and F-07. Rows 8 and 9 map to NF-05 and NF-01.
 - Rows 6 and 7 apply from phase 4. Before phase 4, mark them "not built yet".
+- Rows 3 and 4 (Move, Undo) apply from phase 3. In phases 1 and 2 mark them "not built yet".
 - Row 11: Unsorted always exists (decision D-005, see [decision log](../process/decision-log.md)).
 - Record the result in your [session note](../process/session-log-template.md).
 
