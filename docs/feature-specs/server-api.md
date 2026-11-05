@@ -29,7 +29,7 @@ Out: the MCP interface ([mcp-server.md](mcp-server.md)).
 | Method and path | Purpose | Request | Response |
 | --- | --- | --- | --- |
 | `POST /api/chat` | Send a message. Code decides: save a link, edit a reason (`note <id> <text>`), or answer a question. Both sides of the exchange are appended to the chat history. | `message`, optional `pasted_text` | A card, a confirmation, or an answer with up to 3 bookmarks |
-| `GET /api/chat/history` | Return the saved chat so the page can redraw it after a reload | Optional `limit` (default 50) | List of chat messages ([data-model.md](data-model.md)) |
+| `GET /api/chat/history` | Return the saved chat so the page can redraw it after a reload | Optional `limit` (default 50) | `{"messages": [...]}`; each message has its own `cards` list, and a deleted bookmark is `{"id": N, "deleted": true}` (D-029) |
 | `GET /api/bookmarks` | List bookmarks in saved order | none in phase 1 (filters `folder`, `type`, `tag`, `q` come later) | List of records ([data-model.md](data-model.md)) |
 | `PATCH /api/bookmarks/:id` | Change a bookmark: the reason (phase 1, from `note <id> <text>`; sets `reason_source` to `user`) or the folder (Move, phase 3) | `reason` or `folder` | Updated record. Rejects an unknown folder or an unknown id |
 | `POST /api/bookmarks/:id/open` | Record that a link was opened: `opened_count` goes up and an `open` line is logged. The page opens `url_clean` itself in a new tab and sends this call in the background, so a pop-up blocker cannot stop the link. | none | Updated record. Unknown id gives 404 `bookmark_not_found`. The count change runs under a server lock, so parallel opens are all counted |
@@ -59,7 +59,9 @@ Open question: the upload endpoint for PDFs and screenshots.
 - A blank or whitespace-only `message` returns 400 with code `empty_message`.
 - A message with one or more distinct links saves each in order (links with the same `url_clean` are saved once) and returns `{"kind": "cards", "cards": [record, ...]}`. If a link fails to store (a `StoreError` or `OSError`) after another saved, the response is still 200 with the saved cards plus `"failed": [link, ...]`, so a retry does not save them twice. If no link saved, the response is the usual 500. Missing key, auth and other errors are never put in `failed`: they return the usual JSON 500.
 - A message with no link returns `{"kind": "text", "text": "I can only save links for now. Asking comes later."}`. Nothing is sent to Claude.
-- Phase 1 appends nothing to the chat history here. History is its own ticket. `note <id> <text>` is also its own ticket.
+- Both sides of the exchange are appended to the chat history (see D-029 for the history shape and D-033 for a planned change to `note` with a link).
+
+Page routes (HTML, not API): `GET /` chat, `GET /bookmarks` bookmark page, `GET /settings` settings (D-034).
 
 ## Error format (proposed)
 
