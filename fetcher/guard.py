@@ -57,7 +57,7 @@ def check_host(url: str) -> str | None:
     port = parts.port or (443 if parts.scheme == "https" else 80)
     try:
         addresses = resolve(host, port)
-    except OSError:
+    except (OSError, UnicodeError):
         return "could not look up the host"
     if not addresses:
         return "could not look up the host"

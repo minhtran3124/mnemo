@@ -105,6 +105,15 @@ def test_loopback_and_private_addresses_rejected(monkeypatch):
     assert hits == ["https://example.com/r"]
 
 
+def test_unencodable_host_fails_instead_of_raising(monkeypatch):
+    def resolve(host, port):
+        raise UnicodeError("label empty or too long")
+
+    monkeypatch.setattr(guard, "resolve", resolve)
+    result = fetcher.fetch_page("https://a..example.com/x", transport(lambda r: None))
+    assert result == FetchFail("could not look up the host")
+
+
 def test_non_http_scheme_rejected():
     def handler(request):
         raise AssertionError("no request should be made")
