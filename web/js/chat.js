@@ -212,8 +212,19 @@
       // link alone.
       post(url, text).then(
         function (body) {
-          var nodes = replyNodes(body);
-          entry.replaceWith.apply(entry, nodes);
+          var first = body.kind === "cards" && body.cards && body.cards[0];
+          if (!first || (first.page_status && first.page_status !== "ok")) {
+            // Still not readable (the text was too short): keep this card and
+            // its box, say why, and let the user paste more.
+            send.disabled = false;
+            send.textContent = "Save";
+            note.textContent =
+              "That text was too short to make an entry. Paste more of the page and try again.";
+            note.hidden = false;
+            area.focus();
+            return;
+          }
+          entry.replaceWith.apply(entry, replyNodes(body));
         },
         function (err) {
           send.disabled = false;

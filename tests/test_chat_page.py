@@ -71,6 +71,13 @@ def test_page_not_read_card_has_paste_box_and_sends_pasted_text(client):
     assert "failed" in js
 
 
+def test_paste_that_is_still_unreadable_keeps_the_card_and_explains(client):
+    js = script(client)
+
+    assert "too short to make an entry" in js
+    assert 'first.page_status !== "ok"' in js
+
+
 def test_no_move_or_undo_buttons(client):
     sources = [
         client.get("/").text,
