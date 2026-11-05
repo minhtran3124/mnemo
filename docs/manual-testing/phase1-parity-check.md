@@ -2,9 +2,9 @@
 
 Date: 2026-11-05 · Ticket: #42 · Reference: [UI reference](../feature-specs/ui-reference.md) and the boards in [docs/design/v3-mockup/](../design/v3-mockup/README.md).
 
-Method: each built page was opened from the running app with sample data, next to its board rendered from the `.dc.html` source, at the width and theme of the row. Type sizes, line heights, weights, column starts and wording were read from both sides with computed styles. The Ledger view was compared; the Cards view was read from CSS values only. Each board is drawn at one width, so a row at the other width was read against the measurement table (A13). Screenshots are not committed; their paths are in the PR body.
+Method: each built page was opened from the running app with sample data, next to its board rendered from the `.dc.html` source, at the width and theme of the row. Type sizes, line heights, weights, column starts and wording were read from both sides with computed styles. The Ledger view was compared; the Cards view was read from CSS values only and is **Unverified**: it was not opened in a browser next to the boards, and no screenshot of it exists. Each board is drawn at one width, so a row at the other width was read against the measurement table (A13). Screenshots are not committed; their paths are in the PR body.
 
-Result column: `match` means no difference was found; `accepted` means the remaining differences are listed in "Accepted differences" in the UI reference (the A numbers in the note). Differences that a fix could close were fixed in the same PR.
+Result column: `match` means no difference was found; `accepted` means the remaining differences are listed in "Accepted differences" in the UI reference (the A numbers in the note). Every Bookmarks row below covers the Ledger view only; the Cards view of each is **Unverified** (open question: compare it in a browser). Differences that a fix could close were fixed in the same PR.
 
 | Screen | Width | Theme | Board | Result | Note |
 | --- | --- | --- | --- | --- | --- |
