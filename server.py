@@ -6,6 +6,7 @@ stack trace, a path or the API key.
 """
 
 import logging
+import traceback
 
 import uvicorn
 from fastapi import FastAPI, Request
@@ -58,8 +59,10 @@ async def _validation_error(_: Request, exc: RequestValidationError) -> JSONResp
 
 
 async def _unhandled_error(_: Request, exc: Exception) -> JSONResponse:
-    # The traceback goes to the server log only, never into the response.
-    logger.error("unhandled error: %s", type(exc).__name__, exc_info=exc)
+    # The log gets the exception type and the call frames, never the message:
+    # a message can hold the API key or a token (exc_info would print it).
+    frames = "".join(traceback.format_list(traceback.extract_tb(exc.__traceback__)))
+    logger.error("unhandled error: %s\n%s", type(exc).__name__, frames)
     return error_response(500, "server_error", "Something went wrong on the server.")
 
 

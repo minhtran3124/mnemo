@@ -105,10 +105,11 @@ def test_non_text_http_detail_never_reaches_the_response(app, detail):
     }
 
 
-def test_unhandled_error_logs_the_traceback_but_not_the_response(app, caplog):
+def test_unhandled_error_logs_type_and_frames_but_never_the_message(app, caplog):
     @app.get("/_test/boom")
     def boom() -> None:
-        raise ValueError("secret cause detail")
+        detail = "secret cause " + "detail " + FAKE_KEY
+        raise ValueError(detail)
 
     with caplog.at_level("ERROR", logger="server"):
         response = TestClient(app, raise_server_exceptions=False).get("/_test/boom")
@@ -118,9 +119,11 @@ def test_unhandled_error_logs_the_traceback_but_not_the_response(app, caplog):
     assert "secret cause detail" not in response.text
     records = [r for r in caplog.records if r.name == "server"]
     assert len(records) == 1
-    assert records[0].exc_info is not None
-    assert records[0].exc_info[0] is ValueError
-    assert "secret cause detail" in caplog.text
+    assert records[0].exc_info is None
+    assert "ValueError" in caplog.text
+    assert "boom" in caplog.text
+    assert "secret cause detail" not in caplog.text
+    assert FAKE_KEY not in caplog.text
 
 
 def test_unhandled_error_gives_500_error_format(app):
