@@ -41,6 +41,8 @@ Out: the record shape ([data-model.md](data-model.md)).
 | `list_chat(limit)` | Return the latest chat messages, oldest first |
 | `find_by_url_clean(url)` | Used by the duplicate check |
 
+HTTP route `PATCH /api/bookmarks/{id}` takes `{"reason": "<text>"}` and nothing else (other fields are ignored). It sets `reason` and sets `reason_source` to `user`, under the server write lock, through `get_bookmark` and `update_bookmark`. It returns the updated record. A missing, empty or blank reason gives 400 (`empty_reason`, or `bad_request` for a bad body). An unknown id gives 404 `bookmark_not_found`. The chat command `note <id> <text>` uses the same code path.
+
 Errors: `InvalidRecord` (a `ValueError`) for a bad record, `NotFound` for an unknown id, `StoreError` for a corrupt file or a line in `chat.jsonl` or `log.jsonl` that is not JSON. All three share the base `StoreError`. The point is a small, fixed surface.
 
 ## Behavior and rules
