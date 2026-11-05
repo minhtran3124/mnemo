@@ -45,8 +45,13 @@ async def _http_error(_: Request, exc: StarletteHTTPException) -> JSONResponse:
     code = _HTTP_CODES.get(exc.status_code, "server_error")
     if exc.status_code == 404:
         return error_response(404, code, "Not found.")
-    # Only a plain-text detail is a message a route wrote on purpose. A dict,
-    # list or other object never goes into the body.
+    # Only a plain-text detail on a client error (below 500) is a message a
+    # route wrote on purpose. A dict, list or other object never goes into the
+    # body, and a 5xx detail can hold a path or upstream error text.
+    if exc.status_code >= 500:
+        return error_response(
+            exc.status_code, code, "Something went wrong on the server."
+        )
     if isinstance(exc.detail, str) and exc.detail:
         message = exc.detail
     else:

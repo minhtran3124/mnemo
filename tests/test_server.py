@@ -202,3 +202,23 @@ def test_every_mapped_status_has_a_row_in_the_server_api_spec():
     text = spec.read_text()
     for status in server._HTTP_CODES:
         assert re.search(rf"^\| {status} \|", text, re.MULTILINE), status
+
+
+@pytest.mark.parametrize("status", [500, 502, 503])
+def test_server_error_http_detail_never_reaches_the_response(app, status):
+    from fastapi import HTTPException
+
+    @app.get("/_test/server-detail")
+    def raise_server() -> None:
+        raise HTTPException(status_code=status, detail="failed at /home/x/data.json")
+
+    response = TestClient(app).get("/_test/server-detail")
+
+    assert response.status_code == status
+    assert "/home/x" not in response.text
+    assert response.json() == {
+        "error": {
+            "code": "server_error",
+            "message": "Something went wrong on the server.",
+        }
+    }
