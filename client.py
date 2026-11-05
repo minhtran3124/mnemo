@@ -27,6 +27,10 @@ class InvalidOutput(RuntimeError):
 _client: anthropic.Anthropic | None = None
 
 
+class MissingKey(RuntimeError):
+    """The API key is missing or empty (a config error, never a page problem)."""
+
+
 def _get_client() -> anthropic.Anthropic:
     """Build the client on first use, so importing this module needs no key."""
     global _client
@@ -34,13 +38,13 @@ def _get_client() -> anthropic.Anthropic:
         try:
             settings = config.get_settings()
         except ValidationError:
-            raise RuntimeError(
+            raise MissingKey(
                 "ANTHROPIC_API_KEY is missing or empty; set it in the environment or .env"
             ) from None
         api_key = settings.api_key.get_secret_value()
         if not api_key.strip():
             # Settings accepts an empty string, so check it here.
-            raise RuntimeError(
+            raise MissingKey(
                 "ANTHROPIC_API_KEY is missing or empty; set it in the environment or .env"
             )
         _client = anthropic.Anthropic(

@@ -55,6 +55,16 @@ def _is_transient(err: anthropic.APIError) -> bool:
     return False
 
 
+def is_permanent_error(err: BaseException) -> bool:
+    """True for auth and config errors: a missing key or a non-transient 4xx from Claude.
+
+    These are never a problem with one link, so callers must not hide them.
+    """
+    if isinstance(err, client.MissingKey):
+        return True
+    return isinstance(err, anthropic.APIStatusError) and not _is_transient(err)
+
+
 def _check(out: SaveOutput) -> SaveOutput | None:
     """Return the output with lowercased, deduplicated tags if the code checks pass, else None."""
     tags = list(dict.fromkeys(t.strip().lower() for t in out.tags if t.strip()))
@@ -82,7 +92,7 @@ def _summarise(text: str) -> SaveOutput | None:
         try:
             out = client.parse(messages, SaveOutput, system=system)
         except anthropic.APIError as err:
-            if isinstance(err, anthropic.APIStatusError) and not _is_transient(err):
+            if is_permanent_error(err):
                 raise
             reason = f"{type(err).__name__} status={getattr(err, 'status_code', None)}"
         except (client.InvalidOutput, ValidationError) as err:
