@@ -35,28 +35,35 @@ _HTTP_CODES = {
 }
 
 
-def error_response(status: int, code: str, message: str) -> JSONResponse:
+def error_response(
+    status: int, code: str, message: str, headers: dict[str, str] | None = None
+) -> JSONResponse:
     return JSONResponse(
-        status_code=status, content={"error": {"code": code, "message": message}}
+        status_code=status,
+        content={"error": {"code": code, "message": message}},
+        headers=headers,
     )
 
 
 async def _http_error(_: Request, exc: StarletteHTTPException) -> JSONResponse:
     code = _HTTP_CODES.get(exc.status_code, "server_error")
     if exc.status_code == 404:
-        return error_response(404, code, "Not found.")
+        return error_response(404, code, "Not found.", exc.headers)
     # Only a plain-text detail on a client error (below 500) is a message a
     # route wrote on purpose. A dict, list or other object never goes into the
     # body, and a 5xx detail can hold a path or upstream error text.
     if exc.status_code >= 500:
         return error_response(
-            exc.status_code, code, "Something went wrong on the server."
+            exc.status_code,
+            code,
+            "Something went wrong on the server.",
+            exc.headers,
         )
     if isinstance(exc.detail, str) and exc.detail:
         message = exc.detail
     else:
         message = "The request could not be completed."
-    return error_response(exc.status_code, code, message)
+    return error_response(exc.status_code, code, message, exc.headers)
 
 
 async def _validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:

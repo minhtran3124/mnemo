@@ -222,3 +222,25 @@ def test_server_error_http_detail_never_reaches_the_response(app, status):
             "message": "Something went wrong on the server.",
         }
     }
+
+
+def test_wrong_method_keeps_the_allow_header(client):
+    response = client.post("/_test/items/1")
+
+    assert response.status_code == 405
+    assert "GET" in response.headers["allow"]
+
+
+def test_http_exception_headers_are_kept(app):
+    from fastapi import HTTPException
+
+    @app.get("/_test/locked")
+    def locked() -> None:
+        raise HTTPException(
+            status_code=401, detail="Sign in.", headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    response = TestClient(app).get("/_test/locked")
+
+    assert response.status_code == 401
+    assert response.headers["www-authenticate"] == "Bearer"
