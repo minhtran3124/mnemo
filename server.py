@@ -19,7 +19,15 @@ HOST = "127.0.0.1"
 WEB_DIR = Path(__file__).resolve().parent / "web"
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
+
+# Only these folders are public. Pages and partials hold unrendered
+# placeholders, so they are never served as files.
+for _folder in ("css", "js", "fonts"):
+    app.mount(
+        f"/static/{_folder}",
+        StaticFiles(directory=WEB_DIR / _folder),
+        name=f"static-{_folder}",
+    )
 
 
 def render_page(name: str) -> str:

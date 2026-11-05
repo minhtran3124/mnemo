@@ -97,4 +97,4 @@ Manual: see `manual-testing`.
 
 ## Layout of the web folder
 
-- `web/` is served at `/static`; `web/partials/header.html` is the shared header (inserted by `render_page` in `server.py`); Settings is at `/settings`.
+- `web/css`, `web/js` and `web/fonts` are served at `/static/css`, `/static/js` and `/static/fonts` (pages and partials are not served as files); `web/partials/header.html` is the shared header (inserted by `render_page` in `server.py`); Settings is at `/settings`.

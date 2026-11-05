@@ -132,3 +132,15 @@ def test_site_nav_wraps_on_narrow_phones():
     css = (WEB / "css" / "base.css").read_text(encoding="utf-8")
     block = re.search(r"\.site-nav\s*\{([^}]*)\}", css).group(1)
     assert re.search(r"flex-wrap:\s*wrap", block)
+
+
+@pytest.mark.parametrize(
+    "path", ["/static/settings.html", "/static/partials/header.html"]
+)
+def test_unrendered_pages_and_partials_are_not_served(client, path):
+    assert client.get(path).status_code == 404
+
+
+def test_css_and_js_are_still_served_from_static(client):
+    assert client.get("/static/css/tokens.css").status_code == 200
+    assert client.get("/static/js/theme.js").status_code == 200
