@@ -31,7 +31,7 @@ Out: how Claude classifies (see [classification-and-filing.md](classification-an
 ## Behavior and rules
 
 - Saving needs no choices. You paste a link and get a card.
-- You can write the link and a reason in the same message, for example a link followed by "for login test cases". The reason is the text that is not the link.
+- You can write the link and a reason in the same message, for example a link followed by "for login test cases". The reason is the text that is not the link. Not built yet: in phase 1 the text around a link is ignored and Claude's guess is kept. Use `note <id> <text>` (own ticket) to set a reason.
 - From phase 3, Move and Undo stay visible on every card (D-005). See [folders.md](folders.md).
 - The paste-text path: when a page cannot be read, you paste the page text. The app then runs the normal save on that text. Pasted text under 40 characters is saved as link only with no summary. It is the same path used for Slack messages: you paste the message text and the app finds the links in it (see [import.md](import.md)).
 - The app never writes a summary of text it did not see (NF-04).
@@ -53,9 +53,8 @@ Final wording: Open question.
 
 | Input | Result |
 | --- | --- |
-| Two links in one message | Save both, one card each. Do not ask (decided). The text that is not a link is the reason for each link, saved as the user's own (`reason_source` `user`). With no such text, Claude's guess is kept. A leading "save" or "add" is not part of the reason. |
-| The same link twice in one message | Saved once. Links are compared after trailing punctuation is removed. |
-| A link ending in a closing bracket | The bracket stays when the link has its opening bracket (for example a Wikipedia address with `(bar)`). An unmatched closing bracket is removed. |
+| Two links in one message | Save both in order, one card each. Do not ask (decided). The same link twice (compared after tracking parameters are removed) is saved once. `pasted_text` applies to the first link only. If one link fails to store, the cards already saved are still returned with a `failed` list of the links that did not save. |
+| A link followed by punctuation | Trailing `.` `,` `;` `:` `!` `?` are not part of the link. A closing `)` `]` `}` is removed only when the link has no matching opener. |
 | A link inside a question | Treated as a link (regex wins). |
 | Text with no link that is meant as a note | Treated as a question until a note path exists. A note path is wanted (decided); how the user marks a note is an open question. |
 | Empty message | The server returns 400 with code `empty_message`. Nothing is saved. |

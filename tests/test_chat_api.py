@@ -122,13 +122,34 @@ def test_unreadable_page_returns_a_link_only_card(api, monkeypatch, parse_calls)
     assert parse_calls == []
 
 
-def test_later_link_failure_keeps_the_saved_cards(api, fetch_calls, monkeypatch):
-    def fake(messages, output_format, system=None):
-        if "bad" in fetch_calls[-1]:
-            raise RuntimeError("boom")
-        return good()
+def test_links_save_in_order_and_duplicates_once(api, fetch_calls, parse_calls):
+    response = api.post(
+        "/api/chat",
+        json={
+            "message": "https://example.com/a https://example.com/b "
+            "https://example.com/a?utm_source=x"
+        },
+    )
 
-    monkeypatch.setattr(save.client, "parse", fake)
+    body = response.json()
+    assert [c["url"] for c in body["cards"]] == [
+        "https://example.com/a",
+        "https://example.com/b",
+    ]
+    assert "failed" not in body
+    assert len(store.list_bookmarks()) == 2
+
+
+def test_later_link_failure_keeps_the_saved_cards(api, fetch_calls, monkeypatch):
+    real = save.save
+
+    def fake(url, pasted_text=None):
+        if "bad" in url:
+            raise store.StoreError("disk full")
+        return real(url, pasted_text=pasted_text)
+
+    monkeypatch.setattr(save.client, "parse", lambda *a, **k: good())
+    monkeypatch.setattr(save, "save", fake)
 
     response = api.post(
         "/api/chat",
@@ -140,42 +161,3 @@ def test_later_link_failure_keeps_the_saved_cards(api, fetch_calls, monkeypatch)
     assert len(body["cards"]) == 1
     assert body["failed"] == ["https://example.com/bad"]
     assert len(store.list_bookmarks()) == 1
-
-
-def test_text_around_a_link_becomes_the_users_reason(api, fetch_calls, parse_calls):
-    response = api.post(
-        "/api/chat", json={"message": "https://example.com/a for login tests"}
-    )
-
-    card = response.json()["cards"][0]
-    assert card["reason"] == "for login tests"
-    assert card["reason_source"] == "user"
-    assert store.get_bookmark(card["id"])["reason_source"] == "user"
-
-
-def test_failed_reason_update_still_returns_the_saved_card(
-    api, fetch_calls, parse_calls, monkeypatch
-):
-    def boom(bookmark_id, fields):
-        raise RuntimeError("disk full")
-
-    monkeypatch.setattr(store, "update_bookmark", boom)
-
-    response = api.post(
-        "/api/chat", json={"message": "https://example.com/a for login tests"}
-    )
-
-    assert response.status_code == 200
-    body = response.json()
-    assert len(body["cards"]) == 1
-    assert "failed" not in body
-    assert len(store.list_bookmarks()) == 1
-    assert body["cards"][0]["reason_source"] != "user"
-
-
-def test_link_alone_keeps_the_guessed_reason(api, fetch_calls, parse_calls):
-    response = api.post("/api/chat", json={"message": "save https://example.com/a"})
-
-    card = response.json()["cards"][0]
-    assert card["reason"] == "Looks useful."
-    assert card["reason_source"] == "guess"

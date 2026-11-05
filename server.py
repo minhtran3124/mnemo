@@ -18,6 +18,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 import intent
 import save
 import store
+import urlclean
 
 # Only this computer can reach the server (NF-01, D-021).
 HOST = "127.0.0.1"
@@ -140,33 +141,29 @@ def chat(body: ChatBody) -> dict | JSONResponse:
     links = intent.find_links(body.message)
     if not links:
         return {"kind": "text", "text": LINKS_ONLY_TEXT}
-    reason = intent.find_reason(body.message)
     cards = []
     failed = []
+    last_error = None
+    seen = set()
     for index, link in enumerate(links):
-        # Pasted text belongs to the first link in the same message only.
+        key = urlclean.clean_url(link)
+        if key in seen:
+            continue
+        seen.add(key)
+        # Pasted text belongs to the first link in the message only.
         pasted = body.pasted_text if index == 0 else None
         try:
             with _write_lock:
-                card = save.save(link, pasted_text=pasted)
-                if reason:
-                    # The text around the links is the user's own reason (CI-05).
-                    # The bookmark is already stored, so a failed update must not
-                    # hide the card: keep it with its guessed reason and log it.
-                    try:
-                        card = store.update_bookmark(
-                            card["id"], {"reason": reason, "reason_source": "user"}
-                        )
-                    except Exception:  # noqa: BLE001 - the card is saved; keep it
-                        _log.exception("Could not store the reason for %s", link)
-                cards.append(card)
-        except Exception:
-            if not cards:
-                raise  # nothing saved yet: a plain 500 is honest and safe to retry
-            # Cards already saved must not be hidden by a later failure, or a
-            # retry would save them twice. Report the links that did not save.
-            _log.exception("Could not save %s", link)
+                cards.append(save.save(link, pasted_text=pasted))
+        except (store.StoreError, OSError) as exc:
+            # Only a storage failure is reported per link. Key, auth and other
+            # errors propagate to the global handler (a JSON 500). Log the class
+            # only: the text can hold paths or page content.
+            _log.error("Could not save a link: %s", type(exc).__name__)
             failed.append(link)
+            last_error = exc
+    if last_error is not None and not cards:
+        raise last_error  # nothing saved: a plain 500 is honest and safe to retry
     result: dict = {"kind": "cards", "cards": cards}
     if failed:
         result["failed"] = failed

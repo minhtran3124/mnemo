@@ -28,7 +28,7 @@ Out: the MCP interface ([mcp-server.md](mcp-server.md)).
 
 | Method and path | Purpose | Request | Response |
 | --- | --- | --- | --- |
-| `POST /api/chat` | Send a message. Text around a link is saved as the user's reason. Code decides: save a link, edit a reason (`note <id> <text>`), or answer a question. Both sides of the exchange are appended to the chat history. | `message`, optional `pasted_text` | A card, a confirmation, or an answer with up to 3 bookmarks |
+| `POST /api/chat` | Send a message. Code decides: save a link, edit a reason (`note <id> <text>`), or answer a question. Both sides of the exchange are appended to the chat history. | `message`, optional `pasted_text` | A card, a confirmation, or an answer with up to 3 bookmarks |
 | `GET /api/chat/history` | Return the saved chat so the page can redraw it after a reload | Optional `limit` (default 50) | List of chat messages ([data-model.md](data-model.md)) |
 | `GET /api/bookmarks` | List bookmarks in saved order | none in phase 1 (filters `folder`, `type`, `tag`, `q` come later) | List of records ([data-model.md](data-model.md)) |
 | `PATCH /api/bookmarks/:id` | Change a bookmark: the reason (phase 1, from `note <id> <text>`; sets `reason_source` to `user`) or the folder (Move, phase 3) | `reason` or `folder` | Updated record. Rejects an unknown folder or an unknown id |
@@ -56,7 +56,7 @@ Open question: the upload endpoint for PDFs and screenshots.
 
 - Request: `message` (required) and optional `pasted_text`. `pasted_text` applies only to the first link in the same message.
 - A blank or whitespace-only `message` returns 400 with code `empty_message`.
-- A message with one or more links saves each link and returns `{"kind": "cards", "cards": [record, ...]}`. If a later link fails after an earlier one saved, the response is still 200 with the saved cards plus `"failed": [link, ...]`, so a retry does not save the first links twice. If the first link fails, the response is the usual 500.
+- A message with one or more distinct links saves each in order (links with the same `url_clean` are saved once) and returns `{"kind": "cards", "cards": [record, ...]}`. If a link fails to store (a `StoreError` or `OSError`) after another saved, the response is still 200 with the saved cards plus `"failed": [link, ...]`, so a retry does not save them twice. If no link saved, the response is the usual 500. Missing key, auth and other errors are never put in `failed`: they return the usual JSON 500.
 - A message with no link returns `{"kind": "text", "text": "I can only save links for now. Asking comes later."}`. Nothing is sent to Claude.
 - Phase 1 appends nothing to the chat history here. History is its own ticket. `note <id> <text>` is also its own ticket.
 
