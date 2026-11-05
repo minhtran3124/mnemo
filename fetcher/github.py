@@ -1,8 +1,9 @@
 """GitHub repo links: read the description and README through the official API.
 
 The optional GITHUB_TOKEN is sent only to the API host, and redirects are not
-followed, so it can never reach another host. A 403 or 429 is a rate limit:
-no retry (PR-03).
+followed, so it can never reach another host. A 429, or a 403 that GitHub marks
+as exhausted (X-RateLimit-Remaining: 0 or Retry-After), is a rate limit: no
+retry (PR-03). Any other 403 is reported as a refusal, not a guessed reason.
 """
 
 import json
@@ -81,6 +82,14 @@ def parse_repo(url: str) -> tuple[str, str] | None:
     return owner, repo
 
 
+def _is_rate_limited(response: httpx2.Response) -> bool:
+    """True only when GitHub's own headers say the limit is used up."""
+    return (
+        response.headers.get("X-RateLimit-Remaining") == "0"
+        or "Retry-After" in response.headers
+    )
+
+
 def _get(
     client: httpx2.Client,
     path: str,
@@ -99,8 +108,10 @@ def _get(
         headers["Authorization"] = f"Bearer {token}"
     with client.stream("GET", url, headers=headers) as response:
         status = response.status_code
-        if status in (403, 429):
+        if status == 429 or (status == 403 and _is_rate_limited(response)):
             raise AttemptError("GitHub rate limit reached")
+        if status == 403:
+            raise AttemptError("GitHub refused access (403)")
         if status == 404 and optional:
             return None
         if status == 404:

@@ -149,6 +149,30 @@ def test_github_repo_uses_api_and_returns_description_and_readme():
     assert fetcher.github.parse_repo("https://github.com/octo/hello/issues") is None
 
 
+def test_github_403_is_a_rate_limit_only_when_headers_say_so():
+    limited = fetcher.github.fetch_repo(
+        "octo",
+        "hello",
+        transport(
+            lambda r: httpx2.Response(403, headers={"X-RateLimit-Remaining": "0"})
+        ),
+    )
+    assert limited == FetchFail("GitHub rate limit reached")
+    refused = fetcher.github.fetch_repo(
+        "octo",
+        "hello",
+        transport(
+            lambda r: httpx2.Response(403, headers={"X-RateLimit-Remaining": "42"})
+        ),
+    )
+    assert isinstance(refused, FetchFail)
+    assert "rate limit" not in refused.reason
+    too_many = fetcher.github.fetch_repo(
+        "octo", "hello", transport(lambda r: httpx2.Response(429))
+    )
+    assert too_many == FetchFail("GitHub rate limit reached")
+
+
 def test_github_site_pages_are_not_repos():
     for path in ("orgs/foo", "topics/python", "settings/profile", "Sponsors/x"):
         assert fetcher.github.parse_repo(f"https://github.com/{path}") is None, path
