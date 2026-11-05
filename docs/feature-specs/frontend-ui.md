@@ -94,3 +94,7 @@ Manual: see `manual-testing`.
 - Wording of empty and error states.
 - Fonts: self-hosted (D-026, Q-16 answered). Loading from Google Fonts would send a request to Google on every page load and fail offline, which clashes with local-first (D-007). Open: check each font's licence when the files are added.
 - Tooling: UI edits are checked by the Impeccable design hook (D-020). `PRODUCT.md` in the project root is the product record for design work; keep it in step with this spec.
+
+## Layout of the web folder
+
+- `web/` is served at `/static`; `web/partials/header.html` is the shared header (inserted by `render_page` in `server.py`); Settings is at `/settings`.
