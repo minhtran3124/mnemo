@@ -168,3 +168,18 @@ def test_tiny_pasted_text_saves_link_only(fetch_calls, parse_calls, data_dir):
     assert fetch_calls == []
     assert_link_only(record, data_dir)
     assert parse_calls["calls"] == []
+
+
+def test_stored_page_text_keeps_layout_and_is_capped(
+    data_dir, monkeypatch, parse_calls
+):
+    code = "def f():\n    return 1\n"
+    raw = code * 50 + "z" * (config.MAX_PAGE_CHARS * 2)
+    monkeypatch.setattr(
+        save.fetcher, "fetch", lambda url: fetcher.FetchOk(text=raw, source="web")
+    )
+    record = save.save(URL)
+    stored = next(data_dir.rglob("*.txt")).read_text(encoding="utf-8")
+    assert stored.startswith("def f():\n    return 1\n")
+    assert len(stored) == config.MAX_PAGE_CHARS
+    assert record["page_status"] == "ok"

@@ -94,19 +94,20 @@ def save(url: str, pasted_text: str | None = None) -> dict:
     url_clean = urlclean.clean_url(url)
 
     if pasted_text is not None:
-        text = " ".join(pasted_text.split())
+        raw = pasted_text
         floor = config.MIN_TEXT_CHARS_GITHUB
     else:
         result = fetcher.fetch(url)
         if isinstance(result, fetcher.FetchFail):
             return _link_only(url, url_clean)
-        text = " ".join(result.text.split())
+        raw = result.text
         floor = (
             config.MIN_TEXT_CHARS_GITHUB
             if result.source == "github"
             else config.MIN_TEXT_CHARS_HTML
         )
 
+    text = " ".join(raw.split())
     if not text or len(text) < floor:
         return _link_only(url, url_clean)
 
@@ -128,5 +129,5 @@ def save(url: str, pasted_text: str | None = None) -> dict:
             "folder": None,
             "opened_count": 0,
         },
-        page_text=text,
+        page_text=raw.strip()[: config.MAX_PAGE_CHARS],
     )
