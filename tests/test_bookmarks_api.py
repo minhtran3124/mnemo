@@ -103,20 +103,67 @@ def test_delete_unknown_id_gives_404(client):
     assert response.json()["error"]["code"] == "bookmark_not_found"
 
 
-def test_concurrent_opens_do_not_lose_updates(client):
+@pytest.fixture
+def slow_load(monkeypatch):
+    """Pause after every read so unlocked read-modify-write steps must overlap."""
+    import time
+
+    real_load = store._load
+
+    def load():
+        data = real_load()
+        time.sleep(0.02)
+        return data
+
+    monkeypatch.setattr(store, "_load", load)
+
+
+def test_concurrent_opens_do_not_lose_updates(client, slow_load):
     from concurrent.futures import ThreadPoolExecutor
 
     item = seed()
-    with ThreadPoolExecutor(max_workers=20) as pool:
+    with ThreadPoolExecutor(max_workers=10) as pool:
         codes = list(
             pool.map(
                 lambda _: client.post(f"/api/bookmarks/{item['id']}/open").status_code,
-                range(40),
+                range(10),
             )
         )
 
     assert set(codes) == {200}
-    assert store.get_bookmark(item["id"])["opened_count"] == 40
+    assert store.get_bookmark(item["id"])["opened_count"] == 10
+
+
+def test_concurrent_deletes_do_not_bring_a_bookmark_back(client, slow_load):
+    from concurrent.futures import ThreadPoolExecutor
+
+    items = [seed(url_clean=f"https://example.com/{n}") for n in range(6)]
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        codes = list(
+            pool.map(
+                lambda item: client.delete(f"/api/bookmarks/{item['id']}").status_code,
+                items,
+            )
+        )
+
+    assert set(codes) == {200}
+    assert store.list_bookmarks() == []
+
+
+def test_concurrent_delete_and_open_keep_both_changes(client, slow_load):
+    from concurrent.futures import ThreadPoolExecutor
+
+    gone, kept = seed(), seed(url_clean="https://example.com/b")
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        jobs = [
+            pool.submit(client.delete, f"/api/bookmarks/{gone['id']}"),
+            pool.submit(client.post, f"/api/bookmarks/{kept['id']}/open"),
+        ]
+        codes = [job.result().status_code for job in jobs]
+
+    assert codes == [200, 200]
+    assert store.get_bookmark(gone["id"]) is None
+    assert store.get_bookmark(kept["id"])["opened_count"] == 1
 
 
 def test_unhandled_store_error_returns_json_500(monkeypatch, tmp_path):
