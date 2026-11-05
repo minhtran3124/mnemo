@@ -9,7 +9,7 @@ import logging
 import time
 
 import anthropic
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 import config
 
@@ -82,3 +82,46 @@ def ask(
     if not text:
         raise RuntimeError("Claude returned no text")
     return text
+
+
+def parse[T: BaseModel](
+    messages: list[dict],
+    output_format: type[T],
+    system: str | None = None,
+) -> T:
+    """Send messages to Claude and return the reply as a validated output_format object.
+
+    Sends no prefill, no stop sequence and no beta header. A refusal or a reply cut
+    off at max_tokens raises RuntimeError; callers treat that as invalid output.
+    """
+    kwargs: dict = {
+        "model": config.MODEL,
+        "max_tokens": config.MAX_TOKENS,
+        "messages": messages,
+        "output_format": output_format,
+    }
+    if system is not None:
+        kwargs["system"] = system
+
+    sdk = _get_client()
+    start = time.perf_counter()
+    response = sdk.messages.parse(**kwargs)
+    latency_ms = round((time.perf_counter() - start) * 1000)
+
+    _log.info(
+        "claude call model=%s input_tokens=%s output_tokens=%s latency_ms=%s",
+        config.MODEL,
+        response.usage.input_tokens,
+        response.usage.output_tokens,
+        latency_ms,
+    )
+
+    if response.stop_reason == "refusal":
+        raise RuntimeError("Claude refused the request; treat the output as invalid")
+    if response.stop_reason == "max_tokens":
+        raise RuntimeError(
+            f"Claude reply hit max_tokens={config.MAX_TOKENS}; treat the output as invalid"
+        )
+    if response.parsed_output is None:
+        raise RuntimeError("Claude returned no parsed output")
+    return response.parsed_output
