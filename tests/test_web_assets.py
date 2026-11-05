@@ -109,3 +109,9 @@ def test_theme_control_does_not_clip_the_focus_ring():
     css = (WEB / "css" / "base.css").read_text(encoding="utf-8")
     block = re.search(r"\.theme-control\s*\{([^}]*)\}", css).group(1)
     assert "overflow" not in block
+
+
+def test_site_nav_wraps_on_narrow_phones():
+    css = (WEB / "css" / "base.css").read_text(encoding="utf-8")
+    block = re.search(r"\.site-nav\s*\{([^}]*)\}", css).group(1)
+    assert re.search(r"flex-wrap:\s*wrap", block)
