@@ -319,6 +319,21 @@ def _note_reply(bookmark_id: int | None, text: str | None) -> str:
     return "Reason updated."
 
 
+def _save_link(link: str, url_clean: str, pasted: str | None) -> dict:
+    """Save one link. Pasted text for a link already saved as link only fills
+    that entry in: the unreadable record is replaced, not duplicated."""
+    old = store.find_by_url_clean(url_clean) if pasted is not None else None
+    if old is None or old["page_status"] == "ok":
+        return save.save(link, pasted_text=pasted)
+    new = save.save(link, pasted_text=pasted)
+    if new["page_status"] == "ok":
+        store.delete_bookmark(old["id"])
+        return new
+    # The paste was too short to read: keep the first record, add no second.
+    store.delete_bookmark(new["id"])
+    return old
+
+
 @app.post("/api/chat", response_model=None)
 def chat(body: ChatBody) -> dict | JSONResponse:
     if not body.message.strip():
@@ -343,7 +358,7 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         pasted = body.pasted_text if index == 0 else None
         try:
             with _write_lock:
-                cards.append(save.save(link, pasted_text=pasted))
+                cards.append(_save_link(link, key, pasted))
         except (store.StoreError, OSError) as exc:
             # Only a storage failure is reported per link. Key, auth and other
             # errors propagate to the global handler (a JSON 500). Log the class

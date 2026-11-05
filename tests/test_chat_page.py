@@ -3,6 +3,8 @@ import re
 import pytest
 from fastapi.testclient import TestClient
 
+import fetcher
+import save
 import store
 
 FAKE_KEY = "sk-ant-fake-key-for-tests"
@@ -86,3 +88,42 @@ def test_history_is_loaded_on_start_and_deleted_entries_are_handled(client):
     assert "/api/chat/history" in js
     assert "deleted" in js
     assert "was deleted" in js
+
+
+def _fake_save_calls(monkeypatch):
+    monkeypatch.setattr(save.fetcher, "fetch", lambda u: fetcher.FetchFail("blocked"))
+    out = save.SaveOutput(
+        title="A post",
+        type="article",
+        summary="A short summary of the post.",
+        tags=["python", "testing", "web"],
+        reason="Looks useful.",
+    )
+    monkeypatch.setattr(save.client, "parse", lambda *a, **k: out)
+
+
+def test_pasted_text_for_a_link_only_entry_replaces_it(client, monkeypatch):
+    _fake_save_calls(monkeypatch)
+    url = "https://example.com/slack"
+    first = client.post("/api/chat", json={"message": url}).json()["cards"][0]
+    assert first["page_status"] == "unreadable"
+
+    pasted = "pasted words " * 10
+    reply = client.post("/api/chat", json={"message": url, "pasted_text": pasted})
+
+    card = reply.json()["cards"][0]
+    assert card["page_status"] == "ok"
+    assert [b["id"] for b in client.get("/api/bookmarks").json()] == [card["id"]]
+
+
+def test_too_short_paste_for_a_link_only_entry_adds_no_second_record(
+    client, monkeypatch
+):
+    _fake_save_calls(monkeypatch)
+    url = "https://example.com/slack"
+    first = client.post("/api/chat", json={"message": url}).json()["cards"][0]
+
+    reply = client.post("/api/chat", json={"message": url, "pasted_text": "x"})
+
+    assert reply.json()["cards"][0]["id"] == first["id"]
+    assert len(client.get("/api/bookmarks").json()) == 1
