@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat - Mnemo</title>
+  <link rel="stylesheet" href="/static/css/tokens.css">
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/chat.css">
+  <script src="/static/js/theme.js"></script>
+  <script src="/static/js/chat.js" defer></script>
+</head>
+<body class="chat-body">
+<!--HEADER-->
+<main class="chat-main">
+  <h1 class="visually-hidden">Chat</h1>
+  <p id="chat-empty" class="empty" hidden>Nothing here yet. Paste a link below to save it.</p>
+  <div id="chat-log" class="chat-log" role="log" aria-live="polite" aria-label="Chat"></div>
+</main>
+<div class="composer">
+  <form id="chat-form" class="composer-form">
+    <p id="chat-status" class="status" role="status" hidden></p>
+    <div class="composer-box">
+      <label for="chat-message" class="visually-hidden">Paste a link to save it</label>
+      <textarea id="chat-message" rows="2" placeholder="Paste a link to save it"></textarea>
+      <button type="submit" id="chat-save" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+</div>
+</body>
+</html>

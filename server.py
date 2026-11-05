@@ -55,6 +55,11 @@ def render_page(name: str) -> str:
     return page.replace("<!--HEADER-->", header)
 
 
+@app.get("/", response_class=HTMLResponse)
+def chat_page() -> str:
+    return render_page("index.html")
+
+
 @app.get("/settings", response_class=HTMLResponse)
 def settings() -> str:
     return render_page("settings.html")
