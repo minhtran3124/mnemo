@@ -92,5 +92,5 @@ Manual: see `manual-testing`.
 - Where the theme choice is saved (browser storage or server).
 - Cover fallback style.
 - Wording of empty and error states.
-- Fonts: the three fonts load from Google Fonts. That sends a request to Google on every page load and fails offline, which clashes with local-first (D-007). See Q-16.
+- Fonts: self-hosted (D-026, Q-16 answered). Loading from Google Fonts would send a request to Google on every page load and fail offline, which clashes with local-first (D-007). Open: check each font's licence when the files are added.
 - Tooling: UI edits are checked by the Impeccable design hook (D-020). `PRODUCT.md` in the project root is the product record for design work; keep it in step with this spec.

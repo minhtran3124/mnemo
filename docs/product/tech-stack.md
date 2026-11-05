@@ -57,12 +57,13 @@ store.py        the only module that touches data/ (NF-03)
 config.py       model name, max_tokens, page length limits (NF-02)
 fetcher/        page fetch and GitHub API (PR-01)
 save.py         Claude call for a card (phase 1)
+prompts/        versioned prompts, one file per version (phase 1, 3)
 search.py       BM25 indexes, RRF, pick step (phase 5)
 mcp_server.py   MCP server (phase 9)
 web/            HTML, CSS, JS pages (no build)
 evals/          golden sets, graders, results CSV (phase 2)
 tests/          pytest
-data/           local bookmarks, pages, log (gitignored)
+data/           local bookmarks, pages, chat history, log (gitignored)
 ```
 
 ## Model choice and monthly cost

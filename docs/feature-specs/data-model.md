@@ -24,6 +24,7 @@ Out: how the files are read and written (see [storage.md](storage.md)).
 | DM-03 | `summary` is `null` when `page_status` is `unreadable` (NF-04). |
 | DM-04 | `folder` is `null` until a folder is accepted or filed (see [folders.md](folders.md)). |
 | DM-05 | Page text is stored in its own file, not inside `bookmarks.json`. |
+| DM-06 | Every chat message is appended to `data/chat.jsonl` and shown again after a reload. The history is never sent to Claude. |
 
 ## The record
 
@@ -81,8 +82,25 @@ An arXiv paper uses `type` = `article` with the tag `paper`.
 data/
   bookmarks.json    all records
   pages/<id>.txt    saved page text, one file per bookmark
+  chat.jsonl        one JSON object per line, one per chat message (the chat history)
   log.jsonl         one JSON object per line, one per event
 ```
+
+### Chat message (one line of `chat.jsonl`)
+
+The chat history is kept so the chat page shows the earlier messages and cards after a reload. It is for display only: it is never sent to Claude (each save is its own call).
+
+```json
+{ "id": 7, "time": "YYYY-MM-DDTHH:MM:SS", "role": "user", "text": "https://example.com/a for login tests", "bookmark_ids": [] }
+```
+
+| Field | Type | Rules |
+| --- | --- | --- |
+| `id` | integer | Unique, in order. Never reused. |
+| `time` | string | ISO date and time, set by the server. |
+| `role` | string | `user` or `app`. |
+| `text` | string | What the user typed, or the app's message (for example "I could not read this page. Saved the link only."). |
+| `bookmark_ids` | list of integers | The bookmarks a card or an answer refers to. The page draws the card from the bookmark record, so a card never goes stale. A deleted bookmark is shown as "deleted". |
 
 ## log.jsonl event types
 

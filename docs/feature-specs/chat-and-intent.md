@@ -20,11 +20,13 @@ Out: how Claude classifies (see [classification-and-filing.md](classification-an
 | ID | Requirement |
 | --- | --- |
 | CI-01 | Plain code decides if a message is a link or a question. Claude does not decide (D-004). |
-| CI-02 | The rule uses a URL regex (a pattern that finds web addresses). A message with a web address is a save. Otherwise it is a question. |
+| CI-02 | The rule uses a URL regex (a pattern that finds web addresses). A message with a web address is a save. Otherwise, a message that matches `note <id> <text>` edits the reason of that bookmark. Anything else is a question. |
 | CI-03 | A saved link shows a card: title, type, 3 tags, summary, "Filed in". From phase 3 the card also has the buttons Move and Undo. Phase 1 has no folders, so "Filed in" is always Unsorted and there are no buttons. |
 | CI-04 | An unreadable page shows a "Page not read" card with a Paste text field (F-02). |
 | CI-05 | The reason is optional and one line. If skipped, the app guesses and marks it "guess". |
 | CI-06 | A question returns up to 3 bookmarks (see [ask-and-answers.md](ask-and-answers.md)). |
+| CI-07 | The chat is saved. After a reload the page shows the earlier messages and cards again, from `data/chat.jsonl` and the bookmark records (DM-06). |
+| CI-08 | Every card shows the bookmark number, so the user can write `note <id> <text>`. |
 
 ## Behavior and rules
 
@@ -54,6 +56,8 @@ Final wording: Open question.
 | A link inside a question | Treated as a link (regex wins). |
 | Text with no link that is meant as a note | Treated as a question until a note path exists. A note path is wanted (decided); how the user marks a note is an open question. |
 | Empty message | Ignored. |
+| `note 42 for login tests` | Sets the reason of bookmark 42 to "for login tests" and marks it as the user's own. Reply: "Reason updated." |
+| `note 999 text` (no such bookmark) | "I do not have a bookmark with that number." Nothing changes. |
 
 ## Acceptance criteria
 
@@ -63,6 +67,8 @@ Final wording: Open question.
 | 2 | A readable page gives a card with all CI-03 parts. |
 | 3 | An unreadable page gives the "Page not read" card and a null summary. |
 | 4 | From phase 3: Undo returns the bookmark to its earlier folder. |
+| 5 | After a reload, the earlier messages and cards are shown again. |
+| 6 | `note <id> <text>` changes the reason, tested with code and no API call. |
 
 ## Tests
 

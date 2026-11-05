@@ -20,7 +20,7 @@ This file lists every question that is still open. No question blocks phase 0.
 | Q-13 | Does your company have an AI policy that covers saving work links? | KhoiTran | No | 0 (before saving work links) |
 | Q-14 | Do the iPhone Shortcut and the CSS `:has()` view switcher work as planned? | KhoiTran | No | B and 1 |
 | Q-15 | Do you want cover images later, or keep the V3 ledger text-only? Do you need a laptop Settings screen? | KhoiTran | No | 3 |
-| Q-16 | Self-host the three fonts (offline, no request to Google) or load them from Google Fonts? Proposed: self-host. See [theming spec](../feature-specs/theming-and-design-tokens.md). | KhoiTran | No | 1 |
+| Q-16 | Answered: self-host the three fonts (D-026). Check each font's licence file when you add it. See [theming spec](../feature-specs/theming-and-design-tokens.md). | KhoiTran | No | 1 |
 
 ## Already answered (from the plan)
 - Language of summaries: English only in version 1 (D-011).

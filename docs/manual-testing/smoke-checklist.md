@@ -18,10 +18,13 @@ Use links from [sample links](../reference/sample-links.md). Mark each row Pass 
 | 9 | No key in the browser source | Open the page, use "View source" and the network tab; search for `sk-` and for the word "key" | Your API key does not appear anywhere | | |
 | 10 | Tracking parts | Paste a link ending with `?fbclid=abc` | The saved link has no `fbclid` | | |
 | 11 | Unknown folder | Check the data after a save | The folder is one of your starter folders or Unsorted | | |
+| 12 | Chat history | Save a link, then reload the page | The earlier messages and the card are shown again | | |
+| 13 | Note | Type `note <id> for testing` for a saved bookmark | The reason changes and the bookmark page shows it as yours, not "guess" | | |
 
 ## Notes
 - Rows 1 to 7 map to features F-01, F-02, F-03 and F-07. Rows 8 and 9 map to NF-05 and NF-01.
 - Rows 6 and 7 apply from phase 4. Before phase 4, mark them "not built yet".
+- Rows 12 and 13 apply from phase 1.
 - Rows 3 and 4 (Move, Undo) apply from phase 3. In phases 1 and 2 mark them "not built yet".
 - Row 11: Unsorted always exists (decision D-005, see [decision log](../process/decision-log.md)).
 - Record the result in your [session note](../process/session-log-template.md).
