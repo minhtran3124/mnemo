@@ -17,7 +17,7 @@ Out: a laptop Settings screen (only the phone Settings screen is designed). Cove
 
 | ID | Requirement |
 | --- | --- |
-| UI-01 | Two main screens: Chat ([chat-and-intent.md](chat-and-intent.md)) and Bookmark page ([bookmark-page-and-views.md](bookmark-page-and-views.md)). The phone adds a Settings tab for the theme control (see Out of scope for the laptop). |
+| UI-01 | Two main screens: Chat ([chat-and-intent.md](chat-and-intent.md)) and Bookmark page ([bookmark-page-and-views.md](bookmark-page-and-views.md)). The phone adds a Settings tab with the theme control and the bookmark view choice (see Out of scope for the laptop). |
 | UI-02 | Touch targets are at least 44px (NF-05). |
 | UI-03 | Text contrast is at least 4.5:1 (NF-05). |
 | UI-04 | Focus is always visible (NF-05). |
@@ -36,7 +36,7 @@ Message box, card, "Page not read" card with Paste text field, Move menu, Undo b
 Decision D-016 (Accepted): the visual direction is **V3, the ledger**. Serif headings, the folder in the margin, "guess" labels. Decision D-019 (Accepted): the app has a light theme and a dark theme. The default follows the system setting. Tokens and rules are in [theming-and-design-tokens.md](theming-and-design-tokens.md).
 
 Mockup (light and dark, laptop and phone, Settings screen): https://claude.ai/artifact/7Q93Na93mLjP5FCbWbeYwz
-The mockup was never checked as a rendered page and the link is not a permanent store. The tokens in the spec are the source of truth.
+The built pages must follow the mockup. Its final boards are saved in [design/v3-mockup](../design/v3-mockup/README.md), and [ui-reference.md](ui-reference.md) lists the measurements, the parts not built yet in phase 1, and the open decisions. The mockup was never checked as a rendered page and the link is not a permanent store. The tokens in the spec are the source of truth for colour.
 
 V1, V2, V4 and V5 are dropped. They stay in the mockup file and in the [design review](../reviews/design-review-v1-v5.md) as history.
 
@@ -44,7 +44,7 @@ V1, V2, V4 and V5 are dropped. They stay in the mockup file and in the [design r
 | --- | --- |
 | Look | V3 ledger. Fonts: Newsreader (serif), Public Sans, Spline Sans Mono |
 | Theme | System (default), Light, Dark |
-| Theme control | Laptop: in the header. Phone: in Settings |
+| Theme control | In the header of every screen (laptop and phone), and in Settings on the phone |
 | Remembered | The choice is saved on the device. Where exactly is an open question |
 | Default bookmark view | Ledger (the V3 list). Grid is shown as Cards |
 | Covers | Not in V3. See below |

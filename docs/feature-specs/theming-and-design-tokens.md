@@ -21,8 +21,8 @@ Out: cover images, a laptop Settings screen (not designed), any other theme.
 | Light | Always light. |
 | Dark | Always dark. |
 
-- Laptop: the theme control is in the header.
-- Phone: the theme control is in Settings (the phone has a Settings tab).
+- The theme control is in the header of every screen, laptop and phone.
+- The phone also has a Settings tab with the same control (and the bookmark view choice).
 - The choice is remembered on the device. Where it is saved (browser storage or server) is an open question.
 - If saved data cannot be read, the app uses System.
 - A term: a token is a named value, such as `--accent`. Components use the token name and never a raw colour.

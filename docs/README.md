@@ -24,7 +24,7 @@ Four pages draw these docs as pictures. They are snapshots of `main` at commit `
 | [Architecture](https://claude.ai/artifact/HRJ54QxYXpooHoemp6uSgV) | Pages, server, `store.py`, Claude API, MCP; trust boundary; all decisions | [tech stack](product/tech-stack.md), [server API](feature-specs/server-api.md), [privacy](feature-specs/privacy-and-security.md) |
 | [Data model](https://claude.ai/artifact/RjucLkUNCY5pWzD3RxJkpt) | Records, fields, files, bookmark lifecycle | [data model](feature-specs/data-model.md), [storage](feature-specs/storage.md) |
 
-The design mockup (V3, light and dark) is linked from [frontend UI](feature-specs/frontend-ui.md).
+The design mockup (V3, light and dark) is linked from [frontend UI](feature-specs/frontend-ui.md). Its source is saved in [design/v3-mockup](design/v3-mockup/README.md), and [UI reference](feature-specs/ui-reference.md) says how the build must follow it.
 
 Building these pages found conflicts between docs. They are not fixed yet: JSON output method (classification vs tech stack), Render disk (storage vs tech stack), two writers (storage vs D-022), empty `folder` (data model vs folders), what is logged (data model vs folders), duplicate check in import (import vs phase 5), private mode details. Open question: fix them in a separate PR.
 

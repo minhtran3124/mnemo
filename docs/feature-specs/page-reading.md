@@ -31,7 +31,7 @@ The limits are in "Fetch limits" below. They are starting values: put each in `c
 
 ## Behavior and rules
 
-- Honest failure text: "I could not read this page. Saved the link only." Never a made-up summary.
+- Honest failure text: "I could not read this page. I saved the link only." Never a made-up summary.
 - Known cases: X post (not readable by the plan's test tool), Slack link (needs sign-in), bleepingcomputer.com (fetch error, cause unknown), pages built with JavaScript, paywalls, logins.
 - Cutting long text: the card says when text was cut: "Text cut: the summary uses only the first 20,000 characters of this page." (the number is `MAX_PAGE_CHARS`). Wording can still change.
 - Saved text goes to `data/pages/<id>.txt`. The same text is used by the eval, so each run sees the same input.

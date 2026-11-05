@@ -17,7 +17,7 @@ Many pages cannot be read: logins, paywalls, pages built with JavaScript, blocke
 1. The server fetches the page. If it fails, it retries once.
 2. If the fetch still fails, or the text is too short, save the link only.
 3. Set `page_status` to `unreadable` and `summary` to null.
-4. Show a "Page not read" card: "I could not read this page. Saved the link only."
+4. Show a "Page not read" card: "I could not read this page. I saved the link only."
 5. Offer a Paste text field. If you paste text, run the normal save on that text.
 6. For a partial read (for example only a video description), the card says what was used.
 7. Show a "page not read" badge on the bookmark page row.

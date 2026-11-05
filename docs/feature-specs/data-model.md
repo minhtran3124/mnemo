@@ -99,7 +99,7 @@ The chat history is kept so the chat page shows the earlier messages and cards a
 | `id` | integer | Unique, in order. Never reused. |
 | `time` | string | ISO date and time, set by the server. |
 | `role` | string | `user` or `app`. |
-| `text` | string | What the user typed, or the app's message (for example "I could not read this page. Saved the link only."). |
+| `text` | string | What the user typed, or the app's message (for example "I could not read this page. I saved the link only."). |
 | `bookmark_ids` | list of integers | The bookmarks a card or an answer refers to. The page draws the card from the bookmark record, so a card never goes stale. A deleted bookmark is shown as "deleted". |
 
 ## log.jsonl event types

@@ -36,12 +36,12 @@ Out: how Claude classifies (see [classification-and-filing.md](classification-an
 - The paste-text path: when a page cannot be read, you paste the page text. The app then runs the normal save on that text. It is the same path used for Slack messages: you paste the message text and the app finds the links in it (see [import.md](import.md)).
 - The app never writes a summary of text it did not see (NF-04).
 
-### Messages (exact wording to start with)
+### Messages (the wording of the V3 mockup; see [ui-reference.md](ui-reference.md))
 
 | Case | Text |
 | --- | --- |
-| Page not read | "I could not read this page. Saved the link only." |
-| Slack link | "I cannot open Slack links. Paste the message text." |
+| Page not read | "I could not read this page. I saved the link only." |
+| Slack link | "I cannot open Slack links. I saved the link only." Then: "Copy the message in Slack and paste it here. I will find the links in it." |
 | Nothing found | "nothing found" |
 | Exact duplicate | "You saved this already" |
 | Near-duplicate | "You saved something similar" |

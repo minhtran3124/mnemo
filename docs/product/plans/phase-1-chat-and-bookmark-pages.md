@@ -23,12 +23,13 @@ Phase 0 done. The 5 test links in [sample links](../../reference/sample-links.md
 5. Honest failure: if fetch fails or text is too short, save link only, `page_status = unreadable`, `summary = null`. Never invent a summary (NF-04).
 6. Add a max page length in `config.py` (NF-02).
 7. Start a small web server bound to `127.0.0.1` only. Use FastAPI (D-021, [tech stack](../tech-stack.md)).
-8. Shape the Chat page and the Bookmark page with `/impeccable` before writing HTML (D-020). Keep the agreed layout notes in [frontend-ui](../../feature-specs/frontend-ui.md). Self-host the three fonts from `web/fonts/` (D-026) and check each licence file.
+8. Shape the Chat page and the Bookmark page with `/impeccable` before writing HTML (D-020). The V3 mockup is the design: build to [UI reference](../../feature-specs/ui-reference.md) and the board source in `docs/design/v3-mockup/`. Settle its "Open decisions" first, and keep any new layout notes in [frontend-ui](../../feature-specs/frontend-ui.md). Self-host the three fonts from `web/fonts/` (D-026) and check each licence file.
 9. Chat page: message box, card reply (title, type, 3 tags, summary, reason, "Filed in: Unsorted"), a "Page not read" card with a Paste text box. No Move or Undo buttons yet: they come in phase 3. Plain code (a URL pattern) decides link versus question (D-004), and `note <id> <text>` edits a reason (CI-02). The chat is saved: after a reload the page shows the earlier messages and cards (`GET /api/chat/history`, CI-07).
 10. Bookmark page: list with title, reason or "guess", date, "page not read" badge, Open (sends `POST /api/bookmarks/:id/open`) and Delete (Delete asks first). Move comes in phase 3. Every bookmark goes to Unsorted; list grouped by type.
 11. Add the Grid and List switcher (F-05, D-015).
 12. Check NF-05 at 390px width: touch targets 44px, contrast 4.5:1, visible focus.
-13. Run the 5 links. Read each summary against the page.
+13. Parity check: compare each of the five pages with its mockup board at 1280px and 390px, light and dark, as listed in [UI reference](../../feature-specs/ui-reference.md). Put screenshots in the PR.
+14. Run the 5 links. Read each summary against the page.
 
 ## Done when
 - [ ] Server starts on your computer and is not reachable from another device (127.0.0.1).
@@ -36,6 +37,7 @@ Phase 0 done. The 5 test links in [sample links](../../reference/sample-links.md
 - [ ] The X post (or another unreadable page) is saved as link only; summary is null; you can paste text.
 - [ ] You compared each summary with its page and found no invented fact.
 - [ ] Grid and List switch on the bookmark page.
+- [ ] Each page matches its mockup board, light and dark, at 1280px and 390px. Every difference is fixed or listed in the UI reference as accepted.
 - [ ] A bookmark made by pasting the same link with `fbclid` is recognized as the same URL.
 - [ ] After a reload, the chat page shows the earlier messages and cards.
 - [ ] `note <id> <text>` changes a reason, and the row shows the user's words, not "guess".
@@ -48,4 +50,4 @@ Many pages cannot be read. Structured output can still end in a refusal or a `ma
 Cut the Grid view; keep List. Cut `note <id>` (edit later). Do not cut honest failure.
 
 ## Links to specs
-[chat and intent](../../feature-specs/chat-and-intent.md) · [page reading](../../feature-specs/page-reading.md) · [bookmark page and views](../../feature-specs/bookmark-page-and-views.md) · [frontend UI](../../feature-specs/frontend-ui.md) · [server API](../../feature-specs/server-api.md) · [storage](../../feature-specs/storage.md) · [honest failure](../../solutions/honest-failure.md) · [hard cases](../../feature-specs/test-cases/hard-cases.md) · [smoke checklist](../../manual-testing/smoke-checklist.md)
+[UI reference](../../feature-specs/ui-reference.md) · [chat and intent](../../feature-specs/chat-and-intent.md) · [page reading](../../feature-specs/page-reading.md) · [bookmark page and views](../../feature-specs/bookmark-page-and-views.md) · [frontend UI](../../feature-specs/frontend-ui.md) · [server API](../../feature-specs/server-api.md) · [storage](../../feature-specs/storage.md) · [honest failure](../../solutions/honest-failure.md) · [hard cases](../../feature-specs/test-cases/hard-cases.md) · [smoke checklist](../../manual-testing/smoke-checklist.md)
