@@ -341,7 +341,9 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         return error_response(400, "empty_message", "The message is empty.")
     note = intent.parse_note(body.message)
     if note is not None:
-        return {"kind": "text", "text": _note_reply(*note)}
+        reply = _note_reply(*note)
+        _record_exchange(body.message, reply, [])
+        return {"kind": "text", "text": reply}
     links = intent.find_links(body.message)
     if not links:
         _record_exchange(body.message, LINKS_ONLY_TEXT, [])
