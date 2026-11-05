@@ -23,9 +23,13 @@ app = FastAPI()
 _write_lock = threading.Lock()
 
 
-def error_response(status: int, code: str, message: str) -> JSONResponse:
+def error_response(
+    status: int, code: str, message: str, headers: dict[str, str] | None = None
+) -> JSONResponse:
     return JSONResponse(
-        status_code=status, content={"error": {"code": code, "message": message}}
+        status_code=status,
+        content={"error": {"code": code, "message": message}},
+        headers=headers,
     )
 
 
@@ -35,10 +39,11 @@ def _not_found(bookmark_id: int) -> JSONResponse:
 
 @app.exception_handler(StarletteHTTPException)
 async def http_error(_: Request, exc: StarletteHTTPException) -> JSONResponse:
+    # Keep exc.headers: a 405 must carry Allow (RFC 9110).
     if exc.status_code == 404:
-        return error_response(404, "not_found", "Not found.")
+        return error_response(404, "not_found", "Not found.", exc.headers)
     code = f"http_{exc.status_code}"
-    return error_response(exc.status_code, code, str(exc.detail))
+    return error_response(exc.status_code, code, str(exc.detail), exc.headers)
 
 
 @app.exception_handler(RequestValidationError)

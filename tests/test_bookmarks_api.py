@@ -137,3 +137,11 @@ def test_unhandled_store_error_returns_json_500(monkeypatch, tmp_path):
             "message": "Something went wrong on the server.",
         }
     }
+
+
+def test_wrong_method_gives_405_with_allow_header(client):
+    response = client.put("/api/bookmarks")
+
+    assert response.status_code == 405
+    assert "GET" in response.headers["allow"]
+    assert response.json()["error"]["code"] == "http_405"
