@@ -36,6 +36,9 @@ FETCH_CONTENT_TYPES = ("text/html", "application/xhtml+xml", "text/plain")
 FETCH_MAX_REDIRECTS = 5
 FETCH_ALLOWED_PORTS = (80, 443)
 FETCH_MAX_URL_CHARS = 2048
+# Seconds allowed for the DNS lookup, so a stalling resolver cannot hold a
+# save open (NF-02).
+FETCH_DNS_TIMEOUT = 5.0
 
 # Minimum text after whitespace is collapsed (PR-04). The fetcher only exposes
 # these; save.py decides when text is too short.
