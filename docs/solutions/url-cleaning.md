@@ -16,7 +16,8 @@ Your sample list had one repeat: the same GitHub repo (`gyoridavid/ai_agents_az`
 4. Keep every other part of the link: other parameters stay as written and in order, and the fragment (`#...`) is kept.
 5. Save both: `url` keeps the link as pasted, and `url_clean` holds the clean link (decided). Fetching, opening and the duplicate check use `url_clean`.
 6. If no parameter is left, the link has no `?`.
-7. Compare clean links to find an exact duplicate.
+7. If the link cannot be parsed (for example `http://[abc`), return it unchanged. It must not turn `/api/chat` into a 500.
+8. Compare clean links to find an exact duplicate.
 
 ## Code
 The function is `clean_url(url)` in `urlclean.py`. It is pure and makes no network call. Tests: `tests/test_url_clean.py`.
@@ -37,4 +38,5 @@ F-01, F-09, F-12 (a shared link may carry tracking text). See [duplicates](../fe
 | Save the repo link without `fbclid`, then with it | Second save is flagged as an exact duplicate |
 | Link with `utm_source` and `utm_campaign` | Both removed |
 | Link with a parameter that is not named | Left unchanged, until an open question is closed |
+| Link that cannot be parsed (`http://[abc`) | Returned unchanged, no error |
 | Two Brotli news articles | Not exact; flagged as similar in phase 5 |
