@@ -18,6 +18,10 @@ main {
   display: none;
 }
 
+.empty[hidden] {
+  display: none;
+}
+
 .empty {
   max-width: var(--measure);
   color: var(--muted);

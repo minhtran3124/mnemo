@@ -121,3 +121,21 @@ def test_record_missing_optional_fields_does_not_break_the_page(client, monkeypa
 
     assert response.status_code == 200
     assert "https://example.com/bare" in response.text
+
+
+def test_page_gives_the_script_what_it_needs_after_a_delete(client):
+    seed(page_status="unreadable", summary=None, title="Locked page")
+    seed(url="https://example.com/b", url_clean="https://example.com/b")
+
+    text = client.get("/bookmarks").text
+
+    assert 'id="bm-banner"' in text
+    assert text.count('data-unreadable="true"') == 1
+    assert '<p class="empty" id="bm-empty" hidden>' in text
+
+
+def test_empty_page_shows_the_empty_message_unhidden(client):
+    text = client.get("/bookmarks").text
+
+    assert '<p class="empty" id="bm-empty">' in text
+    assert 'id="bm-banner"' not in text

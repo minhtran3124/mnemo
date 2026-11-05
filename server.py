@@ -73,7 +73,9 @@ def _bookmark_row(item: dict) -> str:
     unreadable = item.get("page_status") == "unreadable"
     bid = int(item["id"])
     parts = [
-        f'<li class="bm-row" data-id="{bid}">',
+        f'<li class="bm-row" data-id="{bid}"'
+        + (' data-unreadable="true"' if unreadable else "")
+        + ">",
         '<div class="bm-main">',
         (
             f'<a class="bm-title" href="{_esc(item["url"])}" target="_blank" '
@@ -108,12 +110,16 @@ def _bookmark_row(item: dict) -> str:
     return "".join(parts)
 
 
+def _empty_message(hidden: bool) -> str:
+    return (
+        f'<p class="empty" id="bm-empty"{" hidden" if hidden else ""}>'
+        "Nothing saved yet. Paste a link in the chat to save your first bookmark.</p>"
+    )
+
+
 def _bookmark_groups(items: list[dict]) -> str:
     if not items:
-        return (
-            '<p class="empty">Nothing saved yet. Paste a link in the chat '
-            "to save your first bookmark.</p>"
-        )
+        return _empty_message(hidden=False)
     sections = []
     known = set(TYPE_ORDER)
     # A record with a type outside TYPE_ORDER (hand-edited data) must still show.
@@ -132,6 +138,8 @@ def _bookmark_groups(items: list[dict]) -> str:
             f'<ul class="bm-list">{"".join(_bookmark_row(r) for r in rows)}</ul>'
             "</section>"
         )
+    # Hidden until the page script removes the last row after a delete.
+    sections.append(_empty_message(hidden=True))
     return "".join(sections)
 
 
@@ -141,7 +149,7 @@ def bookmarks_page() -> str:
     banner = ""
     if any(item.get("page_status") == "unreadable" for item in items):
         banner = (
-            '<p class="banner" role="note"><strong>Needs a look.</strong> '
+            '<p class="banner" id="bm-banner" role="note"><strong>Needs a look.</strong> '
             "Some pages could not be read. They are saved as links only.</p>"
         )
     page = render_page("bookmarks.html")

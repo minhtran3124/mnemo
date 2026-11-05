@@ -45,7 +45,7 @@ Out: visual style (see [frontend-ui.md](frontend-ui.md)); how search works (see 
 - Served at `GET /bookmarks`. The server draws the list, grouped by type in a fixed order (empty groups skipped). All bookmarks are in Unsorted.
 - Each row shows title, type, host, date, tags, the reason (with a "guess" flag only when `reason_source` is `guess`), and a "page not read" badge for unreadable pages (no summary shown).
 - Test hooks in the markup: `data-open-url` on the title link, `data-delete-url` and `data-confirm` on the Delete button. There is no Move button before phase 3.
-- A "Needs a look" banner shows only when at least one unreadable bookmark exists.
+- A "Needs a look" banner shows only when at least one unreadable bookmark exists. After a delete, the page script removes the banner when the last unreadable row is gone, and shows the empty message when the last bookmark is gone.
 - Not built here: the Grid/List switcher, folders panel, filters and search.
 - **Unverified**: the click flow (open logs a count, Delete confirm and row removal, error message) and the 390px layout have not been checked in a real browser.
 

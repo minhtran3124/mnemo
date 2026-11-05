@@ -20,6 +20,17 @@
     );
   }
 
+  function refreshAfterDelete() {
+    var banner = document.getElementById("bm-banner");
+    if (banner && !document.querySelector(".bm-row[data-unreadable]")) {
+      banner.remove();
+    }
+    var empty = document.getElementById("bm-empty");
+    if (empty && !document.querySelector(".bm-row")) {
+      empty.hidden = false;
+    }
+  }
+
   function onDelete(button) {
     var row = button.closest(".bm-row");
     if (!window.confirm(button.getAttribute("data-confirm"))) {
@@ -38,6 +49,7 @@
         if (group && !group.querySelector(".bm-row")) {
           group.remove();
         }
+        refreshAfterDelete();
       })
       .catch(function () {
         button.disabled = false;
