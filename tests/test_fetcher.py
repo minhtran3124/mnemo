@@ -57,6 +57,11 @@ def test_redirect_limit():
     assert len(calls) == config.FETCH_MAX_REDIRECTS + 1
 
 
+def test_invalid_url_fails_instead_of_raising():
+    result = fetcher.fetch_page("https://example.com/a\x01b", transport(lambda r: None))
+    assert result == FetchFail("the request failed")
+
+
 def test_timeout_is_retried_then_fails():
     calls = []
 

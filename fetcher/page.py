@@ -90,7 +90,8 @@ def with_retry(attempt: Callable[[], FetchOk]) -> FetchOk | FetchFail:
             error = AttemptError("the page timed out", transient=True)
         except httpx2.TransportError:
             error = AttemptError("could not connect to the page", transient=True)
-        except httpx2.HTTPError:
+        except (httpx2.HTTPError, httpx2.InvalidURL):
+            # InvalidURL (control characters in a link) is not an HTTPError subclass.
             return FetchFail("the request failed")
         if number == 1:
             _log.info("transient fetch error, retrying: %s", error.reason)
