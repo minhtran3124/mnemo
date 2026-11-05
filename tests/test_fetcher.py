@@ -149,7 +149,21 @@ def test_github_repo_uses_api_and_returns_description_and_readme():
     assert fetcher.github.parse_repo("https://github.com/octo/hello/issues") is None
 
 
-def test_github_readme_failure_keeps_the_description():
+def test_github_readme_failure_keeps_a_long_enough_description():
+    long_description = "A greeter that says hello to every user in many languages"
+
+    def handler(request):
+        if request.url.path == "/repos/octo/hello":
+            return httpx2.Response(
+                200, content=json.dumps({"description": long_description}).encode()
+            )
+        return httpx2.Response(403, headers={"X-RateLimit-Remaining": "42"})
+
+    result = fetcher.github.fetch_repo("octo", "hello", transport(handler))
+    assert result == FetchOk(text=long_description, source="github")
+
+
+def test_github_thin_description_does_not_hide_the_readme_failure():
     def handler(request):
         if request.url.path == "/repos/octo/hello":
             return httpx2.Response(
@@ -158,7 +172,7 @@ def test_github_readme_failure_keeps_the_description():
         return httpx2.Response(403, headers={"X-RateLimit-Remaining": "42"})
 
     result = fetcher.github.fetch_repo("octo", "hello", transport(handler))
-    assert result == FetchOk(text="A greeter", source="github")
+    assert result == FetchFail("GitHub refused access (403)")
 
     def empty(request):
         if request.url.path == "/repos/octo/hello":

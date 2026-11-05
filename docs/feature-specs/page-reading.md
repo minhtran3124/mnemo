@@ -43,7 +43,7 @@ Researched on 2026-11-05 by a read-only sub-agent. **Every number is a starting 
 | Item | Starting value |
 | --- | --- |
 | Minimum text, HTML page | 300 characters after whitespace is collapsed (PR-04). Trafilatura passes almost any text, so this floor is ours. |
-| Minimum text, GitHub | 40 characters, description and README together |
+| Minimum text, GitHub | 40 characters, description and README together. If the README fails (not a rate limit or transient error), the description alone is kept only when it reaches this floor; otherwise the real README failure reason stands |
 | Calibrate | Run the links in [sample-links.md](../reference/sample-links.md), log the extracted length of each, and set the floor between the shortest readable page and the longest unreadable one |
 | Maximum text | `MAX_PAGE_CHARS` = 20,000 (already in `config.py`) |
 | Timeouts | connect 5 s, read 10 s, write 5 s, pool 5 s, and an own 15 s cap per attempt. httpx has no total timeout, so the read loop checks elapsed time |

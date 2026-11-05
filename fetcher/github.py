@@ -143,8 +143,13 @@ def _attempt(owner: str, repo: str, transport: httpx2.BaseTransport | None) -> F
         except AttemptError as err:
             # A rate limit or a transient error stands, so the link is saved
             # link only or retried (PR-03). Any other README failure leaves
-            # the description alone; without one the failure stands.
-            if err.transient or err.reason == _RATE_LIMIT_REASON or not description:
+            # the description alone, but only when it is long enough to stand
+            # as text; a thin one would hide the real reason, so it stands.
+            if (
+                err.transient
+                or err.reason == _RATE_LIMIT_REASON
+                or len(description) < config.MIN_TEXT_CHARS_GITHUB
+            ):
                 raise
             readme = None
     readme_text = (readme or b"").decode("utf-8", errors="replace").strip()
