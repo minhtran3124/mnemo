@@ -7,7 +7,7 @@ import html
 import logging
 import threading
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit
 
 import uvicorn
 from fastapi import FastAPI, Request
@@ -27,6 +27,12 @@ HOST = "127.0.0.1"
 
 # Found from this file, so it works from any working directory.
 WEB_DIR = Path(__file__).resolve().parent / "web"
+
+# Host names the server answers to. A DNS-rebinding page reaches the loopback
+# server under its own name, so any other Host is refused. "testserver" is the
+# name Starlette's test client sends; a browser cannot reach us under it.
+ALLOWED_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]", "testserver"})
+_SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
 
 app = FastAPI()
 
@@ -189,6 +195,29 @@ def _not_found(bookmark_id: int) -> JSONResponse:
     return error_response(404, "bookmark_not_found", "No bookmark with that id.")
 
 
+def _host_name(netloc: str) -> str:
+    """The host part of a Host header or URL netloc, lower case, without the port."""
+    host = netloc.rsplit("@", 1)[-1].lower()
+    if host.startswith("["):
+        return host.split("]", 1)[0] + "]"
+    return host.split(":", 1)[0]
+
+
+@app.middleware("http")
+async def check_host_and_origin(request: Request, call_next):
+    host = _host_name(request.headers.get("host", ""))
+    if host not in ALLOWED_HOSTS:
+        return error_response(403, "forbidden_host", "This host is not allowed.")
+    origin = request.headers.get("origin")
+    if request.method not in _SAFE_METHODS and origin is not None:
+        origin_host = _host_name(urlsplit(origin).netloc)
+        if origin_host not in ALLOWED_HOSTS:
+            return error_response(
+                403, "forbidden_origin", "This origin is not allowed."
+            )
+    return await call_next(request)
+
+
 @app.exception_handler(StarletteHTTPException)
 async def http_error(_: Request, exc: StarletteHTTPException) -> JSONResponse:
     # Keep exc.headers: a 405 must carry Allow (RFC 9110).
@@ -244,6 +273,31 @@ def delete_bookmark(bookmark_id: int) -> dict | JSONResponse:
     return {"deleted": bookmark_id}
 
 
+class ReasonBody(BaseModel):
+    reason: str | None = None
+
+
+def _set_reason(bookmark_id: int, text: str) -> dict | None:
+    """Set the user's own reason. Return None when the bookmark does not exist."""
+    with _write_lock:
+        if store.get_bookmark(bookmark_id) is None:
+            return None
+        return store.update_bookmark(
+            bookmark_id, {"reason": text, "reason_source": "user"}
+        )
+
+
+@app.patch("/api/bookmarks/{bookmark_id}", response_model=None)
+def patch_bookmark(bookmark_id: int, body: ReasonBody) -> dict | JSONResponse:
+    text = (body.reason or "").strip()
+    if not text:
+        return error_response(400, "empty_reason", "The reason is empty.")
+    updated = _set_reason(bookmark_id, text)
+    if updated is None:
+        return _not_found(bookmark_id)
+    return updated
+
+
 class ChatBody(BaseModel):
     message: str
     pasted_text: str | None = None
@@ -252,10 +306,21 @@ class ChatBody(BaseModel):
 LINKS_ONLY_TEXT = "I can only save links for now. Asking comes later."
 
 
+def _note_reply(bookmark_id: int | None, text: str | None) -> str:
+    if bookmark_id is None or text is None:
+        return "What should the reason say? Write note <id> <text>."
+    if _set_reason(bookmark_id, text) is None:
+        return "I do not have a bookmark with that number."
+    return "Reason updated."
+
+
 @app.post("/api/chat", response_model=None)
 def chat(body: ChatBody) -> dict | JSONResponse:
     if not body.message.strip():
         return error_response(400, "empty_message", "The message is empty.")
+    note = intent.parse_note(body.message)
+    if note is not None:
+        return {"kind": "text", "text": _note_reply(*note)}
     links = intent.find_links(body.message)
     if not links:
         _record_exchange(body.message, LINKS_ONLY_TEXT, [])
@@ -295,6 +360,9 @@ def chat(body: ChatBody) -> dict | JSONResponse:
 
 
 def _cards_reply_text(saved: int, failed: int) -> str:
+    if saved == 0 and failed:
+        n = f"{failed} link{'' if failed == 1 else 's'}"
+        return f"I could not save {'it' if failed == 1 else 'any of the ' + n}."
     text = f"Saved {saved} bookmark{'' if saved == 1 else 's'}."
     if failed:
         text += f" {failed} could not be saved."

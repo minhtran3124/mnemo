@@ -91,3 +91,10 @@ def test_new_app_instance_returns_the_same_history(data_dir):
     after = make_api().get("/api/chat/history").json()
     assert after == before
     assert len(after["messages"]) == 2
+
+    import server
+
+    assert server._cards_reply_text(0, 2) == "I could not save any of the 2 links."
+    assert server._cards_reply_text(0, 1) == "I could not save it."
+    assert server._cards_reply_text(1, 0) == "Saved 1 bookmark."
+    assert server._cards_reply_text(2, 1) == "Saved 2 bookmarks. 1 could not be saved."
