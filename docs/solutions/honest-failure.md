@@ -18,7 +18,7 @@ Many pages cannot be read: logins, paywalls, pages built with JavaScript, blocke
 2. If the fetch still fails, or the text is too short, save the link only.
 3. Set `page_status` to `unreadable` and `summary` to null.
 4. Show a "Page not read" card: "I could not read this page. I saved the link only."
-5. Offer a Paste text field. If you paste text, run the normal save on that text.
+5. Offer a Paste text field. If you paste text, run the normal save on that text. For an existing link-only bookmark, `POST /api/bookmarks/:id/paste` fills in that same bookmark (no second copy): the text is cut once, sent to Claude and stored as `data/pages/<id>.txt`, and `page_status` becomes `ok`. Text under 40 characters gives 400 `text_too_short`; invalid output twice gives 502 `summary_failed` and the bookmark stays link only with no page file. A user-written reason is kept.
 6. For a partial read (for example only a video description), the card says what was used.
 7. Show a "page not read" badge on the bookmark page row.
 

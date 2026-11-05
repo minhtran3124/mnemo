@@ -5,6 +5,7 @@ The app never writes a summary of text it did not see (NF-04,
 docs/solutions/honest-failure.md). All writes go through store.py.
 """
 
+import contextlib
 import logging
 import re
 from pathlib import Path
@@ -171,3 +172,55 @@ def save(url: str, pasted_text: str | None = None) -> dict:
         },
         page_text=text,
     )
+
+
+class FillInError(Exception):
+    """A fill-in was refused. `code` is the API error code."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+
+
+def fill_in(bookmark_id: int, pasted_text: str, write_lock=None) -> dict:
+    """Fill in an unreadable bookmark from pasted text and return the record.
+
+    The same bookmark is updated: id, saved_at, opened_count, folder and a
+    user-written reason are kept. The Claude call runs first and outside
+    write_lock; only the store update runs inside it. Raises store.NotFound
+    (unknown id) or FillInError: already_read, text_too_short, summary_failed.
+    Permanent API errors and a missing key propagate (see _summarise).
+    """
+    lock = write_lock if write_lock is not None else contextlib.nullcontext()
+    current = store.get_bookmark(bookmark_id)
+    if current is None:
+        raise store.NotFound(f"no bookmark with id {bookmark_id}")
+    if current["page_status"] != "unreadable":
+        raise FillInError("already_read", "This page was already read.")
+
+    text = " ".join(pasted_text.split())[: config.MAX_PAGE_CHARS]
+    if len(text) < config.MIN_TEXT_CHARS_PASTED:
+        raise FillInError("text_too_short", "The pasted text is too short.")
+
+    out = _summarise(text)
+    if out is None:
+        raise FillInError("summary_failed", "Could not summarise the pasted text.")
+
+    with lock:
+        # Re-check: another request may have changed the bookmark meanwhile.
+        current = store.get_bookmark(bookmark_id)
+        if current is None:
+            raise store.NotFound(f"no bookmark with id {bookmark_id}")
+        if current["page_status"] != "unreadable":
+            raise FillInError("already_read", "This page was already read.")
+        fields = {
+            "type": out.type,
+            "title": out.title.strip(),
+            "page_status": "ok",
+            "summary": out.summary.strip(),
+            "tags": out.tags,
+        }
+        if current["reason_source"] != "user":
+            fields["reason"] = out.reason.strip()
+            fields["reason_source"] = "guess"
+        return store.update_bookmark_with_page(bookmark_id, fields, text)

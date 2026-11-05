@@ -33,6 +33,7 @@ Out: the record shape ([data-model.md](data-model.md)).
 | `get_bookmark(id)` | Return one record |
 | `list_bookmarks(filters)` | Return records in saved order; filters `folder`, `type`, `tag` |
 | `update_bookmark(id, fields)` | Change fields (for example folder) and validate again; `id`, `saved_at` and `page_file` cannot change |
+| `update_bookmark_with_page(id, fields, page_text)` | Like `update_bookmark`, and write the page file after the record validates; remove the page file again if the record cannot be saved. Used to fill in an unreadable bookmark |
 | `delete_bookmark(id)` | Remove record and page file |
 | `read_page(id)` | Return saved page text, or `None` if the file is missing |
 | `list_folders()` | Named folders with counts (`{folder, count}`); Unsorted is not listed |
