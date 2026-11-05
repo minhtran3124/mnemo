@@ -32,3 +32,23 @@ def find_links(text: str) -> list[str]:
         if re.match(r"https?://.", link, re.IGNORECASE) and link not in links:
             links.append(link)
     return links
+
+
+# `note`, then an optional id of digits, then optional text.
+_NOTE = re.compile(r"note(?:\s+(\d+))?(?:\s+(.*))?", re.IGNORECASE | re.DOTALL)
+
+
+def parse_note(message: str) -> tuple[int | None, str | None] | None:
+    """Read a `note <id> <text>` command.
+
+    Return None when the message is not a note command. Otherwise return
+    (id or None, text or None); a missing part gets the "what should it say" reply.
+    """
+    match = _NOTE.fullmatch(message.strip())
+    if match is None:
+        return None
+    raw_id, raw_text = match.groups()
+    if raw_id is None and raw_text is not None:
+        return None  # `note abc x` is not a note command
+    text = raw_text.strip() if raw_text else None
+    return (int(raw_id) if raw_id else None, text or None)
