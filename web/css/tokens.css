@@ -1,0 +1,60 @@
+/* Design tokens for the V3 ledger look. The only file with raw colour values. */
+
+/* Light is the base. System follows the device through the media query below. */
+:root {
+  color-scheme: light;
+  --bg: #F4F6F8;
+  --surface: #FFFFFF;
+  --ink: #101828;
+  --ink2: #1D2939;
+  --muted: #4B5565;
+  --line-strong: #101828;
+  --rule: #D0D5DD;
+  --ctl-line: #667085;
+  --accent: #C2371A;
+  --accent-hover: #8F2810;
+  --on-accent: #FFFFFF;
+  --warn-bg: #FFF4D6;
+  --warn: #7A4B00;
+  --warn-text: #5C3800;
+}
+
+/* System: dark device, unless the user chose Light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #12151B;
+    --surface: #1B2029;
+    --ink: #E8ECF2;
+    --ink2: #CBD2DD;
+    --muted: #A3ADBD;
+    --line-strong: #9AA4B5;
+    --rule: #2D3541;
+    --ctl-line: #7F8A9C;
+    --accent: #FF8A6B;
+    --accent-hover: #FFB39E;
+    --on-accent: #12151B;
+    --warn-bg: #2A2210;
+    --warn: #E9C46A;
+    --warn-text: #F3DC9C;
+  }
+}
+
+/* Explicit Dark wins over the device setting. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #12151B;
+  --surface: #1B2029;
+  --ink: #E8ECF2;
+  --ink2: #CBD2DD;
+  --muted: #A3ADBD;
+  --line-strong: #9AA4B5;
+  --rule: #2D3541;
+  --ctl-line: #7F8A9C;
+  --accent: #FF8A6B;
+  --accent-hover: #FFB39E;
+  --on-accent: #12151B;
+  --warn-bg: #2A2210;
+  --warn: #E9C46A;
+  --warn-text: #F3DC9C;
+}

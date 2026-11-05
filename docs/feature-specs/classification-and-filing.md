@@ -42,7 +42,7 @@ Out: folder rules in detail (see [folders.md](folders.md)).
 | --- | --- |
 | Format | One JSON object: `type`, `title`, `summary`, `tags`, `reason`, `folder`. |
 | How | Structured outputs (D-025): `client.messages.parse(output_format=<Pydantic model>)`, result in `response.parsed_output`. No prefill, no stop sequence, no beta header. `claude-haiku-5-5` supports it ([docs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs), checked in api-notes item 13). |
-| What the API cannot enforce | `minLength`, `maxLength`, `maxItems` and number limits are not supported in the schema. Code checks 3 to 6 tags and 60 words itself (CF-02, CF-03, DM-02). |
+| What the API cannot enforce | `minLength`, `maxLength`, `maxItems` and number limits are not supported in the schema. Code checks 3 to 6 distinct lowercase tags and 60 words itself; `type` is a literal of the allowed values in the schema (CF-02, CF-03, DM-02). |
 | Bad stop reason | `refusal` and `max_tokens` can give output that does not match the schema. Treat both as invalid: retry once, then save link only. |
 | Temperature | Not set. `Messages.create()` in `anthropic` 2.4.0 has no `temperature` parameter. |
 | Limits | Structured outputs cannot be combined with citations (400 error). Phase 6 quotes need another way ([api-notes](../reference/api-notes.md) item 13). |
@@ -56,6 +56,9 @@ Claude picks from the folders that exist, or `Unsorted`. If unsure, it must choo
 | Case | Behavior |
 | --- | --- |
 | Invalid output (schema mismatch, `refusal`, `max_tokens`) | One retry. Then save link only and say so. |
+| Transient API error (connection, timeout, 429, 5xx, 408, 409, 529) | One retry. Then save link only. Logged once per retry and per fallback with the exception class and status code. |
+| Permanent API error (400, 401, 403, 404, other 4xx) or missing API key | Do not retry and do not swallow. The error propagates, so a revoked key never looks like an unreadable page. See [honest-failure.md](../solutions/honest-failure.md). |
+| Tags repeat after lowercasing | Duplicates are dropped before the 3 to 6 count. |
 | Tag count is 2 or 7 | Reject. Retry once. |
 | Summary is 61 words | Reject. Retry once. |
 | Unreadable page | No Claude call for a summary. `summary` = `null`. |

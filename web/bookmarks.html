@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bookmarks - Mnemo</title>
+  <link rel="stylesheet" href="/static/css/tokens.css">
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/bookmarks.css">
+  <script src="/static/js/theme.js"></script>
+  <script src="/static/js/bookmarks.js" defer></script>
+  <script src="/static/js/view-switcher.js" defer></script>
+</head>
+<body>
+<!--HEADER-->
+<main>
+  <h1>Bookmarks</h1>
+  <div class="view-switcher">
+    <span class="view-label">View</span>
+    <div class="view-group" role="group" aria-label="View">
+      <button type="button" class="view-btn" data-view="ledger" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Ledger</button>
+      <button type="button" class="view-btn" data-view="cards" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Cards</button>
+    </div>
+  </div>
+  <!--BANNER-->
+  <p id="bm-status" class="status" role="status" hidden></p>
+  <div id="bm-groups">
+<!--BOOKMARKS-->
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,321 @@
+/* Base look. Colours come from tokens.css only. */
+
+@font-face {
+  font-family: "Newsreader";
+  src: url("/static/fonts/Newsreader.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Public Sans";
+  src: url("/static/fonts/PublicSans.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Spline Sans Mono";
+  src: url("/static/fonts/SplineSansMono.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-sans: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Spline Sans Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  --radius: 0.375rem;
+  --control: 2.75rem;
+  --measure: 68ch;
+
+  /* Sizes read from the V3 boards (laptop first, phone below 40rem). */
+  --page-pad: 3rem;
+  --text-body: 1.0625rem;
+  --lh-body: 1.55;
+  --brand-size: 1.75rem;
+  --h1-size: 3rem;
+  --h2-size: 1.875rem;
+  --text-meta: 0.8125rem;
+  --row-title-size: 1.3125rem;
+}
+
+@media (max-width: 40rem) {
+  :root {
+    --page-pad: 1rem;
+    --text-body: 1rem;
+    --lh-body: 1.5;
+    --brand-size: 1.5rem;
+    --h1-size: 2rem;
+    --h2-size: 1.5rem;
+    --row-title-size: 1.1875rem;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+}
+
+h1,
+h2 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 var(--space-3);
+}
+
+h1 {
+  font-size: var(--h1-size);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: var(--h2-size);
+}
+
+a {
+  color: var(--accent);
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* Header */
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-6);
+  padding: 1.25rem var(--page-pad) 0;
+}
+
+/* The 3px double rule under the header, inset like the page padding. */
+.site-header::after {
+  content: "";
+  flex: 0 0 100%;
+  border-top: 3px double var(--line-strong);
+}
+
+.brand {
+  font-family: var(--font-serif);
+  font-size: var(--brand-size);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control);
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-left: auto;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control);
+  padding: 0 var(--space-2);
+  color: var(--muted);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* Theme control */
+.theme-control {
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+
+/* Icon only, like the board. The text stays for screen readers. */
+.theme-btn span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.theme-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: var(--control);
+  min-height: var(--control);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.theme-btn:first-child {
+  border-radius: calc(var(--radius) - 1px) 0 0 calc(var(--radius) - 1px);
+}
+
+.theme-btn:last-child {
+  border-radius: 0 calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0;
+}
+
+.theme-btn:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+
+.theme-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.theme-btn[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* Page body */
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: var(--space-6) var(--page-pad) var(--space-8);
+}
+
+.panel {
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  border: 0;
+}
+
+.panel legend {
+  padding: 0;
+  float: left;
+  width: 100%;
+}
+
+.panel legend h2 {
+  margin: 0 0 var(--space-3);
+}
+
+@media (max-width: 40rem) {
+  .panel legend h2 {
+    font-size: 1.375rem;
+  }
+}
+
+.choice {
+  clear: both;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-height: 4rem;
+  padding: 0.625rem 0;
+  border-top: 1px solid var(--rule);
+  cursor: pointer;
+}
+
+.choice input {
+  flex: 0 0 1.375rem;
+  width: 1.375rem;
+  height: 1.375rem;
+  margin: 0;
+  appearance: none;
+  border: 2px solid var(--line-strong);
+  border-radius: 50%;
+  background: transparent;
+}
+
+.choice input:checked {
+  background: var(--ink);
+  box-shadow: inset 0 0 0 4px var(--bg);
+}
+
+.choice-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.choice-text span {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.choice svg {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.note {
+  max-width: var(--measure);
+  margin: var(--space-3) 0 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .theme-btn {
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+}

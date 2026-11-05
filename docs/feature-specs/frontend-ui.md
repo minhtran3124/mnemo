@@ -69,7 +69,7 @@ Final wording: Open question.
 | --- | --- |
 | Page not readable | "Page not read" card, paste option |
 | Server not reachable | A clear message, no blank page |
-| API error or limit reached | A short message; the bookmark is still saved as link only. Open question: exact behavior |
+| Transient API error or limit reached | A short message; the bookmark is still saved as link only. A permanent error (bad or revoked key) is shown as a server error, not as an unreadable page. See [honest-failure.md](../solutions/honest-failure.md) |
 | Login failed (phase A) | A short message |
 
 ## Acceptance criteria
@@ -94,3 +94,7 @@ Manual: see `manual-testing`.
 - Wording of empty and error states.
 - Fonts: self-hosted (D-026, Q-16 answered). Loading from Google Fonts would send a request to Google on every page load and fail offline, which clashes with local-first (D-007). Open: check each font's licence when the files are added.
 - Tooling: UI edits are checked by the Impeccable design hook (D-020). `PRODUCT.md` in the project root is the product record for design work; keep it in step with this spec.
+
+## Layout of the web folder
+
+- `web/css`, `web/js` and `web/fonts` are served at `/static/css`, `/static/js` and `/static/fonts` (pages and partials are not served as files); `web/partials/header.html` is the shared header (inserted by `render_page` in `server.py`); Settings is at `/settings`. The Bookmark page is `GET /bookmarks`, built from `web/bookmarks.html` with `web/css/bookmarks.css` and `web/js/bookmarks.js`; the server draws the rows (every value escaped) and fills them in at `<!--BOOKMARKS-->`.
