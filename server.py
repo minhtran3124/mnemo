@@ -58,7 +58,8 @@ async def _validation_error(_: Request, exc: RequestValidationError) -> JSONResp
 
 
 async def _unhandled_error(_: Request, exc: Exception) -> JSONResponse:
-    logger.error("unhandled error: %s", type(exc).__name__)
+    # The traceback goes to the server log only, never into the response.
+    logger.error("unhandled error: %s", type(exc).__name__, exc_info=exc)
     return error_response(500, "server_error", "Something went wrong on the server.")
 
 
