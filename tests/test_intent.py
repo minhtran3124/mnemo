@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 import intent
@@ -24,6 +26,6 @@ def test_find_links(text, expected):
 
 
 def test_intent_imports_no_client_or_fetcher():
-    source = open(intent.__file__, encoding="utf-8").read()
+    source = Path(intent.__file__).read_text(encoding="utf-8")
     for name in ("import client", "anthropic", "import fetcher"):
         assert name not in source
