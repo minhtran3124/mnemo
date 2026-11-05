@@ -152,6 +152,11 @@ a:hover {
   cursor: pointer;
 }
 
+.theme-btn:focus-visible {
+  position: relative;
+  z-index: 1;
+}
+
 .theme-btn:first-child {
   border-radius: calc(var(--radius) - 1px) 0 0 calc(var(--radius) - 1px);
 }

@@ -128,6 +128,13 @@ def test_theme_control_does_not_clip_the_focus_ring():
     assert "overflow" not in block
 
 
+def test_focused_theme_button_paints_above_its_siblings():
+    css = (WEB / "css" / "base.css").read_text(encoding="utf-8")
+    block = re.search(r"\.theme-btn:focus-visible\s*\{([^}]*)\}", css).group(1)
+    assert re.search(r"position:\s*relative", block)
+    assert re.search(r"z-index:\s*1", block)
+
+
 def test_site_nav_wraps_on_narrow_phones():
     css = (WEB / "css" / "base.css").read_text(encoding="utf-8")
     block = re.search(r"\.site-nav\s*\{([^}]*)\}", css).group(1)
