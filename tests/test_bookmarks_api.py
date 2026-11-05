@@ -117,3 +117,23 @@ def test_concurrent_opens_do_not_lose_updates(client):
 
     assert set(codes) == {200}
     assert store.get_bookmark(item["id"])["opened_count"] == 40
+
+
+def test_unhandled_store_error_returns_json_500(monkeypatch, tmp_path):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", FAKE_KEY)
+    monkeypatch.setattr(store, "DATA_DIR", tmp_path)
+    import server
+
+    def corrupt():
+        raise store.StoreError("bookmarks.json is corrupt at /secret/path")
+
+    monkeypatch.setattr(store, "list_bookmarks", corrupt)
+    client = TestClient(server.app, raise_server_exceptions=False)
+    response = client.get("/api/bookmarks")
+    assert response.status_code == 500
+    assert response.json() == {
+        "error": {
+            "code": "server_error",
+            "message": "Something went wrong on the server.",
+        }
+    }

@@ -46,6 +46,12 @@ async def validation_error(_: Request, exc: RequestValidationError) -> JSONRespo
     return error_response(400, "bad_request", "The request is not valid.")
 
 
+@app.exception_handler(Exception)
+async def unhandled_error(_: Request, exc: Exception) -> JSONResponse:
+    # Never echo the exception text: it can hold file paths or page content.
+    return error_response(500, "server_error", "Something went wrong on the server.")
+
+
 @app.get("/api/bookmarks")
 def list_bookmarks() -> list[dict]:
     return store.list_bookmarks()
