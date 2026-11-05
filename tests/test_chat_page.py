@@ -139,6 +139,35 @@ def test_pasted_text_for_a_link_only_entry_replaces_it(client, monkeypatch):
     assert [b["id"] for b in client.get("/api/bookmarks").json()] == [card["id"]]
 
 
+def test_pasted_text_keeps_the_id_and_the_users_edits(client, monkeypatch):
+    _fake_save_calls(monkeypatch)
+    url = "https://example.com/slack"
+    first = client.post("/api/chat", json={"message": url}).json()["cards"][0]
+    store.update_bookmark(
+        first["id"],
+        {
+            "reason": "for the talk",
+            "reason_source": "user",
+            "folder": "Work",
+            "opened_count": 3,
+        },
+    )
+
+    pasted = "pasted words " * 10
+    reply = client.post("/api/chat", json={"message": url, "pasted_text": pasted})
+
+    card = reply.json()["cards"][0]
+    assert card["id"] == first["id"]
+    assert card["page_status"] == "ok"
+    assert card["saved_at"] == first["saved_at"]
+    assert card["reason"] == "for the talk"
+    assert card["reason_source"] == "user"
+    assert card["folder"] == "Work"
+    assert card["opened_count"] == 3
+    assert store.read_page(first["id"]).startswith("pasted words")
+    assert len(client.get("/api/bookmarks").json()) == 1
+
+
 def test_too_short_paste_for_a_link_only_entry_adds_no_second_record(
     client, monkeypatch
 ):
