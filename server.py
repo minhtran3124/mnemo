@@ -44,7 +44,13 @@ async def _http_error(_: Request, exc: StarletteHTTPException) -> JSONResponse:
     code = _HTTP_CODES.get(exc.status_code, "server_error")
     if exc.status_code == 404:
         return error_response(404, code, "Not found.")
-    return error_response(exc.status_code, code, str(exc.detail))
+    # Only a plain-text detail is a message a route wrote on purpose. A dict,
+    # list or other object never goes into the body.
+    if isinstance(exc.detail, str) and exc.detail:
+        message = exc.detail
+    else:
+        message = "The request could not be completed."
+    return error_response(exc.status_code, code, message)
 
 
 async def _validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:

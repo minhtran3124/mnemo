@@ -87,3 +87,19 @@ def test_http_statuses_get_a_matching_error_code(app, status, code):
 
     assert response.status_code == status
     assert response.json() == {"error": {"code": code, "message": "Nope."}}
+
+
+@pytest.mark.parametrize("detail", [{"path": "/etc/secret"}, ["a", "b"], 42])
+def test_non_text_http_detail_never_reaches_the_response(app, detail):
+    from fastapi import HTTPException
+
+    @app.get("/_test/odd-detail")
+    def raise_odd() -> None:
+        raise HTTPException(status_code=409, detail=detail)
+
+    response = TestClient(app).get("/_test/odd-detail")
+
+    assert response.status_code == 409
+    assert response.json() == {
+        "error": {"code": "conflict", "message": "The request could not be completed."}
+    }
