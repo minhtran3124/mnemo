@@ -21,14 +21,6 @@ import urlclean
 PROMPT_FILE = Path(__file__).resolve().parent / "prompts" / "save_system.txt"
 ATTEMPTS = 2
 
-# Only these API errors are worth a second try. Auth and bad-request errors
-# (400, 401, 403) are permanent, so they propagate instead of hiding as link only.
-TRANSIENT = (
-    anthropic.APIConnectionError,
-    anthropic.RateLimitError,
-    anthropic.InternalServerError,
-)
-
 _log = logging.getLogger("mnemo.save")
 
 
@@ -66,7 +58,7 @@ def _summarise(text: str) -> SaveOutput | None:
     for _ in range(ATTEMPTS):
         try:
             out = client.parse(messages, SaveOutput, system=system)
-        except TRANSIENT as err:
+        except anthropic.APIError as err:
             _log.warning(
                 "claude call failed, will retry or save link only: %s",
                 type(err).__name__,
