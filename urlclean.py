@@ -11,7 +11,11 @@ def clean_url(url: str) -> str:
 
     Names match ignoring case. Other parameters stay as written and in order,
     no empty '?' is left behind, and the fragment is kept. No network call.
+    A link that cannot be parsed is returned unchanged.
     """
-    parts = urlsplit(url)
+    try:
+        parts = urlsplit(url)
+    except ValueError:
+        return url
     kept = [pair for pair in parts.query.split("&") if pair and not _is_tracking(pair)]
     return urlunsplit(parts._replace(query="&".join(kept)))
