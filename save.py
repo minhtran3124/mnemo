@@ -5,6 +5,7 @@ The app never writes a summary of text it did not see (NF-04,
 docs/solutions/honest-failure.md). All writes go through store.py.
 """
 
+import logging
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -19,6 +20,16 @@ import urlclean
 
 PROMPT_FILE = Path(__file__).resolve().parent / "prompts" / "save_system.txt"
 ATTEMPTS = 2
+
+# Only these API errors are worth a second try. Auth and bad-request errors
+# (400, 401, 403) are permanent, so they propagate instead of hiding as link only.
+TRANSIENT = (
+    anthropic.APIConnectionError,
+    anthropic.RateLimitError,
+    anthropic.InternalServerError,
+)
+
+_log = logging.getLogger("mnemo.save")
 
 
 class SaveOutput(BaseModel):
@@ -55,7 +66,13 @@ def _summarise(text: str) -> SaveOutput | None:
     for _ in range(ATTEMPTS):
         try:
             out = client.parse(messages, SaveOutput, system=system)
-        except (anthropic.APIError, RuntimeError, ValidationError):
+        except TRANSIENT as err:
+            _log.warning(
+                "claude call failed, will retry or save link only: %s",
+                type(err).__name__,
+            )
+            continue
+        except (RuntimeError, ValidationError):
             continue
         checked = _check(out)
         if checked is not None:

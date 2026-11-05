@@ -1,4 +1,5 @@
 import anthropic
+import httpx2
 import pytest
 
 import config
@@ -109,11 +110,27 @@ def test_runtime_error_retries_then_link_only(fetch_calls, parse_calls, data_dir
 
 
 def test_api_error_retries_then_link_only(fetch_calls, parse_calls, data_dir):
-    error = anthropic.APIError("timeout", request=None, body=None)
+    request = httpx2.Request("POST", "https://api.anthropic.com/v1/messages")
+    error = anthropic.APIConnectionError(request=request)
     parse_calls["replies"] = [error, error]
     record = save.save(URL)
     assert len(parse_calls["calls"]) == 2
     assert_link_only(record, data_dir)
+
+
+@pytest.mark.parametrize("status", [400, 401, 403])
+def test_permanent_api_error_propagates(fetch_calls, parse_calls, data_dir, status):
+    request = httpx2.Request("POST", "https://api.anthropic.com/v1/messages")
+    response = httpx2.Response(status, request=request)
+    error_cls = {
+        400: anthropic.BadRequestError,
+        401: anthropic.AuthenticationError,
+        403: anthropic.PermissionDeniedError,
+    }[status]
+    parse_calls["replies"] = [error_cls("denied", response=response, body=None)]
+    with pytest.raises(error_cls):
+        save.save(URL)
+    assert len(parse_calls["calls"]) == 1
 
 
 def test_fetch_failure_saves_link_only(monkeypatch, parse_calls, data_dir):
