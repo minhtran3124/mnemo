@@ -111,3 +111,13 @@ def test_unknown_type_still_shows_under_other(client, monkeypatch):
 
     assert "Odd one" in response.text
     assert 'data-type="other"' in response.text
+
+
+def test_record_missing_optional_fields_does_not_break_the_page(client, monkeypatch):
+    bare = {"id": 7, "url": "https://example.com/bare", "reason": "why"}
+    monkeypatch.setattr(store, "list_bookmarks", lambda *a, **k: [bare])
+
+    response = client.get("/bookmarks")
+
+    assert response.status_code == 200
+    assert "https://example.com/bare" in response.text

@@ -68,9 +68,9 @@ def _esc(value: object) -> str:
 
 
 def _bookmark_row(item: dict) -> str:
-    title = item["title"] or item["url"]
+    title = item.get("title") or item["url"]
     host = urlparse(item["url"]).hostname or ""
-    unreadable = item["page_status"] == "unreadable"
+    unreadable = item.get("page_status") == "unreadable"
     bid = int(item["id"])
     parts = [
         f'<li class="bm-row" data-id="{bid}">',
@@ -81,9 +81,9 @@ def _bookmark_row(item: dict) -> str:
             f"{_esc(title)}</a>"
         ),
         (
-            f'<p class="bm-meta"><span>{_esc(item["type"])}</span> '
+            f'<p class="bm-meta"><span>{_esc(item.get("type", ""))}</span> '
             f"<span>{_esc(host)}</span> "
-            f"<span>{_esc(str(item['saved_at'])[:10])}</span></p>"
+            f"<span>{_esc(str(item.get('saved_at') or '')[:10])}</span></p>"
         ),
     ]
     if unreadable:
@@ -92,7 +92,7 @@ def _bookmark_row(item: dict) -> str:
         parts.append(f'<p class="bm-summary">{_esc(item["summary"])}</p>')
     if item.get("reason"):
         flag = ""
-        if item["reason_source"] == "guess":
+        if item.get("reason_source") == "guess":
             flag = ' <span class="badge">guess</span>'
         parts.append(f'<p class="bm-reason">{_esc(item["reason"])}{flag}</p>')
     if item.get("tags"):
@@ -121,9 +121,9 @@ def _bookmark_groups(items: list[dict]) -> str:
     groups.append(("other", "Other", None))
     for kind, label, match in groups:
         if match is None:
-            rows = [item for item in items if item["type"] not in known]
+            rows = [item for item in items if item.get("type") not in known]
         else:
-            rows = [item for item in items if item["type"] == match]
+            rows = [item for item in items if item.get("type") == match]
         if not rows:
             continue
         sections.append(
@@ -139,7 +139,7 @@ def _bookmark_groups(items: list[dict]) -> str:
 def bookmarks_page() -> str:
     items = store.list_bookmarks()
     banner = ""
-    if any(item["page_status"] == "unreadable" for item in items):
+    if any(item.get("page_status") == "unreadable" for item in items):
         banner = (
             '<p class="banner" role="note"><strong>Needs a look.</strong> '
             "Some pages could not be read. They are saved as links only.</p>"
