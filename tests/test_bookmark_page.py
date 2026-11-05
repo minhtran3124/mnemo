@@ -1,0 +1,101 @@
+import pytest
+from fastapi.testclient import TestClient
+
+import store
+
+FAKE_KEY = "sk-ant-fake-key-for-tests"
+
+
+@pytest.fixture
+def client(monkeypatch, tmp_path):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", FAKE_KEY)
+    monkeypatch.setattr(store, "DATA_DIR", tmp_path)
+    import server
+
+    return TestClient(server.app)
+
+
+def seed(**overrides):
+    record = {
+        "url": "https://www.example.com/a?x=1",
+        "url_clean": "https://example.com/a",
+        "type": "article",
+        "title": "An article",
+        "page_status": "ok",
+        "summary": "A short summary.",
+        "tags": ["testing", "login", "python"],
+        "reason": "",
+        "reason_source": "guess",
+        "folder": None,
+        "opened_count": 0,
+    }
+    record.update(overrides)
+    return store.add_bookmark(record, page_text="page body")
+
+
+def test_page_is_served_with_header_and_no_move_or_banner(client):
+    seed()
+
+    response = client.get("/bookmarks")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/html")
+    assert 'class="site-header"' in response.text
+    assert "Move" not in response.text
+    assert "Needs a look" not in response.text
+
+
+def test_row_shows_fields_and_escapes_text(client):
+    seed(title="<script>alert(1)</script>", tags=["alpha", "beta", "gamma"])
+
+    text = client.get("/bookmarks").text
+
+    assert "<script>alert(1)</script>" not in text
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in text
+    assert "article" in text
+    assert "www.example.com" in text
+    for tag in ("alpha", "beta", "gamma"):
+        assert tag in text
+    assert store.list_bookmarks()[0]["saved_at"][:10] in text
+
+
+def test_guess_reason_is_flagged_and_user_reason_is_not(client):
+    seed(reason="Looks useful for login work", reason_source="guess")
+    guess_text = client.get("/bookmarks").text
+    assert "Looks useful for login work" in guess_text
+    assert "guess" in guess_text.lower()
+
+    store.delete_bookmark(1)
+    seed(reason="Needed for my talk", reason_source="user")
+    user_text = client.get("/bookmarks").text
+    assert "Needed for my talk" in user_text
+    assert "guess" not in user_text.lower()
+
+
+def test_unreadable_bookmark_shows_badge_and_banner(client):
+    seed(page_status="unreadable", summary=None, title="Locked page")
+
+    text = client.get("/bookmarks").text
+
+    assert "page not read" in text
+    assert "Needs a look" in text
+
+
+def test_title_link_carries_the_open_url(client):
+    saved = seed()
+
+    text = client.get("/bookmarks").text
+
+    assert f'data-open-url="/api/bookmarks/{saved["id"]}/open"' in text
+    assert 'href="https://www.example.com/a?x=1"' in text.replace("&amp;", "&")
+
+
+def test_delete_button_carries_delete_url_and_confirm_text(client):
+    saved = seed(title="Quarterly plan")
+
+    text = client.get("/bookmarks").text
+
+    assert f'data-delete-url="/api/bookmarks/{saved["id"]}"' in text
+    assert 'data-confirm="' in text
+    confirm = text.split('data-confirm="', 1)[1].split('"', 1)[0]
+    assert "Quarterly plan" in confirm
