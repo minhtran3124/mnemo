@@ -39,15 +39,17 @@ This file lists the real links you sent while we made the plan, what a fetch too
 
 ## Phase 1 test set
 
-The 5 links for the [phase 1 plan](../product/plans/phase-1-chat-and-bookmark-pages.md). All have a full address and fit the existing types (no `docs` or `other` needed).
+The 5 links for the [phase 1 plan](../product/plans/phase-1-chat-and-bookmark-pages.md). All have a full address and fit the existing types (no `docs` or `other` needed). Row 1 is a public login page, because the X post (#1 above) turned out to be readable by Mnemo's own fetcher.
 
 | # | Link row | Why it is in the set |
 | --- | --- | --- |
-| 1 | #1, the X post | The unreadable case: link only, null summary, paste text works. |
+| 1 | `https://www.instagram.com/accounts/login/` (not one of the 21 rows) | The unreadable case: link only, null summary, paste text works. Checked on 2026-11-05: Mnemo's own fetcher saves it as `unreadable` with a null summary. |
 | 2 | #2, dev.to Pocket guide | A promotional article: the summary must hold only facts from the page. |
 | 3 | #4, Hugging Face blog | A normal article. |
 | 4 | #7, `subframe7536/maple-font` | A GitHub repo through the GitHub API; tags must not be forced into AI topics. |
 | 5 | #8, `gyoridavid/ai_agents_az` | A GitHub repo. Then paste it again with `?fbclid=abc` added: it must be recognized as the same `url_clean`. |
+
+Informational, not part of the 5: the X post (#1 in the table above) is readable by Mnemo's own fetcher (`page_status` ok, summary written from the page text on the 2026-11-05 run). It no longer tests the unreadable path. **Unverified:** whether it stays readable on later runs. `https://www.linkedin.com/login` also saved as link only. `https://www.facebook.com/login/` was read (`page_status` ok), so it does not test the unreadable path.
 
 ## Hard cases that are not in the 20
 

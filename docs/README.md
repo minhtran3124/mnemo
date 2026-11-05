@@ -34,7 +34,7 @@ Building these pages found conflicts between docs. They are not fixed yet: JSON 
 | --- | --- |
 | [`product/`](product/) | PRD, roadmap, phases overview. [`product/plans/`](product/plans/) has one plan per phase (0 to 10, A, B, C). |
 | [`feature-specs/`](feature-specs/) | One spec per feature area: data model, chat, page reading, filing, folders, views, search, import, API, privacy, storage. [`test-cases/`](feature-specs/test-cases/) has the golden sets and hard cases. |
-| [`manual-testing/`](manual-testing/) | Test strategy, smoke checklist, the two-week user test, phone and Shortcut test. |
+| [`manual-testing/`](manual-testing/) | Test strategy, smoke checklist, the two-week user test, phone and Shortcut test, [phase 1 links check](manual-testing/phase1-links-check.md). |
 | [`process/`](process/) | How we work: agreements, definition of done, eval process, secrets, session log, decision log. |
 | [`reference/`](reference/) | Glossary, course map, competitors, API notes to verify, sample links. |
 | [`research/`](research/) | Open questions, local vs online, naming, hosting check, embeddings alternatives. |
