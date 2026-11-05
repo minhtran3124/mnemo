@@ -63,6 +63,11 @@ TYPE_LABELS = {
 }
 
 
+# Phase 1 has no folder picker, so the page names the one folder every bookmark
+# is in. A null folder in the data means Unsorted (docs/feature-specs/storage.md).
+UNSORTED_FOLDER = "Unsorted"
+
+
 def _esc(value: object) -> str:
     return html.escape(str(value), quote=True)
 
@@ -121,9 +126,8 @@ def _empty_message(hidden: bool) -> str:
 def _bookmark_groups(items: list[dict]) -> str:
     if not items:
         return _empty_message(hidden=False)
-    # Phase 1 has no real folders: every bookmark is in Unsorted. Say so.
     sections = [
-        '<p class="bm-folder" id="bm-folder">Folder: <strong>Unsorted</strong></p>'
+        f'<p class="bm-folder" id="bm-folder">Folder: <strong>{UNSORTED_FOLDER}</strong></p>'
     ]
     known = set(TYPE_ORDER)
     # A record with a type outside TYPE_ORDER (hand-edited data) must still show.
@@ -219,9 +223,9 @@ def open_bookmark(bookmark_id: int) -> dict | JSONResponse:
         item = store.get_bookmark(bookmark_id)
         if item is None:
             return _not_found(bookmark_id)
-        count = item.get("opened_count")
-        count = count if isinstance(count, int) else 0
-        updated = store.update_bookmark(bookmark_id, {"opened_count": count + 1})
+        updated = store.update_bookmark(
+            bookmark_id, {"opened_count": item["opened_count"] + 1}
+        )
     store.log_event({"event": "open", "id": bookmark_id})
     return updated
 

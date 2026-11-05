@@ -25,13 +25,17 @@
     if (banner && !document.querySelector(".bm-row[data-unreadable]")) {
       banner.remove();
     }
+    if (document.querySelector(".bm-row")) {
+      return;
+    }
+    // No rows left: drop the folder line and show the empty message.
+    var folder = document.getElementById("bm-folder");
+    if (folder) {
+      folder.remove();
+    }
     var empty = document.getElementById("bm-empty");
-    if (empty && !document.querySelector(".bm-row")) {
+    if (empty) {
       empty.hidden = false;
-      var folder = document.getElementById("bm-folder");
-      if (folder) {
-        folder.remove();
-      }
     }
   }
 
