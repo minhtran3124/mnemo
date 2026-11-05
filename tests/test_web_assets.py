@@ -103,3 +103,9 @@ def test_settings_page_has_appearance_radios_and_remember_line(client):
     assert len(re.findall(r'type="radio"', body)) == 3
     assert "Mnemo remembers your choice on this device." in body
     assert "<header" in body
+
+
+def test_theme_control_does_not_clip_the_focus_ring():
+    css = (WEB / "css" / "base.css").read_text(encoding="utf-8")
+    block = re.search(r"\.theme-control\s*\{([^}]*)\}", css).group(1)
+    assert "overflow" not in block

@@ -133,7 +133,6 @@ a:hover {
   padding: 0;
   border: 1px solid var(--ctl-line);
   border-radius: var(--radius);
-  overflow: hidden;
 }
 
 .theme-btn {
@@ -150,6 +149,14 @@ a:hover {
   font: inherit;
   font-size: var(--text-sm);
   cursor: pointer;
+}
+
+.theme-btn:first-child {
+  border-radius: calc(var(--radius) - 1px) 0 0 calc(var(--radius) - 1px);
+}
+
+.theme-btn:last-child {
+  border-radius: 0 calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0;
 }
 
 .theme-btn + .theme-btn {
