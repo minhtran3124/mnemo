@@ -183,11 +183,19 @@ def add_bookmark(
         **record,
     }
     validate_record(full)
-    if page_text is not None:
-        _atomic_write(_page_path(new_id), page_text)
+    page = _page_path(new_id)
+    if page_text is None:
+        # A stale file from an earlier failed add must not pose as this page.
+        page.unlink(missing_ok=True)
+    else:
+        _atomic_write(page, page_text)
     data["bookmarks"].append(full)
     data["next_id"] = new_id + 1
-    _save(data)
+    try:
+        _save(data)
+    except BaseException:
+        page.unlink(missing_ok=True)
+        raise
     return full
 
 

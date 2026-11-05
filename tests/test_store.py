@@ -168,3 +168,16 @@ def test_stored_fields_match_data_model_and_bad_records_rejected(data_dir):
     with pytest.raises(store.StoreError):
         store.add_bookmark(make_record())
     assert (data_dir / "bookmarks.json").read_text(encoding="utf-8") == "{not json"
+
+
+def test_failed_add_leaves_no_orphan_page(data_dir, monkeypatch):
+    def fail(*args, **kwargs):
+        raise OSError("disk gone")
+
+    with monkeypatch.context() as m:
+        m.setattr(store, "_save", fail)
+        with pytest.raises(OSError):
+            store.add_bookmark(make_record(), page_text="text the app saw")
+    assert store.read_page(1) is None
+    store.add_bookmark(make_record(page_status="unreadable", summary=None))
+    assert store.read_page(1) is None
