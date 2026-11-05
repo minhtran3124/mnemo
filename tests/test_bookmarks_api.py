@@ -166,7 +166,7 @@ def test_concurrent_delete_and_open_keep_both_changes(client, slow_load):
     assert store.get_bookmark(kept["id"])["opened_count"] == 1
 
 
-def test_unhandled_store_error_returns_json_500(monkeypatch, tmp_path):
+def test_unhandled_store_error_returns_json_500(monkeypatch, tmp_path, caplog):
     monkeypatch.setenv("ANTHROPIC_API_KEY", FAKE_KEY)
     monkeypatch.setattr(store, "DATA_DIR", tmp_path)
     import server
@@ -178,6 +178,9 @@ def test_unhandled_store_error_returns_json_500(monkeypatch, tmp_path):
     client = TestClient(server.app, raise_server_exceptions=False)
     response = client.get("/api/bookmarks")
     assert response.status_code == 500
+    record = next(r for r in caplog.records if r.name == "mnemo.server")
+    assert record.exc_info[0] is store.StoreError
+    assert "/secret/path" not in response.text
     assert response.json() == {
         "error": {
             "code": "server_error",

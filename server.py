@@ -3,6 +3,7 @@
 Every error response uses one JSON shape: {"error": {"code": ..., "message": ...}}.
 """
 
+import logging
 import threading
 
 import uvicorn
@@ -17,6 +18,8 @@ import store
 HOST = "127.0.0.1"
 
 app = FastAPI()
+
+_log = logging.getLogger("mnemo.server")
 
 # Sync routes run in a threadpool. This lock makes each read-modify-write on
 # bookmarks.json one step, so two requests cannot lose an update.
@@ -52,7 +55,14 @@ async def validation_error(_: Request, exc: RequestValidationError) -> JSONRespo
 
 
 @app.exception_handler(Exception)
-async def unhandled_error(_: Request, exc: Exception) -> JSONResponse:
+async def unhandled_error(request: Request, exc: Exception) -> JSONResponse:
+    # The cause goes to the server log only, so it survives outside uvicorn.
+    _log.error(
+        "Unhandled error on %s %s",
+        request.method,
+        request.url.path,
+        exc_info=exc,
+    )
     # Never echo the exception text: it can hold file paths or page content.
     return error_response(500, "server_error", "Something went wrong on the server.")
 
