@@ -9,6 +9,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+import store
+
 # Only this computer can reach the server (NF-01, D-021).
 HOST = "127.0.0.1"
 
@@ -19,6 +21,10 @@ def error_response(status: int, code: str, message: str) -> JSONResponse:
     return JSONResponse(
         status_code=status, content={"error": {"code": code, "message": message}}
     )
+
+
+def _not_found(bookmark_id: int) -> JSONResponse:
+    return error_response(404, "bookmark_not_found", "No bookmark with that id.")
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -32,6 +38,32 @@ async def http_error(_: Request, exc: StarletteHTTPException) -> JSONResponse:
 @app.exception_handler(RequestValidationError)
 async def validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:
     return error_response(400, "bad_request", "The request is not valid.")
+
+
+@app.get("/api/bookmarks")
+def list_bookmarks() -> list[dict]:
+    return store.list_bookmarks()
+
+
+@app.post("/api/bookmarks/{bookmark_id}/open", response_model=None)
+def open_bookmark(bookmark_id: int) -> dict | JSONResponse:
+    item = store.get_bookmark(bookmark_id)
+    if item is None:
+        return _not_found(bookmark_id)
+    updated = store.update_bookmark(
+        bookmark_id, {"opened_count": item["opened_count"] + 1}
+    )
+    store.log_event({"event": "open", "id": bookmark_id})
+    return updated
+
+
+@app.delete("/api/bookmarks/{bookmark_id}", response_model=None)
+def delete_bookmark(bookmark_id: int) -> dict | JSONResponse:
+    try:
+        store.delete_bookmark(bookmark_id)
+    except store.NotFound:
+        return _not_found(bookmark_id)
+    return {"deleted": bookmark_id}
 
 
 def main() -> None:
