@@ -157,3 +157,60 @@ def test_empty_page_shows_the_empty_message_unhidden(client):
 
     assert '<p class="empty" id="bm-empty">' in text
     assert 'id="bm-banner"' not in text
+
+
+NODE_HARNESS = """
+const fs = require("fs");
+let handler;
+const status = { textContent: "", hidden: true };
+const button = {
+  disabled: false,
+  textContent: "Delete",
+  getAttribute: (n) => (n === "data-confirm" ? "Sure?" : "/x"),
+  closest: () => row,
+};
+const row = { closest: () => null, remove() {} };
+global.window = { confirm: () => true };
+global.fetch = () => Promise.resolve({ ok: true });
+global.document = {
+  getElementById: (id) => (id === "bm-status" ? status : { remove() {}, hidden: false }),
+  querySelector: () => {
+    throw new Error("cleanup fault");
+  },
+  addEventListener: (_, fn) => (handler = fn),
+};
+eval(fs.readFileSync(process.argv[2], "utf8"));
+process.on("unhandledRejection", () => {});
+handler({ target: { closest: (sel) => (sel.startsWith("button") ? button : null) } });
+setTimeout(() => {
+  console.log(JSON.stringify({ status: status.textContent, disabled: button.disabled }));
+}, 20);
+"""
+
+
+def test_cleanup_fault_after_a_good_delete_does_not_show_a_false_error(tmp_path):
+    import json
+    import shutil
+    import subprocess
+    from pathlib import Path
+
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")
+    harness = tmp_path / "harness.js"
+    harness.write_text(NODE_HARNESS)
+    script = Path(__file__).resolve().parent.parent / "web" / "js" / "bookmarks.js"
+
+    result = subprocess.run(
+        [node, str(harness), str(script)],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout.strip().splitlines()[-1]) == {
+        "status": "",
+        "disabled": True,
+    }

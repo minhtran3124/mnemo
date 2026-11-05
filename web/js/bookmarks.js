@@ -39,23 +39,26 @@
     clearError();
     button.disabled = true;
     button.textContent = "Deleting...";
-    fetch(button.getAttribute("data-delete-url"), { method: "DELETE" })
-      .then(function (response) {
-        if (!response.ok) {
-          throw new Error("failed");
-        }
-        var group = row.closest(".bm-group");
-        row.remove();
-        if (group && !group.querySelector(".bm-row")) {
-          group.remove();
-        }
-        refreshAfterDelete();
-      })
-      .catch(function () {
-        button.disabled = false;
-        button.textContent = "Delete";
-        showError("Could not delete this bookmark. Nothing was changed. Try again.");
-      });
+    function onFailed() {
+      button.disabled = false;
+      button.textContent = "Delete";
+      showError("Could not delete this bookmark. Nothing was changed. Try again.");
+    }
+
+    // Two-argument then: only the request itself can reach onFailed. A fault in
+    // the page cleanup after a delete that worked must not report a failure.
+    fetch(button.getAttribute("data-delete-url"), { method: "DELETE" }).then(function (response) {
+      if (!response.ok) {
+        onFailed();
+        return;
+      }
+      var group = row.closest(".bm-group");
+      row.remove();
+      if (group && !group.querySelector(".bm-row")) {
+        group.remove();
+      }
+      refreshAfterDelete();
+    }, onFailed);
   }
 
   document.addEventListener("click", function (event) {
