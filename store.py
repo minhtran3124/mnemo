@@ -279,90 +279,40 @@ def read_page(bookmark_id: int) -> str | None:
 
 
 def _read_lines(path: Path) -> list[dict[str, Any]]:
-    """Read a JSONL file. A torn last line (a crash during append) is skipped.
-
-    Torn means the file ends without a newline. A bad line that ends with a newline,
-    or anywhere else, is real corruption and raises StoreError.
-    """
+    """Read a JSONL file. A line that is not JSON raises StoreError."""
     if not path.exists():
         return []
-    data = path.read_bytes()
-    torn_ok = not data.endswith(b"\n")
-    lines = [x for x in data.splitlines() if x.strip()]
     out: list[dict[str, Any]] = []
-    for index, line in enumerate(lines):
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
         try:
-            # Decode per line: a torn multi-byte character in the last line must
-            # not fail the whole file. UnicodeDecodeError is a ValueError.
-            out.append(json.loads(line.decode("utf-8")))
+            out.append(json.loads(line))
         except ValueError as exc:
-            if torn_ok and index == len(lines) - 1:
-                break
             raise StoreError(f"{path} has a line that is not JSON ({exc}).") from exc
     return out
 
 
-def _heal_tail(path: Path) -> None:
-    """If the file ends without a newline, cut a torn last line or close a whole one."""
-    if not path.exists():
-        return
-    data = path.read_bytes()
-    if not data or data.endswith(b"\n"):
-        return
-    cut = data.rfind(b"\n") + 1
-    try:
-        json.loads(data[cut:].decode("utf-8"))
-    except ValueError:
-        with path.open("r+b") as f:
-            f.truncate(cut)
-        return
-    with path.open("ab") as f:
-        f.write(b"\n")
-
-
 def _append_line(path: Path, obj: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    _heal_tail(path)
     with path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(obj, ensure_ascii=False) + "\n")
         f.flush()
         os.fsync(f.fileno())
 
 
-def _last_chat_id(path: Path) -> int:
-    """Return the id of the last chat line (0 if none) by reading only the file tail."""
-    if not path.exists():
-        return 0
-    size = path.stat().st_size
-    chunk = 4096
-    with path.open("rb") as f:
-        while True:
-            start = max(0, size - chunk)
-            f.seek(start)
-            data = f.read()
-            lines = [x for x in data.splitlines() if x.strip()]
-            # With a cut start the first line may be partial, so want two whole lines.
-            if start == 0 or len(lines) >= 3:
-                break
-            chunk *= 4
-    if start > 0:
-        lines = lines[1:]
-    torn_ok = not data.endswith(b"\n")
-    for index in range(len(lines) - 1, -1, -1):
-        try:
-            record = json.loads(lines[index])
-        except ValueError as exc:
-            if torn_ok and index == len(lines) - 1:
-                continue  # torn last line, skipped like _read_lines does
-            raise StoreError(f"{path} has a line that is not JSON ({exc}).") from exc
+def _next_chat_id(path: Path) -> int:
+    """Return the highest chat id plus 1 (1 if none). Chat lines are never deleted."""
+    ids = []
+    for record in _read_lines(path):
         if not isinstance(record, dict) or not _is_int(record.get("id")):
-            raise StoreError(f"{path} has a last line without an integer id.")
-        return record["id"]
-    return 0
+            raise StoreError(f"{path} has a line without an integer id.")
+        ids.append(record["id"])
+    return max(ids, default=0) + 1
 
 
 def append_chat(message: dict[str, Any]) -> dict[str, Any]:
-    """Append one chat line. The server sets id (counts on from the last line) and time."""
+    """Append one chat line. The server sets id (highest id plus 1) and time."""
     if message.get("role") not in {"user", "app"}:
         raise InvalidRecord("role must be 'user' or 'app'")
     if not isinstance(message.get("text"), str):
@@ -371,7 +321,7 @@ def append_chat(message: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(ids, list) or not all(_is_int(i) for i in ids):
         raise InvalidRecord("bookmark_ids must be a list of integers")
     path = _paths()[2]
-    next_id = _last_chat_id(path) + 1
+    next_id = _next_chat_id(path)
     line = {
         "id": next_id,
         "time": _now(),

@@ -37,11 +37,11 @@ Out: the record shape ([data-model.md](data-model.md)).
 | `read_page(id)` | Return saved page text, or `None` if the file is missing |
 | `list_folders()` | Named folders with counts (`{folder, count}`); Unsorted is not listed |
 | `log_event(event)` | Append a line to `log.jsonl`; the server adds `time` (UTC) |
-| `append_chat(message)` | Append a line to `chat.jsonl`; the server sets `id` (counts on from the last line) and `time` (UTC) |
+| `append_chat(message)` | Append a line to `chat.jsonl`; the server sets `id` (highest id plus 1) and `time` (UTC) |
 | `list_chat(limit)` | Return the latest chat messages, oldest first |
 | `find_by_url_clean(url)` | Used by the duplicate check |
 
-Errors: `InvalidRecord` (a `ValueError`) for a bad record, `NotFound` for an unknown id, `StoreError` for a corrupt file. All three share the base `StoreError`. The point is a small, fixed surface.
+Errors: `InvalidRecord` (a `ValueError`) for a bad record, `NotFound` for an unknown id, `StoreError` for a corrupt file or a line in `chat.jsonl` or `log.jsonl` that is not JSON. All three share the base `StoreError`. The point is a small, fixed surface.
 
 ## Behavior and rules
 
@@ -62,7 +62,7 @@ Phase A: you plan to use Render. Unverified: Render price and whether its disk k
 | Crash during a write | Old file is still whole (atomic write). |
 | Two writes at once | Open question: a lock, or one worker only. |
 | Missing page file | `read_page` returns nothing; the record stays. |
-| Torn last line in `chat.jsonl` or `log.jsonl` (crash during append) | Torn means the file ends without a newline. Reads skip it; the next append cuts it off first. A bad line that ends with a newline, or sits anywhere else, raises `StoreError`. |
+| Bad line in `chat.jsonl` or `log.jsonl` | `store.py` raises `StoreError`. There is no crash recovery for a half-written line. Chat lines are never deleted, so the next chat `id` is the highest `id` in the file plus 1. |
 | Corrupt `bookmarks.json` | `store.py` raises `StoreError` with a clear message and never overwrites the file; restore from backup. |
 
 ## Acceptance criteria

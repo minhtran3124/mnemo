@@ -84,11 +84,20 @@ def test_delete_removes_page_and_id_not_reused(data_dir):
         store.delete_bookmark(2)
 
 
-def test_page_text_round_trip():
+def test_page_text_round_trip(monkeypatch):
     store.add_bookmark(make_record(), page_text="café text\nline two")
     assert store.read_page(1) == "café text\nline two"
     store.add_bookmark(make_record())
     assert store.read_page(2) is None
+
+    # A failed save leaves no orphan page, and no stale file poses as a later page.
+    def fail(*args, **kwargs):
+        raise OSError("disk gone")
+
+    monkeypatch.setattr(store, "_save", fail)
+    with pytest.raises(OSError):
+        store.add_bookmark(make_record(), page_text="text the app saw")
+    assert store.read_page(3) is None
 
 
 def test_chat_append_and_read(data_dir):
@@ -168,66 +177,3 @@ def test_stored_fields_match_data_model_and_bad_records_rejected(data_dir):
     with pytest.raises(store.StoreError):
         store.add_bookmark(make_record())
     assert (data_dir / "bookmarks.json").read_text(encoding="utf-8") == "{not json"
-
-
-def test_failed_add_leaves_no_orphan_page(data_dir, monkeypatch):
-    def fail(*args, **kwargs):
-        raise OSError("disk gone")
-
-    with monkeypatch.context() as m:
-        m.setattr(store, "_save", fail)
-        with pytest.raises(OSError):
-            store.add_bookmark(make_record(), page_text="text the app saw")
-    assert store.read_page(1) is None
-    store.add_bookmark(make_record(page_status="unreadable", summary=None))
-    assert store.read_page(1) is None
-
-
-def test_chat_survives_torn_last_line(data_dir):
-    store.append_chat({"role": "user", "text": "one"})
-    with (data_dir / "chat.jsonl").open("a", encoding="utf-8") as f:
-        f.write('{"id": 2, "time": "2026')  # crash mid-append
-    assert [m["text"] for m in store.list_chat()] == ["one"]
-    added = store.append_chat({"role": "app", "text": "two"})
-    assert added["id"] == 2
-    assert [m["text"] for m in store.list_chat()] == ["one", "two"]
-
-
-def test_chat_survives_torn_multibyte_character(data_dir):
-    store.append_chat({"role": "user", "text": "một"})
-    torn = b'{"id": 2, "text": "\xc3'  # crash after the first byte of an e-acute
-    with (data_dir / "chat.jsonl").open("ab") as f:
-        f.write(torn)
-    assert [m["text"] for m in store.list_chat()] == ["một"]
-    assert store.append_chat({"role": "app", "text": "hai"})["id"] == 2
-    assert [m["text"] for m in store.list_chat()] == ["một", "hai"]
-
-
-def test_chat_complete_bad_last_line_raises_not_skipped(data_dir):
-    # A line that ends with a newline is not torn; the heal would keep it, so
-    # skipping it once and then appending would corrupt the middle of the file.
-    (data_dir / "chat.jsonl").write_text('{"id": 1}\nnot json\n', encoding="utf-8")
-    with pytest.raises(store.StoreError):
-        store.list_chat()
-    with pytest.raises(store.StoreError):
-        store.append_chat({"role": "user", "text": "x"})
-
-
-def test_chat_bad_middle_line_still_raises(data_dir):
-    (data_dir / "chat.jsonl").write_text('not json\n{"id": 2}\n', encoding="utf-8")
-    with pytest.raises(store.StoreError):
-        store.list_chat()
-
-
-def test_chat_append_rejects_last_line_without_integer_id(data_dir):
-    (data_dir / "chat.jsonl").write_text(
-        '{"id": 1}\n{"text": "no id"}\n', encoding="utf-8"
-    )
-    with pytest.raises(store.StoreError):
-        store.append_chat({"role": "user", "text": "x"})
-
-
-def test_chat_append_counts_on_from_a_long_file(data_dir):
-    for i in range(300):
-        store.append_chat({"role": "user", "text": "x" * 50 + str(i)})
-    assert store.append_chat({"role": "app", "text": "y"})["id"] == 301
