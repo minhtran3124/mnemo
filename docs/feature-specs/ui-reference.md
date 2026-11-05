@@ -16,12 +16,29 @@ This file says how the built pages must follow the V3 mockup, and lists where th
 
 | Screen | Board | In phase 1 |
 | --- | --- | --- |
-| Chat, laptop | `V3LightChat` | Built at `/` (web/index.html), without the parts listed under "Not built yet". **Unverified** in a browser against the board: sizes follow the tables below, no side-by-side check or screenshots yet |
+| Chat, laptop | `V3LightChat` | Built at `/` (web/index.html), without the parts listed under "Not built yet". Compared with the board in a browser on 2026-11-05 at 1280px, light and dark; the differences left are under "Accepted differences" |
 | Bookmark page, laptop | `V3LightBookmarks` | Yes, Ledger and Cards views |
-| Chat, phone | `V3LightPhoneChat` | Built with the same page (margin column becomes a "Filed in" line under the text). **Unverified** at 390px |
+| Chat, phone | `V3LightPhoneChat` | Built with the same page (margin column becomes a "Filed in" line under the text). Compared at 390px, light and dark, on 2026-11-05 |
 | Bookmarks, phone | `V3LightPhoneList` | Yes |
-| Settings, phone | `V3LightSettings` | Yes: theme and bookmark view |
+| Settings, phone | `V3LightSettings` | Theme is built; the bookmark view choice and the preview are not (A10). At 1280px there is no board: compared with the phone board and the measurement tables |
 | Dark versions of all five | `V3Dark*` | Yes. Same markup as the light board; only the token set differs (see the [README](../design/v3-mockup/README.md)) |
+
+## Accepted differences
+
+Result of the parity check of 2026-11-05 (see [phase 1 parity check](../manual-testing/phase1-parity-check.md); screenshots are in the PR). Ledger view was compared in screenshots; the Cards view was checked against its CSS values only. Each line is a difference the build keeps for now.
+
+- A1 **All pages, header.** The board has Chat and Bookmarks tabs with a count (laptop) and a bottom tab bar (phone). The build has the brand, a Settings link and the theme control. Reason: the tabs are not built (see the Open question under "Chat page as built"); the count needs server data.
+- A2 **Chat, both widths.** No Move and Undo buttons and no real folder name: phase 3.
+- A3 **Chat, both widths.** No "Try asking" chips, no helper line, no "Found in" answer entry, and the composer placeholder is the phase 1 text: phase 4.
+- A4 **Chat, both widths.** Extra "No. N" in the margin, a URL line and a plain reply line under a card: documented additions (CI-08, "Page not read" entry, partial failure text).
+- A5 **Chat, both widths.** The folder and type icons are missing in the card, and the "Page not read" paragraph is the generic text, not the X post text of the board. The card is built in `web/js/chat.js`, which was outside ticket 42.
+- A6 **Bookmarks, both widths.** The title is "Bookmarks", with no count sentence, no search box, no "Show all N" link, and a shorter banner without a "Paste its text" button. Search comes in phase 4 and 5. The rest is built in `server.py`, which was outside ticket 42.
+- A7 **Bookmarks, both widths.** Groups are types, not folders: phase 3.
+- A8 **Bookmarks, both widths.** The meta line shows the type name, host and save date in plain text, with no type icon and no "Article on host" wording; a summary, a reason and a Delete button sit in the row. The save date, reason and Delete are documented additions (BP-04, decisions 1 and 2). The icon and wording come from `server.py`, outside ticket 42.
+- A9 **Bookmarks, both widths.** The view switcher has Ledger and Cards, no Compact: phase 3.
+- A10 **Settings, both widths.** The "Bookmark view" section, its Compact row and the preview entry are not built. They need a script change outside ticket 42 (the choice is stored by `view-switcher.js`).
+- A11 **Settings, 1280px.** No board exists. The page keeps the phone layout in a narrow column; compared with the phone board and the measurement tables.
+- A12 **Bookmarks and Settings, 390px.** Delete sits under the row text on the phone; the board has no Delete (decision 1).
 
 ## Measurements from the boards
 

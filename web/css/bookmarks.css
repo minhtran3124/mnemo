@@ -254,7 +254,7 @@ main {
 }
 
 .bm-list.view-cards .bm-row {
-  padding: var(--space-3) var(--space-4);
+  padding: 0.875rem var(--space-4);
   background: var(--surface);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius);
