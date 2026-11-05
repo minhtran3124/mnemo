@@ -38,7 +38,7 @@ Out: the record shape ([data-model.md](data-model.md)).
 | `read_page(id)` | Return saved page text, or `None` if the file is missing |
 | `list_folders()` | Named folders with counts (`{folder, count}`); Unsorted is not listed |
 | `log_event(event)` | Append a line to `log.jsonl`; the server adds `time` (UTC) |
-| `append_chat(message)` | Append a line to `chat.jsonl`; the server sets `id` (highest id plus 1) and `time` (UTC) |
+| `append_chat(message)` | Append a line to `chat.jsonl`; the server sets `id` (highest id plus 1) and `time` (UTC). An optional `failed` list of URL strings is kept as given (see `data-model.md`) |
 | `list_chat(limit)` | Return the latest chat messages, oldest first |
 | `find_by_url_clean(url)` | Used by the duplicate check |
 

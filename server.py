@@ -382,6 +382,7 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         body.message,
         _cards_reply_text(len(cards), len(failed)),
         [c["id"] for c in cards],
+        failed,
     )
     return result
 
@@ -396,12 +397,22 @@ def _cards_reply_text(saved: int, failed: int) -> str:
     return text
 
 
-def _record_exchange(user_text: str, app_text: str, bookmark_ids: list[int]) -> None:
+def _record_exchange(
+    user_text: str,
+    app_text: str,
+    bookmark_ids: list[int],
+    failed: list[str] | None = None,
+) -> None:
+    app_message: dict = {
+        "role": "app",
+        "text": app_text,
+        "bookmark_ids": bookmark_ids,
+    }
+    if failed:
+        app_message["failed"] = failed
     with _write_lock:
         store.append_chat({"role": "user", "text": user_text})
-        store.append_chat(
-            {"role": "app", "text": app_text, "bookmark_ids": bookmark_ids}
-        )
+        store.append_chat(app_message)
 
 
 @app.get("/api/chat/history", response_model=None)

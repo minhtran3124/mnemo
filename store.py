@@ -348,6 +348,11 @@ def append_chat(message: dict[str, Any]) -> dict[str, Any]:
     ids = message.get("bookmark_ids", [])
     if not isinstance(ids, list) or not all(_is_int(i) for i in ids):
         raise InvalidRecord("bookmark_ids must be a list of integers")
+    failed = message.get("failed")
+    if failed is not None and (
+        not isinstance(failed, list) or not all(isinstance(u, str) for u in failed)
+    ):
+        raise InvalidRecord("failed must be a list of strings")
     path = _paths()[2]
     next_id = _next_chat_id(path)
     line = {
@@ -357,6 +362,8 @@ def append_chat(message: dict[str, Any]) -> dict[str, Any]:
         "text": message["text"],
         "bookmark_ids": ids,
     }
+    if failed:
+        line["failed"] = failed
     _append_line(path, line)
     return line
 
