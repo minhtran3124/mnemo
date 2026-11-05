@@ -56,7 +56,7 @@ Open question: the upload endpoint for PDFs and screenshots.
 
 - Request: `message` (required) and optional `pasted_text`. `pasted_text` applies only to the first link in the same message.
 - A blank or whitespace-only `message` returns 400 with code `empty_message`.
-- A message with one or more links saves each link and returns `{"kind": "cards", "cards": [record, ...]}`.
+- A message with one or more links saves each link and returns `{"kind": "cards", "cards": [record, ...]}`. If a later link fails after an earlier one saved, the response is still 200 with the saved cards plus `"failed": [link, ...]`, so a retry does not save the first links twice. If the first link fails, the response is the usual 500.
 - A message with no link returns `{"kind": "text", "text": "I can only save links for now. Asking comes later."}`. Nothing is sent to Claude.
 - Phase 1 appends nothing to the chat history here. History is its own ticket. `note <id> <text>` is also its own ticket.
 

@@ -120,3 +120,23 @@ def test_unreadable_page_returns_a_link_only_card(api, monkeypatch, parse_calls)
     assert card["page_status"] == "unreadable"
     assert card["summary"] is None
     assert parse_calls == []
+
+
+def test_later_link_failure_keeps_the_saved_cards(api, fetch_calls, monkeypatch):
+    def fake(messages, output_format, system=None):
+        if "bad" in fetch_calls[-1]:
+            raise RuntimeError("boom")
+        return good()
+
+    monkeypatch.setattr(save.client, "parse", fake)
+
+    response = api.post(
+        "/api/chat",
+        json={"message": "https://example.com/a https://example.com/bad"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body["cards"]) == 1
+    assert body["failed"] == ["https://example.com/bad"]
+    assert len(store.list_bookmarks()) == 1

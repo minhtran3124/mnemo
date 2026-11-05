@@ -141,12 +141,24 @@ def chat(body: ChatBody) -> dict | JSONResponse:
     if not links:
         return {"kind": "text", "text": LINKS_ONLY_TEXT}
     cards = []
+    failed = []
     for index, link in enumerate(links):
         # Pasted text belongs to the first link in the same message only.
         pasted = body.pasted_text if index == 0 else None
-        with _write_lock:
-            cards.append(save.save(link, pasted_text=pasted))
-    return {"kind": "cards", "cards": cards}
+        try:
+            with _write_lock:
+                cards.append(save.save(link, pasted_text=pasted))
+        except Exception:
+            if not cards:
+                raise  # nothing saved yet: a plain 500 is honest and safe to retry
+            # Cards already saved must not be hidden by a later failure, or a
+            # retry would save them twice. Report the links that did not save.
+            _log.exception("Could not save %s", link)
+            failed.append(link)
+    result: dict = {"kind": "cards", "cards": cards}
+    if failed:
+        result["failed"] = failed
+    return result
 
 
 def main() -> None:
