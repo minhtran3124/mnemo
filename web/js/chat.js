@@ -282,7 +282,7 @@
   function onSubmit(event) {
     event.preventDefault();
     var message = input.value.trim();
-    if (busy || !message) {
+    if (busy || historyPending || !message) {
       return;
     }
     showStatus("");
@@ -324,7 +324,18 @@
     });
   }
 
+  // Sending waits until the saved chat is drawn, so the log never shows a new
+  // exchange out of order or twice.
+  var historyPending = false;
+
+  function endHistory() {
+    historyPending = false;
+    saveBtn.disabled = busy;
+  }
+
   function loadHistory() {
+    historyPending = true;
+    saveBtn.disabled = true;
     fetch("/api/chat/history")
       .then(function (response) {
         if (!response.ok) {
@@ -344,7 +355,8 @@
       .catch(function () {
         emptyEl.hidden = false;
         showStatus("Could not load your earlier chat. You can still paste a link.");
-      });
+      })
+      .then(endHistory);
   }
 
   form.addEventListener("submit", onSubmit);

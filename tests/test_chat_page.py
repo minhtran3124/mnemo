@@ -97,6 +97,14 @@ def test_history_is_loaded_on_start_and_deleted_entries_are_handled(client):
     assert "was deleted" in js
 
 
+def test_sending_waits_until_the_history_is_drawn(client):
+    js = script(client)
+
+    assert "historyPending" in js
+    assert "busy || historyPending" in js
+    assert ".then(endHistory)" in js
+
+
 def _fake_save_calls(monkeypatch):
     monkeypatch.setattr(save.fetcher, "fetch", lambda u: fetcher.FetchFail("blocked"))
     out = save.SaveOutput(
