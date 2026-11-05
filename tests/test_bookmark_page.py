@@ -214,3 +214,12 @@ def test_cleanup_fault_after_a_good_delete_does_not_show_a_false_error(tmp_path)
         "status": "",
         "disabled": True,
     }
+
+
+def test_spec_describes_other_group_and_missing_field_tolerance():
+    from pathlib import Path
+
+    spec = Path("docs/feature-specs/bookmark-page-and-views.md").read_text()
+
+    assert '"Other" group' in spec
+    assert "missing optional fields" in spec
