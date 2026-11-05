@@ -285,11 +285,13 @@ def _read_lines(path: Path) -> list[dict[str, Any]]:
     """
     if not path.exists():
         return []
-    lines = [x for x in path.read_text(encoding="utf-8").splitlines() if x.strip()]
+    lines = [x for x in path.read_bytes().splitlines() if x.strip()]
     out: list[dict[str, Any]] = []
     for index, line in enumerate(lines):
         try:
-            out.append(json.loads(line))
+            # Decode per line: a torn multi-byte character in the last line must
+            # not fail the whole file. UnicodeDecodeError is a ValueError.
+            out.append(json.loads(line.decode("utf-8")))
         except ValueError as exc:
             if index == len(lines) - 1:
                 break

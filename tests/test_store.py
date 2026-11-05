@@ -193,6 +193,16 @@ def test_chat_survives_torn_last_line(data_dir):
     assert [m["text"] for m in store.list_chat()] == ["one", "two"]
 
 
+def test_chat_survives_torn_multibyte_character(data_dir):
+    store.append_chat({"role": "user", "text": "một"})
+    torn = b'{"id": 2, "text": "\xc3'  # crash after the first byte of an e-acute
+    with (data_dir / "chat.jsonl").open("ab") as f:
+        f.write(torn)
+    assert [m["text"] for m in store.list_chat()] == ["một"]
+    assert store.append_chat({"role": "app", "text": "hai"})["id"] == 2
+    assert [m["text"] for m in store.list_chat()] == ["một", "hai"]
+
+
 def test_chat_bad_middle_line_still_raises(data_dir):
     (data_dir / "chat.jsonl").write_text('not json\n{"id": 2}\n', encoding="utf-8")
     with pytest.raises(store.StoreError):
