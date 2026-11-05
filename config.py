@@ -21,6 +21,9 @@ MAX_TOKENS = 1024
 # cheap (NF-02).
 MAX_PAGE_CHARS = 20_000
 
+# Local port for the server (D-021). The host is fixed in server.py.
+PORT = 8000
+
 # The .env sits next to this file, so the key is found from any working directory.
 ENV_FILE = Path(__file__).resolve().parent / ".env"
 
