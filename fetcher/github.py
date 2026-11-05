@@ -56,6 +56,7 @@ _RESERVED_OWNERS = frozenset(
         "dashboard",
     }
 )
+_RATE_LIMIT_REASON = "GitHub rate limit reached"
 _REPO_PATH = re.compile(rf"^/({_NAME})/({_NAME})/?$")
 
 
@@ -109,7 +110,7 @@ def _get(
     with client.stream("GET", url, headers=headers) as response:
         status = response.status_code
         if status == 429 or (status == 403 and _is_rate_limited(response)):
-            raise AttemptError("GitHub rate limit reached")
+            raise AttemptError(_RATE_LIMIT_REASON)
         if status == 403:
             raise AttemptError("GitHub refused access (403)")
         if status == 404 and optional:
@@ -139,10 +140,11 @@ def _attempt(owner: str, repo: str, transport: httpx2.BaseTransport | None) -> F
                 started,
                 optional=True,
             )
-        except (AttemptError, httpx2.HTTPError):
-            # The repo call worked: keep the description alone. Without one,
-            # there is nothing to keep, so the failure stands.
-            if not description:
+        except AttemptError as err:
+            # A rate limit or a transient error stands, so the link is saved
+            # link only or retried (PR-03). Any other README failure leaves
+            # the description alone; without one the failure stands.
+            if err.transient or err.reason == _RATE_LIMIT_REASON or not description:
                 raise
             readme = None
     readme_text = (readme or b"").decode("utf-8", errors="replace").strip()

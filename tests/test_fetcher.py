@@ -155,7 +155,7 @@ def test_github_readme_failure_keeps_the_description():
             return httpx2.Response(
                 200, content=json.dumps({"description": "A greeter"}).encode()
             )
-        return httpx2.Response(403, headers={"X-RateLimit-Remaining": "0"})
+        return httpx2.Response(403, headers={"X-RateLimit-Remaining": "42"})
 
     result = fetcher.github.fetch_repo("octo", "hello", transport(handler))
     assert result == FetchOk(text="A greeter", source="github")
@@ -163,10 +163,39 @@ def test_github_readme_failure_keeps_the_description():
     def empty(request):
         if request.url.path == "/repos/octo/hello":
             return httpx2.Response(200, content=b"{}")
-        return httpx2.Response(403, headers={"X-RateLimit-Remaining": "0"})
+        return httpx2.Response(403, headers={"X-RateLimit-Remaining": "42"})
 
     failed = fetcher.github.fetch_repo("octo", "hello", transport(empty))
-    assert failed == FetchFail("GitHub rate limit reached")
+    assert isinstance(failed, FetchFail)
+
+
+def test_github_readme_rate_limit_saves_link_only_even_with_a_description():
+    def handler(request):
+        if request.url.path == "/repos/octo/hello":
+            return httpx2.Response(
+                200, content=json.dumps({"description": "A greeter"}).encode()
+            )
+        return httpx2.Response(429)
+
+    result = fetcher.github.fetch_repo("octo", "hello", transport(handler))
+    assert result == FetchFail("GitHub rate limit reached")
+
+
+def test_github_readme_transient_error_is_retried_with_a_description():
+    calls = []
+
+    def handler(request):
+        if request.url.path == "/repos/octo/hello":
+            return httpx2.Response(
+                200, content=json.dumps({"description": "A greeter"}).encode()
+            )
+        calls.append(1)
+        if len(calls) == 1:
+            return httpx2.Response(503)
+        return httpx2.Response(200, content=b"# Hello\nUsage notes")
+
+    result = fetcher.github.fetch_repo("octo", "hello", transport(handler))
+    assert result == FetchOk(text="A greeter\n\n# Hello\nUsage notes", source="github")
 
 
 def test_github_403_is_a_rate_limit_only_when_headers_say_so():
