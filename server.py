@@ -273,6 +273,22 @@ def delete_bookmark(bookmark_id: int) -> dict | JSONResponse:
     return {"deleted": bookmark_id}
 
 
+class PasteBody(BaseModel):
+    text: str
+
+
+@app.post("/api/bookmarks/{bookmark_id}/paste", response_model=None)
+def paste_bookmark(bookmark_id: int, body: PasteBody) -> dict | JSONResponse:
+    # The Claude call runs outside the lock; save.fill_in takes it for the write.
+    try:
+        return save.fill_in(bookmark_id, body.text, write_lock=_write_lock)
+    except store.NotFound:
+        return _not_found(bookmark_id)
+    except save.FillInError as err:
+        status = {"already_read": 409, "text_too_short": 400, "summary_failed": 502}
+        return error_response(status[err.code], err.code, str(err))
+
+
 class ReasonBody(BaseModel):
     reason: str | None = None
 

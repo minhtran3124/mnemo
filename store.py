@@ -240,6 +240,34 @@ def update_bookmark(bookmark_id: int, fields: dict[str, Any]) -> dict[str, Any]:
     raise NotFound(f"no bookmark with id {bookmark_id}")
 
 
+def update_bookmark_with_page(
+    bookmark_id: int, fields: dict[str, Any], page_text: str
+) -> dict[str, Any]:
+    """Change fields and write the page file as one step.
+
+    The record is validated first. The page file is written only after that, and
+    removed again if the record cannot be saved, so the two never disagree.
+    """
+    locked = sorted(set(fields) & set(SERVER_FIELDS))
+    if locked:
+        raise InvalidRecord(f"cannot change: {', '.join(locked)}")
+    data = _load()
+    for index, item in enumerate(data["bookmarks"]):
+        if item["id"] == bookmark_id:
+            updated = {**item, **fields}
+            validate_record(updated)
+            data["bookmarks"][index] = updated
+            page = _page_path(bookmark_id)
+            _atomic_write(page, page_text)
+            try:
+                _save(data)
+            except BaseException:
+                page.unlink(missing_ok=True)
+                raise
+            return updated
+    raise NotFound(f"no bookmark with id {bookmark_id}")
+
+
 def delete_bookmark(bookmark_id: int) -> None:
     """Remove the record and its page file. The id is not given out again."""
     data = _load()
