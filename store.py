@@ -281,11 +281,14 @@ def read_page(bookmark_id: int) -> str | None:
 def _read_lines(path: Path) -> list[dict[str, Any]]:
     """Read a JSONL file. A torn last line (a crash during append) is skipped.
 
-    A bad line anywhere else is real corruption and raises StoreError.
+    Torn means the file ends without a newline. A bad line that ends with a newline,
+    or anywhere else, is real corruption and raises StoreError.
     """
     if not path.exists():
         return []
-    lines = [x for x in path.read_bytes().splitlines() if x.strip()]
+    data = path.read_bytes()
+    torn_ok = not data.endswith(b"\n")
+    lines = [x for x in data.splitlines() if x.strip()]
     out: list[dict[str, Any]] = []
     for index, line in enumerate(lines):
         try:
@@ -293,7 +296,7 @@ def _read_lines(path: Path) -> list[dict[str, Any]]:
             # not fail the whole file. UnicodeDecodeError is a ValueError.
             out.append(json.loads(line.decode("utf-8")))
         except ValueError as exc:
-            if index == len(lines) - 1:
+            if torn_ok and index == len(lines) - 1:
                 break
             raise StoreError(f"{path} has a line that is not JSON ({exc}).") from exc
     return out
@@ -336,18 +339,20 @@ def _last_chat_id(path: Path) -> int:
         while True:
             start = max(0, size - chunk)
             f.seek(start)
-            lines = [x for x in f.read().splitlines() if x.strip()]
+            data = f.read()
+            lines = [x for x in data.splitlines() if x.strip()]
             # With a cut start the first line may be partial, so want two whole lines.
             if start == 0 or len(lines) >= 3:
                 break
             chunk *= 4
     if start > 0:
         lines = lines[1:]
+    torn_ok = not data.endswith(b"\n")
     for index in range(len(lines) - 1, -1, -1):
         try:
             record = json.loads(lines[index])
         except ValueError as exc:
-            if index == len(lines) - 1:
+            if torn_ok and index == len(lines) - 1:
                 continue  # torn last line, skipped like _read_lines does
             raise StoreError(f"{path} has a line that is not JSON ({exc}).") from exc
         if not isinstance(record, dict) or not _is_int(record.get("id")):

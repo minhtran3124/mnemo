@@ -203,6 +203,16 @@ def test_chat_survives_torn_multibyte_character(data_dir):
     assert [m["text"] for m in store.list_chat()] == ["một", "hai"]
 
 
+def test_chat_complete_bad_last_line_raises_not_skipped(data_dir):
+    # A line that ends with a newline is not torn; the heal would keep it, so
+    # skipping it once and then appending would corrupt the middle of the file.
+    (data_dir / "chat.jsonl").write_text('{"id": 1}\nnot json\n', encoding="utf-8")
+    with pytest.raises(store.StoreError):
+        store.list_chat()
+    with pytest.raises(store.StoreError):
+        store.append_chat({"role": "user", "text": "x"})
+
+
 def test_chat_bad_middle_line_still_raises(data_dir):
     (data_dir / "chat.jsonl").write_text('not json\n{"id": 2}\n', encoding="utf-8")
     with pytest.raises(store.StoreError):
