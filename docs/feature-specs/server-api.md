@@ -62,6 +62,7 @@ Open question: the upload endpoint for PDFs and screenshots.
 | 401 | Missing or wrong token |
 | 403 | Not allowed (code `forbidden`) |
 | 404 | Unknown route (code `not_found`) or unknown bookmark |
+| 405 | Wrong method for a route (code `method_not_allowed`) |
 | 409 | Conflict (code `conflict`) |
 | 413 | Body too large (code `payload_too_large`) |
 | 415 | Wrong content type (code `unsupported_media_type`) |

@@ -187,3 +187,15 @@ def test_http_exception_with_plain_text_detail_passes_through(app):
 
     assert response.status_code == 400
     assert response.json() == {"error": {"code": "bad_request", "message": "Bad link."}}
+
+
+def test_every_mapped_status_has_a_row_in_the_server_api_spec():
+    import re
+    from pathlib import Path
+
+    import server
+
+    spec = Path(__file__).parent.parent / "docs/feature-specs/server-api.md"
+    text = spec.read_text()
+    for status in server._HTTP_CODES:
+        assert re.search(rf"^\| {status} \|", text, re.MULTILINE), status
