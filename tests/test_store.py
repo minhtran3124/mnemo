@@ -181,3 +181,19 @@ def test_failed_add_leaves_no_orphan_page(data_dir, monkeypatch):
     assert store.read_page(1) is None
     store.add_bookmark(make_record(page_status="unreadable", summary=None))
     assert store.read_page(1) is None
+
+
+def test_chat_survives_torn_last_line(data_dir):
+    store.append_chat({"role": "user", "text": "one"})
+    with (data_dir / "chat.jsonl").open("a", encoding="utf-8") as f:
+        f.write('{"id": 2, "time": "2026')  # crash mid-append
+    assert [m["text"] for m in store.list_chat()] == ["one"]
+    added = store.append_chat({"role": "app", "text": "two"})
+    assert added["id"] == 2
+    assert [m["text"] for m in store.list_chat()] == ["one", "two"]
+
+
+def test_chat_bad_middle_line_still_raises(data_dir):
+    (data_dir / "chat.jsonl").write_text('not json\n{"id": 2}\n', encoding="utf-8")
+    with pytest.raises(store.StoreError):
+        store.list_chat()

@@ -62,6 +62,7 @@ Phase A: you plan to use Render. Unverified: Render price and whether its disk k
 | Crash during a write | Old file is still whole (atomic write). |
 | Two writes at once | Open question: a lock, or one worker only. |
 | Missing page file | `read_page` returns nothing; the record stays. |
+| Torn last line in `chat.jsonl` or `log.jsonl` (crash during append) | Reads skip it; the next append cuts it off first. A bad line anywhere else raises `StoreError`. |
 | Corrupt `bookmarks.json` | `store.py` raises `StoreError` with a clear message and never overwrites the file; restore from backup. |
 
 ## Acceptance criteria

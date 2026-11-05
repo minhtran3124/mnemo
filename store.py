@@ -279,17 +279,45 @@ def read_page(bookmark_id: int) -> str | None:
 
 
 def _read_lines(path: Path) -> list[dict[str, Any]]:
+    """Read a JSONL file. A torn last line (a crash during append) is skipped.
+
+    A bad line anywhere else is real corruption and raises StoreError.
+    """
     if not path.exists():
         return []
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = [x for x in path.read_text(encoding="utf-8").splitlines() if x.strip()]
+    out: list[dict[str, Any]] = []
+    for index, line in enumerate(lines):
+        try:
+            out.append(json.loads(line))
+        except ValueError as exc:
+            if index == len(lines) - 1:
+                break
+            raise StoreError(f"{path} has a line that is not JSON ({exc}).") from exc
+    return out
+
+
+def _heal_tail(path: Path) -> None:
+    """If the file ends without a newline, cut a torn last line or close a whole one."""
+    if not path.exists():
+        return
+    data = path.read_bytes()
+    if not data or data.endswith(b"\n"):
+        return
+    cut = data.rfind(b"\n") + 1
     try:
-        return [json.loads(line) for line in lines if line.strip()]
-    except ValueError as exc:
-        raise StoreError(f"{path} has a line that is not JSON ({exc}).") from exc
+        json.loads(data[cut:].decode("utf-8"))
+    except ValueError:
+        with path.open("r+b") as f:
+            f.truncate(cut)
+        return
+    with path.open("ab") as f:
+        f.write(b"\n")
 
 
 def _append_line(path: Path, obj: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    _heal_tail(path)
     with path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(obj, ensure_ascii=False) + "\n")
         f.flush()
