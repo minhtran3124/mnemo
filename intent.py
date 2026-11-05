@@ -30,3 +30,17 @@ def find_links(text: str) -> list[str]:
         if re.match(r"https?://.", link, re.IGNORECASE) and link not in links:
             links.append(link)
     return links
+
+
+_COMMAND_WORD = re.compile(r"^(save|add)\b[\s:,-]*", re.IGNORECASE)
+
+
+def find_reason(text: str) -> str | None:
+    """Return the text around the links as the user's reason, or None if there is none.
+
+    Links are removed, a leading "save" or "add" is dropped, and white space is
+    collapsed to one line.
+    """
+    rest = _COMMAND_WORD.sub("", _LINK.sub(" ", text).strip())
+    reason = " ".join(rest.split()).strip(" ,;:-")
+    return reason or None

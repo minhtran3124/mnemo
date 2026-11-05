@@ -140,3 +140,22 @@ def test_later_link_failure_keeps_the_saved_cards(api, fetch_calls, monkeypatch)
     assert len(body["cards"]) == 1
     assert body["failed"] == ["https://example.com/bad"]
     assert len(store.list_bookmarks()) == 1
+
+
+def test_text_around_a_link_becomes_the_users_reason(api, fetch_calls, parse_calls):
+    response = api.post(
+        "/api/chat", json={"message": "https://example.com/a for login tests"}
+    )
+
+    card = response.json()["cards"][0]
+    assert card["reason"] == "for login tests"
+    assert card["reason_source"] == "user"
+    assert store.get_bookmark(card["id"])["reason_source"] == "user"
+
+
+def test_link_alone_keeps_the_guessed_reason(api, fetch_calls, parse_calls):
+    response = api.post("/api/chat", json={"message": "save https://example.com/a"})
+
+    card = response.json()["cards"][0]
+    assert card["reason"] == "Looks useful."
+    assert card["reason_source"] == "guess"

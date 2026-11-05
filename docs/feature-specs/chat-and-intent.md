@@ -53,7 +53,7 @@ Final wording: Open question.
 
 | Input | Result |
 | --- | --- |
-| Two links in one message | Save both, one card each. Do not ask (decided). The text that is not a link is the reason for each link. |
+| Two links in one message | Save both, one card each. Do not ask (decided). The text that is not a link is the reason for each link, saved as the user's own (`reason_source` `user`). With no such text, Claude's guess is kept. A leading "save" or "add" is not part of the reason. |
 | The same link twice in one message | Saved once. Links are compared after trailing punctuation is removed. |
 | A link ending in a closing bracket | The bracket stays when the link has its opening bracket (for example a Wikipedia address with `(bar)`). An unmatched closing bracket is removed. |
 | A link inside a question | Treated as a link (regex wins). |

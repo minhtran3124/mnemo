@@ -140,6 +140,7 @@ def chat(body: ChatBody) -> dict | JSONResponse:
     links = intent.find_links(body.message)
     if not links:
         return {"kind": "text", "text": LINKS_ONLY_TEXT}
+    reason = intent.find_reason(body.message)
     cards = []
     failed = []
     for index, link in enumerate(links):
@@ -147,7 +148,13 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         pasted = body.pasted_text if index == 0 else None
         try:
             with _write_lock:
-                cards.append(save.save(link, pasted_text=pasted))
+                card = save.save(link, pasted_text=pasted)
+                if reason:
+                    # The text around the links is the user's own reason (CI-05).
+                    card = store.update_bookmark(
+                        card["id"], {"reason": reason, "reason_source": "user"}
+                    )
+                cards.append(card)
         except Exception:
             if not cards:
                 raise  # nothing saved yet: a plain 500 is honest and safe to retry

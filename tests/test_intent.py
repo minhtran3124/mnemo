@@ -41,3 +41,17 @@ def test_intent_imports_no_client_or_fetcher():
     source = Path(intent.__file__).read_text(encoding="utf-8")
     for name in ("import client", "anthropic", "import fetcher"):
         assert name not in source
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("https://a.com for login tests", "for login tests"),
+        ("for login tests https://a.com/x.", "for login tests"),
+        ("save https://a.com", None),
+        ("https://a.com https://b.com", None),
+        ("  https://a.com  ", None),
+    ],
+)
+def test_find_reason(text, expected):
+    assert intent.find_reason(text) == expected

@@ -28,7 +28,7 @@ Out: the MCP interface ([mcp-server.md](mcp-server.md)).
 
 | Method and path | Purpose | Request | Response |
 | --- | --- | --- | --- |
-| `POST /api/chat` | Send a message. Code decides: save a link, edit a reason (`note <id> <text>`), or answer a question. Both sides of the exchange are appended to the chat history. | `message`, optional `pasted_text` | A card, a confirmation, or an answer with up to 3 bookmarks |
+| `POST /api/chat` | Send a message. Text around a link is saved as the user's reason. Code decides: save a link, edit a reason (`note <id> <text>`), or answer a question. Both sides of the exchange are appended to the chat history. | `message`, optional `pasted_text` | A card, a confirmation, or an answer with up to 3 bookmarks |
 | `GET /api/chat/history` | Return the saved chat so the page can redraw it after a reload | Optional `limit` (default 50) | List of chat messages ([data-model.md](data-model.md)) |
 | `GET /api/bookmarks` | List bookmarks in saved order | none in phase 1 (filters `folder`, `type`, `tag`, `q` come later) | List of records ([data-model.md](data-model.md)) |
 | `PATCH /api/bookmarks/:id` | Change a bookmark: the reason (phase 1, from `note <id> <text>`; sets `reason_source` to `user`) or the folder (Move, phase 3) | `reason` or `folder` | Updated record. Rejects an unknown folder or an unknown id |
