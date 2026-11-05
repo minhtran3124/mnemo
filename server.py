@@ -339,12 +339,13 @@ def _note_reply(bookmark_id: int | None, text: str | None) -> str:
 def chat(body: ChatBody) -> dict | JSONResponse:
     if not body.message.strip():
         return error_response(400, "empty_message", "The message is empty.")
-    note = intent.parse_note(body.message)
+    links = intent.find_links(body.message)
+    # A message with a link is a save, even when it starts with "note" (CI-02).
+    note = None if links else intent.parse_note(body.message)
     if note is not None:
         reply = _note_reply(*note)
         _record_exchange(body.message, reply, [])
         return {"kind": "text", "text": reply}
-    links = intent.find_links(body.message)
     if not links:
         _record_exchange(body.message, LINKS_ONLY_TEXT, [])
         return {"kind": "text", "text": LINKS_ONLY_TEXT}
@@ -363,11 +364,14 @@ def chat(body: ChatBody) -> dict | JSONResponse:
             with _write_lock:
                 cards.append(save.save(link, pasted_text=pasted))
         except Exception as exc:
-            # Nothing saved yet: key, auth and other errors propagate to the
-            # global handler (a JSON 500), safe to retry. Once a card is saved,
-            # any error is reported per link so the saved cards are returned and
-            # recorded (a retry would save them again). Log the class only: the
-            # text can hold paths or page content.
+            # Auth and config errors (save.is_permanent_error) always propagate
+            # to the global handler, a JSON 500, whatever the link order. With
+            # nothing saved yet, any other non-storage error propagates too.
+            # Once a card is saved, the rest are reported per link so the saved
+            # cards are returned and recorded (a retry would save them again).
+            # Log the class only: the text can hold paths or page content.
+            if save.is_permanent_error(exc):
+                raise
             if not cards and not isinstance(exc, (store.StoreError, OSError)):
                 raise
             _log.error("Could not save a link: %s", type(exc).__name__)
@@ -382,6 +386,7 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         body.message,
         _cards_reply_text(len(cards), len(failed)),
         [c["id"] for c in cards],
+        failed,
     )
     return result
 
@@ -396,12 +401,22 @@ def _cards_reply_text(saved: int, failed: int) -> str:
     return text
 
 
-def _record_exchange(user_text: str, app_text: str, bookmark_ids: list[int]) -> None:
+def _record_exchange(
+    user_text: str,
+    app_text: str,
+    bookmark_ids: list[int],
+    failed: list[str] | None = None,
+) -> None:
+    app_message: dict = {
+        "role": "app",
+        "text": app_text,
+        "bookmark_ids": bookmark_ids,
+    }
+    if failed:
+        app_message["failed"] = failed
     with _write_lock:
         store.append_chat({"role": "user", "text": user_text})
-        store.append_chat(
-            {"role": "app", "text": app_text, "bookmark_ids": bookmark_ids}
-        )
+        store.append_chat(app_message)
 
 
 @app.get("/api/chat/history", response_model=None)
