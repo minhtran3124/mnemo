@@ -153,6 +153,26 @@ def test_text_around_a_link_becomes_the_users_reason(api, fetch_calls, parse_cal
     assert store.get_bookmark(card["id"])["reason_source"] == "user"
 
 
+def test_failed_reason_update_still_returns_the_saved_card(
+    api, fetch_calls, parse_calls, monkeypatch
+):
+    def boom(bookmark_id, fields):
+        raise RuntimeError("disk full")
+
+    monkeypatch.setattr(store, "update_bookmark", boom)
+
+    response = api.post(
+        "/api/chat", json={"message": "https://example.com/a for login tests"}
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body["cards"]) == 1
+    assert "failed" not in body
+    assert len(store.list_bookmarks()) == 1
+    assert body["cards"][0]["reason_source"] != "user"
+
+
 def test_link_alone_keeps_the_guessed_reason(api, fetch_calls, parse_calls):
     response = api.post("/api/chat", json={"message": "save https://example.com/a"})
 

@@ -151,9 +151,14 @@ def chat(body: ChatBody) -> dict | JSONResponse:
                 card = save.save(link, pasted_text=pasted)
                 if reason:
                     # The text around the links is the user's own reason (CI-05).
-                    card = store.update_bookmark(
-                        card["id"], {"reason": reason, "reason_source": "user"}
-                    )
+                    # The bookmark is already stored, so a failed update must not
+                    # hide the card: keep it with its guessed reason and log it.
+                    try:
+                        card = store.update_bookmark(
+                            card["id"], {"reason": reason, "reason_source": "user"}
+                        )
+                    except Exception:  # noqa: BLE001 - the card is saved; keep it
+                        _log.exception("Could not store the reason for %s", link)
                 cards.append(card)
         except Exception:
             if not cards:
