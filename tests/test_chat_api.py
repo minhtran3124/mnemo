@@ -184,3 +184,9 @@ def test_later_unexpected_error_keeps_the_saved_cards(api, fetch_calls, monkeypa
     assert len(body["cards"]) == 1
     assert body["failed"] == ["https://example.com/bad"]
     assert len(store.list_bookmarks()) == 1
+
+
+def test_malformed_link_does_not_make_chat_a_500(api, fetch_calls, parse_calls):
+    response = api.post("/api/chat", json={"message": "save http://[abc"})
+
+    assert response.status_code == 200

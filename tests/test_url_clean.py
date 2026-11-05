@@ -31,3 +31,7 @@ def test_input_is_not_changed():
     original = url
     clean_url(url)
     assert url == original
+
+
+def test_malformed_link_is_returned_unchanged():
+    assert clean_url("http://[abc") == "http://[abc"
