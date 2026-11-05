@@ -7,6 +7,7 @@ retry (PR-03). Any other 403 is reported as a refusal, not a guessed reason.
 """
 
 import json
+import logging
 import re
 import time
 from urllib.parse import urlsplit
@@ -18,6 +19,7 @@ from fetcher import guard
 from fetcher.page import AttemptError, check_status, new_client, read_capped, with_retry
 from fetcher.result import FetchFail, FetchOk
 
+_log = logging.getLogger("mnemo.fetcher")
 _GITHUB_HOSTS = ("github.com", "www.github.com")
 _NAME = r"[A-Za-z0-9_.-]+"
 # First path segments GitHub uses for its own pages, never a repo owner.
@@ -98,6 +100,7 @@ def _get(
     started: float,
     *,
     optional: bool = False,
+    truncate: bool = False,
 ) -> bytes | None:
     url = f"{config.GITHUB_API_BASE}{path}"
     refused = guard.check_url(url) or guard.check_host(url)
@@ -120,7 +123,50 @@ def _get(
         if 300 <= status < 400:
             raise AttemptError("repository moved")
         check_status(status)
+        if truncate:
+            return _read_truncated(response, started)
         return read_capped(response, started)
+
+
+def _read_truncated(response: httpx2.Response, started: float) -> bytes:
+    """Read the body up to the byte cap and drop the rest (no 'too large' error)."""
+    cap = config.FETCH_MAX_BYTES
+    chunks: list[bytes] = []
+    size = 0
+    for chunk in response.iter_bytes():
+        chunks.append(chunk[: cap - size])
+        size += len(chunk)
+        if size >= cap:
+            break
+        if time.monotonic() - started > config.FETCH_ATTEMPT_SECONDS:
+            raise AttemptError("the page took too long", transient=True)
+    return b"".join(chunks)
+
+
+def _get_readme(client: httpx2.Client, base: str) -> bytes | None:
+    """Fetch the README, retrying only this call once on a transient error."""
+    for number in (1, 2):
+        try:
+            return _get(
+                client,
+                f"{base}/readme",
+                "application/vnd.github.raw+json",
+                time.monotonic(),
+                optional=True,
+                truncate=True,
+            )
+        except (AttemptError, httpx2.TransportError) as err:
+            if isinstance(err, httpx2.TimeoutException):
+                err = AttemptError("the page timed out", transient=True)
+            elif isinstance(err, httpx2.TransportError):
+                err = AttemptError("could not connect to the page", transient=True)
+            if err.transient and number == 1:
+                _log.info("transient README error, retrying: %s", err.reason)
+                time.sleep(config.FETCH_RETRY_DELAY)
+                continue
+            # Not transient any more: with_retry must not repeat the /repos call.
+            raise AttemptError(err.reason) from None
+    raise AssertionError("unreachable")
 
 
 def _attempt(owner: str, repo: str, transport: httpx2.BaseTransport | None) -> FetchOk:
@@ -132,16 +178,11 @@ def _attempt(owner: str, repo: str, transport: httpx2.BaseTransport | None) -> F
             description = (json.loads(info or b"{}").get("description") or "").strip()
         except (ValueError, AttributeError):
             raise AttemptError("GitHub answered with an unexpected response") from None
-        # A repo with no README is a 404 and gives None. Any other README
-        # failure (too large, moved, 4xx, 5xx, bad token, rate limit) stands,
-        # so it is never mistaken for a repo with no README.
-        readme = _get(
-            client,
-            f"{base}/readme",
-            "application/vnd.github.raw+json",
-            started,
-            optional=True,
-        )
+        # A repo with no README is a 404 and gives None. A README over the
+        # byte cap is cut at the cap. Any other README failure (moved, 4xx,
+        # 5xx or timeout after one retry, bad token, rate limit) stands, so it
+        # is never mistaken for a repo with no README.
+        readme = _get_readme(client, base)
     readme_text = (readme or b"").decode("utf-8", errors="replace").strip()
     text = "\n\n".join(part for part in (description, readme_text) if part)
     if not text:

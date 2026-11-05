@@ -43,7 +43,7 @@ Researched on 2026-11-05 by a read-only sub-agent. **Every number is a starting 
 | Item | Starting value |
 | --- | --- |
 | Minimum text, HTML page | 300 characters after whitespace is collapsed (PR-04). Trafilatura passes almost any text, so this floor is ours. |
-| Minimum text, GitHub | 40 characters, description and README together. A repo with no README (404) keeps its description. Any other README failure (too large, moved, 4xx, 5xx, bad token, rate limit) stands as the failure, so it is never mistaken for a missing README |
+| Minimum text, GitHub | 40 characters, description and README together |
 | Calibrate | Run the links in [sample-links.md](../reference/sample-links.md), log the extracted length of each, and set the floor between the shortest readable page and the longest unreadable one |
 | Maximum text | `MAX_PAGE_CHARS` = 20,000 (already in `config.py`) |
 | Timeouts | connect 5 s, read 10 s, write 5 s, pool 5 s, and an own 15 s cap per attempt. httpx has no total timeout, so the read loop checks elapsed time |
@@ -58,6 +58,8 @@ Researched on 2026-11-05 by a read-only sub-agent. **Every number is a starting 
 | Text extraction | Pass our own downloaded bytes to `trafilatura.extract()`. Do not use `trafilatura.fetch_url`: it would skip these guards |
 | User agent | `Mnemo/0.1 (personal bookmark app)` plus a contact if the owner wants one. Not a browser string |
 | GitHub API | 60 requests per hour without a token; enough for the 5 test links. An optional `GITHUB_TOKEN` in `.env` raises it to 5,000 per hour. On 429, or a 403 with `X-RateLimit-Remaining: 0` or `Retry-After`, do not retry: save link only and say the rate limit was reached. Any other 403 is saved link only and reported as a refusal, never as a rate limit |
+
+GitHub README rules: a repo with no README (404) keeps its description. A README larger than the maximum download is cut at that size, and the description plus the cut README are used. A transient README error (5xx or timeout) is retried once on the README call alone, so the repo call is never repeated and the hourly rate limit is not spent twice. Any other README failure, or a transient one that fails again, fails the whole fetch with a reason (the bookmark is saved link only). It is never treated as a missing README and the description is not used alone.
 
 Constants in `config.py` (built in `fetcher/`, #30): `FETCH_CONNECT_TIMEOUT`, `FETCH_READ_TIMEOUT`, `FETCH_WRITE_TIMEOUT`, `FETCH_POOL_TIMEOUT`, `FETCH_ATTEMPT_SECONDS`, `FETCH_RETRY_DELAY`, `FETCH_MAX_BYTES`, `FETCH_CONTENT_TYPES`, `FETCH_MAX_REDIRECTS`, `FETCH_ALLOWED_PORTS`, `FETCH_MAX_URL_CHARS`, `MIN_TEXT_CHARS_HTML`, `MIN_TEXT_CHARS_GITHUB`, `USER_AGENT`, `GITHUB_API_BASE`. `fetch(url)` returns `FetchOk(text, source)` or `FetchFail(reason)` and does not raise for expected failures. It does not cut text to `MAX_PAGE_CHARS` and does not judge "too short": `save.py` does both, using the two `MIN_TEXT_CHARS_*` floors. Redirects are followed by hand so the checks run on every hop. The calibration of the text floors against the sample links is still **Unverified**.
 

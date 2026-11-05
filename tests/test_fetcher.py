@@ -149,12 +149,14 @@ def test_github_repo_uses_api_and_returns_description_and_readme():
     assert fetcher.github.parse_repo("https://github.com/octo/hello/issues") is None
 
 
-def test_github_readme_failure_is_not_hidden_by_a_description():
+def test_github_readme_failure_is_not_hidden_by_a_description(monkeypatch):
     long_description = "A greeter that says hello to every user in many languages"
+    repo_calls = []
 
     def failing(status, **kw):
         def handler(request):
             if request.url.path == "/repos/octo/hello":
+                repo_calls.append(1)
                 return httpx2.Response(
                     200, content=json.dumps({"description": long_description}).encode()
                 )
@@ -166,6 +168,7 @@ def test_github_readme_failure_is_not_hidden_by_a_description():
     assert fetcher.github.fetch_repo("octo", "hello", transport(refused)) == FetchFail(
         "GitHub refused access (403)"
     )
+    assert len(repo_calls) == 1
     moved = failing(301, headers={"location": "https://api.github.com/x"})
     assert fetcher.github.fetch_repo("octo", "hello", transport(moved)) == FetchFail(
         "repository moved"
@@ -174,6 +177,22 @@ def test_github_readme_failure_is_not_hidden_by_a_description():
     assert fetcher.github.fetch_repo(
         "octo", "hello", transport(bad_token)
     ) == FetchFail("server answered 401")
+    # A README that keeps failing with 5xx is retried alone: one more README
+    # call, never a second /repos call.
+    repo_calls.clear()
+    down = failing(503)
+    assert fetcher.github.fetch_repo("octo", "hello", transport(down)) == FetchFail(
+        "server error 503"
+    )
+    assert len(repo_calls) == 1
+    # A README over the size cap is cut at the cap, the description is kept.
+    repo_calls.clear()
+    monkeypatch.setattr(config, "FETCH_MAX_BYTES", 120)
+    big = failing(200, content=b"x" * 150)
+    assert fetcher.github.fetch_repo("octo", "hello", transport(big)) == FetchOk(
+        text=f"{long_description}\n\n{'x' * 120}", source="github"
+    )
+    assert len(repo_calls) == 1
 
 
 def test_github_repo_without_readme_keeps_its_description():
@@ -202,9 +221,11 @@ def test_github_readme_rate_limit_saves_link_only_even_with_a_description():
 
 def test_github_readme_transient_error_is_retried_with_a_description():
     calls = []
+    repo_calls = []
 
     def handler(request):
         if request.url.path == "/repos/octo/hello":
+            repo_calls.append(1)
             return httpx2.Response(
                 200, content=json.dumps({"description": "A greeter"}).encode()
             )
@@ -215,6 +236,7 @@ def test_github_readme_transient_error_is_retried_with_a_description():
 
     result = fetcher.github.fetch_repo("octo", "hello", transport(handler))
     assert result == FetchOk(text="A greeter\n\n# Hello\nUsage notes", source="github")
+    assert repo_calls == [1]
 
 
 def test_github_403_is_a_rate_limit_only_when_headers_say_so():
