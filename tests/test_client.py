@@ -1,7 +1,9 @@
+import inspect
 import logging
 from types import SimpleNamespace
 from typing import ClassVar
 
+import anthropic
 import pytest
 
 import client
@@ -82,11 +84,26 @@ def test_request_kwargs_omit_optional_values_when_none():
     assert "stop_sequences" not in call
 
 
+def test_ask_kwargs_match_real_signature():
+    dummies = {
+        "messages": msgs(),
+        "system": "be brief",
+        "stop_sequences": ["END"],
+        "temperature": 0.0,
+    }
+    ask_params = inspect.signature(client.ask).parameters
+    client.ask(**{name: dummies[name] for name in ask_params})
+    sent = FakeAnthropic.instances[0].calls[0]
+    real = inspect.signature(anthropic.resources.messages.Messages.create).parameters
+    assert set(sent) <= set(real)
+    # Current models reject a temperature argument, so ask() must never send one.
+    assert "temperature" not in sent
+
+
 def test_request_kwargs_include_optional_values_when_given():
-    client.ask(msgs(), system="be brief", temperature=0.0, stop_sequences=["END"])
+    client.ask(msgs(), system="be brief", stop_sequences=["END"])
     call = FakeAnthropic.instances[0].calls[0]
     assert call["system"] == "be brief"
-    assert call["temperature"] == 0.0
     assert call["stop_sequences"] == ["END"]
 
 

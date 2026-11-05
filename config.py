@@ -24,7 +24,7 @@ MAX_PAGE_CHARS = 20_000
 # The .env sits next to this file, so the key is found from any working directory.
 ENV_FILE = Path(__file__).resolve().parent / ".env"
 
-# No default temperature: not confirmed for current models (tech-stack.md).
+# No sampling settings are sent: current models do not take them (tech-stack.md).
 
 
 class Settings(BaseSettings):
