@@ -98,3 +98,16 @@ def test_new_app_instance_returns_the_same_history(data_dir):
     assert server._cards_reply_text(0, 1) == "I could not save it."
     assert server._cards_reply_text(1, 0) == "Saved 1 bookmark."
     assert server._cards_reply_text(2, 1) == "Saved 2 bookmarks. 1 could not be saved."
+
+
+def test_note_exchange_is_recorded_in_history(data_dir):
+    api = make_api()
+    api.post("/api/chat", json={"message": "note 3"})
+    api.post("/api/chat", json={"message": "note 999 text"})
+    texts = [m["text"] for m in api.get("/api/chat/history").json()["messages"]]
+    assert texts == [
+        "note 3",
+        "What should the reason say? Write note <id> <text>.",
+        "note 999 text",
+        "I do not have a bookmark with that number.",
+    ]

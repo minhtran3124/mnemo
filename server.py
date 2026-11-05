@@ -341,7 +341,9 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         return error_response(400, "empty_message", "The message is empty.")
     note = intent.parse_note(body.message)
     if note is not None:
-        return {"kind": "text", "text": _note_reply(*note)}
+        reply = _note_reply(*note)
+        _record_exchange(body.message, reply, [])
+        return {"kind": "text", "text": reply}
     links = intent.find_links(body.message)
     if not links:
         _record_exchange(body.message, LINKS_ONLY_TEXT, [])
@@ -360,10 +362,14 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         try:
             with _write_lock:
                 cards.append(save.save(link, pasted_text=pasted))
-        except (store.StoreError, OSError) as exc:
-            # Only a storage failure is reported per link. Key, auth and other
-            # errors propagate to the global handler (a JSON 500). Log the class
-            # only: the text can hold paths or page content.
+        except Exception as exc:
+            # Nothing saved yet: key, auth and other errors propagate to the
+            # global handler (a JSON 500), safe to retry. Once a card is saved,
+            # any error is reported per link so the saved cards are returned and
+            # recorded (a retry would save them again). Log the class only: the
+            # text can hold paths or page content.
+            if not cards and not isinstance(exc, (store.StoreError, OSError)):
+                raise
             _log.error("Could not save a link: %s", type(exc).__name__)
             failed.append(link)
             last_error = exc
