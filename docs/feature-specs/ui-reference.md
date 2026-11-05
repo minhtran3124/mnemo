@@ -21,7 +21,7 @@ This file says how the built pages must follow the V3 mockup, and lists where th
 | Chat, phone | `V3LightPhoneChat` | Yes |
 | Bookmarks, phone | `V3LightPhoneList` | Yes |
 | Settings, phone | `V3LightSettings` | Yes: theme and bookmark view |
-| Dark versions of all five | `V3Dark*` | Yes, same markup, dark tokens |
+| Dark versions of all five | `V3Dark*` | Yes. Same markup as the light board; only the token set differs (see the [README](../design/v3-mockup/README.md)) |
 
 ## Measurements from the boards
 
@@ -59,6 +59,16 @@ Fonts and weights to self-host: Newsreader 500, 600, 700 (optical size 6 to 72),
 - **"Needs a look" banner:** a bordered `warn` box on the bookmark page: "One link could not be read. It is in Unsorted…", with a "Paste its text" button on the laptop.
 - **View switcher:** a bordered group with Ledger, Cards, Compact (Ledger is the default). On the phone it is full width.
 - **Settings (phone):** a title, "Appearance" with three radio rows (System is the default), a preview entry, then "Bookmark view" with three radio rows and the line "Mnemo remembers your choice on this device."
+
+## The three views (from the bookmark boards)
+
+| View | Laptop | Phone |
+| --- | --- | --- |
+| Ledger (default) | Rows without boxes, 1px `rule` between them, two columns (min 440px, 40px gap) | One column, row padding 12px |
+| Cards | Boxed tiles: 1px `line-strong` border, 6px radius, `surface` fill, padding 14px 16px. Three equal columns, 16px gap | One column, 10px gap |
+| Compact | Two equal columns, 40px gap. Each item is one line: title 16px, meta 13px on the same line, tags hidden, min height 44px | One column |
+
+The switcher is one bordered group with a 4px inner gap. Each option is 44px high with an icon and a label (list, grid and rows icons). The selected option is filled with `ink` and its text uses `on-accent`. On the phone the three options share the full width.
 
 ## Not built yet in phase 1 (hide it, do not show a dead control)
 
@@ -103,7 +113,7 @@ These come from the specs and need a place in the layout. Put them where the led
 2. **Reason on a row.** When a reason exists, show it under the meta line. The "reason is a guess" flag stays beside the meta when Claude wrote it.
 3. **A question in phase 1.** Asking is built in phase 4. In phase 1 a message without a link (and not `note <id> <text>`) gets this app message: "I can only save links for now. Asking comes later." Nothing is searched and nothing is sent to Claude.
 4. **Type names on the page.** `github_repo` "Code repository", `article` "Article", `docs` "Documentation" (if D-013 is accepted), `pdf` "PDF book", `video_page` "Video", `tool` "Tool", `image` "Image", `note` "Note", `other` "Page". The first four are in the board; the rest are new and can change when `/impeccable` shapes the pages.
-5. **Ledger columns.** Follow the laptop board: rows wrap into two columns from about 960px. On the phone, one column.
+5. **View columns.** Follow the boards, not the one-line texts in Settings: Ledger rows wrap into two columns on the laptop (from about 960px); Cards are three columns on the laptop; the phone has one column in every view.
 
 ## Parity check (part of the phase 1 done-when)
 
