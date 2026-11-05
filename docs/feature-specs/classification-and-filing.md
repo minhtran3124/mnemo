@@ -41,10 +41,11 @@ Out: folder rules in detail (see [folders.md](folders.md)).
 | Part | Rule |
 | --- | --- |
 | Format | One JSON object: `type`, `title`, `summary`, `tags`, `reason`, `folder`. |
-| Prefill | The assistant message starts with `{` so Claude continues with JSON. |
-| Stop sequence | A closing marker stops output after the JSON. |
-| Temperature | Low. |
-| If prefill fails | Unverified: which models accept prefill. Fallback: ask for JSON inside tags and parse it in code. Test in phase 1. |
+| How | Structured outputs (D-025): `client.messages.parse(output_format=<Pydantic model>)`, result in `response.parsed_output`. No prefill, no stop sequence, no beta header. `claude-haiku-5-5` supports it ([docs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs), checked in api-notes item 13). |
+| What the API cannot enforce | `minLength`, `maxLength`, `maxItems` and number limits are not supported in the schema. Code checks 3 to 6 tags and 60 words itself (CF-02, CF-03, DM-02). |
+| Bad stop reason | `refusal` and `max_tokens` can give output that does not match the schema. Treat both as invalid: retry once, then save link only. |
+| Temperature | Not set. `Messages.create()` in `anthropic` 2.4.0 has no `temperature` parameter. |
+| Limits | Structured outputs cannot be combined with citations (400 error). Phase 6 quotes need another way ([api-notes](../reference/api-notes.md) item 13). |
 
 ### Filing choice
 
@@ -54,7 +55,7 @@ Claude picks from the folders that exist, or `Unsorted`. If unsure, it must choo
 
 | Case | Behavior |
 | --- | --- |
-| Invalid JSON | One retry. Then save link only and say so. |
+| Invalid output (schema mismatch, `refusal`, `max_tokens`) | One retry. Then save link only and say so. |
 | Tag count is 2 or 7 | Reject. Retry once. |
 | Summary is 61 words | Reject. Retry once. |
 | Unreadable page | No Claude call for a summary. `summary` = `null`. |

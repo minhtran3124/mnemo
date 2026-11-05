@@ -20,27 +20,30 @@ Out: how Claude classifies (see [classification-and-filing.md](classification-an
 | ID | Requirement |
 | --- | --- |
 | CI-01 | Plain code decides if a message is a link or a question. Claude does not decide (D-004). |
-| CI-02 | The rule uses a URL regex (a pattern that finds web addresses). A message with a web address is a save. Otherwise it is a question. |
-| CI-03 | A saved link shows a card: title, type, 3 tags, summary, "Filed in", and the buttons Move and Undo. |
+| CI-02 | The rule uses a URL regex (a pattern that finds web addresses). A message with a web address is a save. Otherwise, a message that matches `note <id> <text>` edits the reason of that bookmark. Anything else is a question. |
+| CI-03 | A saved link shows a card: title, type, 3 tags, summary, "Filed in". From phase 3 the card also has the buttons Move and Undo. Phase 1 has no folders, so "Filed in" is always Unsorted and there are no buttons. |
 | CI-04 | An unreadable page shows a "Page not read" card with a Paste text field (F-02). |
 | CI-05 | The reason is optional and one line. If skipped, the app guesses and marks it "guess". |
 | CI-06 | A question returns up to 3 bookmarks (see [ask-and-answers.md](ask-and-answers.md)). |
+| CI-07 | The chat is saved. After a reload the page shows the earlier messages and cards again, from `data/chat.jsonl` and the bookmark records (DM-06). |
+| CI-08 | Every card shows the bookmark number, so the user can write `note <id> <text>`. |
 
 ## Behavior and rules
 
 - Saving needs no choices. You paste a link and get a card.
 - You can write the link and a reason in the same message, for example a link followed by "for login test cases". The reason is the text that is not the link.
-- Move and Undo stay visible on every card (D-005). See [folders.md](folders.md).
+- From phase 3, Move and Undo stay visible on every card (D-005). See [folders.md](folders.md).
 - The paste-text path: when a page cannot be read, you paste the page text. The app then runs the normal save on that text. It is the same path used for Slack messages: you paste the message text and the app finds the links in it (see [import.md](import.md)).
 - The app never writes a summary of text it did not see (NF-04).
 
-### Messages (exact wording to start with)
+### Messages (the wording of the V3 mockup; see [ui-reference.md](ui-reference.md))
 
 | Case | Text |
 | --- | --- |
-| Page not read | "I could not read this page. Saved the link only." |
-| Slack link | "I cannot open Slack links. Paste the message text." |
+| Page not read | "I could not read this page. I saved the link only." |
+| Slack link | "I cannot open Slack links. I saved the link only." Then: "Copy the message in Slack and paste it here. I will find the links in it." |
 | Nothing found | "nothing found" |
+| A question in phase 1 (asking is not built yet) | "I can only save links for now. Asking comes later." |
 | Exact duplicate | "You saved this already" |
 | Near-duplicate | "You saved something similar" |
 
@@ -54,6 +57,9 @@ Final wording: Open question.
 | A link inside a question | Treated as a link (regex wins). |
 | Text with no link that is meant as a note | Treated as a question until a note path exists. A note path is wanted (decided); how the user marks a note is an open question. |
 | Empty message | Ignored. |
+| Text with no link, in phase 1 | The app replies "I can only save links for now. Asking comes later." Nothing is sent to Claude. From phase 4 it is a question. |
+| `note 42 for login tests` | Sets the reason of bookmark 42 to "for login tests" and marks it as the user's own. Reply: "Reason updated." |
+| `note 999 text` (no such bookmark) | "I do not have a bookmark with that number." Nothing changes. |
 
 ## Acceptance criteria
 
@@ -62,7 +68,9 @@ Final wording: Open question.
 | 1 | A message with a URL never goes to the question path, and the reverse. Tested with code, no API call. |
 | 2 | A readable page gives a card with all CI-03 parts. |
 | 3 | An unreadable page gives the "Page not read" card and a null summary. |
-| 4 | Undo returns the bookmark to its earlier folder. |
+| 4 | From phase 3: Undo returns the bookmark to its earlier folder. |
+| 5 | After a reload, the earlier messages and cards are shown again. |
+| 6 | `note <id> <text>` changes the reason, tested with code and no API call. |
 
 ## Tests
 

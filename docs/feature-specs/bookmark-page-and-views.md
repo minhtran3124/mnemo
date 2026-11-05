@@ -20,8 +20,8 @@ Out: visual style (see [frontend-ui.md](frontend-ui.md)); how search works (see 
 | BP-01 | The left side shows folders with counts. |
 | BP-02 | The main area shows bookmarks of the selected folder. |
 | BP-03 | You can filter by type and by tag, and you can search. |
-| BP-04 | Each row shows: title, reason or "guess", date, and a "page not read" badge when `page_status` is `unreadable`. |
-| BP-05 | Each row has Open, Move and Delete. |
+| BP-04 | Each row shows: title, type and host, tags, date, the reason when there is one, a "reason is a guess" flag when Claude wrote it, and a "page not read" badge when `page_status` is `unreadable`. |
+| BP-05 | The title of a row opens the link and logs the open. Each row has a Delete button that asks first. From phase 3 it also has Move. |
 | BP-06 | A view switcher offers Grid, List and Compact. |
 | BP-07 | Opening a link raises `opened_count` and writes a log line. |
 | BP-08 | Delete asks for confirmation. Nothing is deleted without your action (product rule 3). |

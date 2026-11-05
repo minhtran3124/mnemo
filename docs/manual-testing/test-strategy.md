@@ -18,12 +18,12 @@ Code checks are fast and exact. The eval is a measure, not a proof (see [eval pr
 ### Screen 1: Chat
 | Check | Expected |
 | --- | --- |
-| Paste a readable public link | A card with title, type, 3 tags, summary, "Filed in", Move, Undo |
+| Paste a readable public link | A card with title, type, 3 tags, summary, "Filed in" (Move and Undo from phase 3) |
 | Paste an unreadable link (for example a Slack link) | A "Page not read" card, no summary, a Paste text field |
 | Paste a link with `fbclid` or `utm_*` | The saved link has no tracking part |
 | Type a question | Up to 3 bookmarks, each with a reason, or "nothing found" |
 | Type a question that has no answer in your list | "Nothing found" and no invented bookmark |
-| Click Undo | The folder change is reversed and the card says so |
+| Click Undo (from phase 3) | The folder change is reversed and the card says so |
 | Mark a guess | A guessed reason is labelled "guess" |
 
 ### Screen 2: Bookmark page
@@ -32,7 +32,7 @@ Code checks are fast and exact. The eval is a measure, not a proof (see [eval pr
 | Folder list | Each folder shows a count that matches the rows |
 | Filters and search | Type, tag and search change the list; search ignores folders |
 | Row content | Title, reason or "guess", date, "page not read" badge when needed |
-| Open, Move, Delete | Each works; Delete asks before it acts |
+| Open, Move, Delete | Each works; Delete asks before it acts (Move from phase 3) |
 | View switcher (F-05) | Grid and List in phase 1, Compact from phase 3 |
 
 Test cases for each feature are in [test-cases](../feature-specs/test-cases/README.md). Sample links are in [sample links](../reference/sample-links.md). Hard cases are in [hard cases](../feature-specs/test-cases/hard-cases.md).

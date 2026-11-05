@@ -21,8 +21,8 @@ Out: cover images, a laptop Settings screen (not designed), any other theme.
 | Light | Always light. |
 | Dark | Always dark. |
 
-- Laptop: the theme control is in the header.
-- Phone: the theme control is in Settings (the phone has a Settings tab).
+- The theme control is in the header of every screen, laptop and phone.
+- The phone also has a Settings tab with the same control (and the bookmark view choice).
 - The choice is remembered on the device. Where it is saved (browser storage or server) is an open question.
 - If saved data cannot be read, the app uses System.
 - A term: a token is a named value, such as `--accent`. Components use the token name and never a raw colour.
@@ -46,7 +46,7 @@ Out: cover images, a laptop Settings screen (not designed), any other theme.
 | warn | #7A4B00 | #E9C46A | Warning mark |
 | warn-text | #5C3800 | #F3DC9C | Warning text |
 
-Fonts: Newsreader (serif, headings), Public Sans (body), Spline Sans Mono (labels and URLs). All three come from Google Fonts. Use a fallback stack. Check the fonts load on the host you choose. Proposed: self-host the font files so the page works offline and sends nothing to Google (Q-16).
+Fonts: Newsreader (serif, headings), Public Sans (body), Spline Sans Mono (labels and URLs). Self-host the font files (D-026) so the page works offline and sends nothing to Google. Serve them from `web/fonts/`, and use a fallback stack so text shows before they load. Check each font's licence file when you add it (Unverified).
 
 ## Contrast (measured on the mockup colours)
 
@@ -95,6 +95,6 @@ Notes:
 - Where the choice is saved.
 - A laptop Settings screen, or keep the header control only.
 - Whether the accent needs a second colour for success and error states.
-- Q-16: self-host the fonts or load them from Google Fonts.
+- Font licences: confirm each licence file when the fonts are added (Q-16 itself is answered: self-host).
 
 Related: [frontend UI](frontend-ui.md), [bookmark page](bookmark-page-and-views.md), [decision log](../process/decision-log.md), [design review](../reviews/design-review-v1-v5.md).

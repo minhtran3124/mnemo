@@ -37,13 +37,15 @@ Out: the record shape ([data-model.md](data-model.md)).
 | `read_page(id)` | Return saved page text |
 | `list_folders()` | Folders with counts |
 | `log_event(event)` | Append a line to `log.jsonl` |
+| `append_chat(message)` | Append a line to `chat.jsonl` |
+| `list_chat(limit)` | Return the latest chat messages, oldest first |
 | `find_by_url_clean(url)` | Used by the duplicate check |
 
 Names may change. The point is a small, fixed surface.
 
 ## Behavior and rules
 
-- Files: `data/bookmarks.json`, `data/pages/<id>.txt`, `data/log.jsonl`.
+- Files: `data/bookmarks.json`, `data/pages/<id>.txt`, `data/chat.jsonl`, `data/log.jsonl`.
 - IDs are never reused.
 - Undo needs the previous folder to be remembered. Open question: where it is kept (a field or the log).
 - Backup: copy `data/` regularly. How and how often: Open question. Keep backups out of git if they contain page text.

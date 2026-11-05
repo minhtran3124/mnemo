@@ -15,7 +15,7 @@ The app fetches pages from the internet without your login. A page behind a sign
 
 ## Solution
 1. If the page is unreadable, follow [honest failure](honest-failure.md).
-2. For a Slack link, show: "I cannot open Slack links. Paste the message text."
+2. For a Slack link, show: "I cannot open Slack links. I saved the link only." and then "Copy the message in Slack and paste it here. I will find the links in it."
 3. Accept the pasted message text.
 4. Find the links inside it with the same code used by import (phase 4).
 5. Save each found link. Open question: whether to keep the Slack link as the `source` note.

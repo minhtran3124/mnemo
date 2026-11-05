@@ -37,7 +37,7 @@ The app is honest about what it knows. A summary is only written from text the a
 - Touch targets at least 44px, text contrast at least 4.5:1, focus always visible, no sideways scroll at 390px width (NF-05, UI-02 to UI-05).
 - Light, Dark and System themes. System is the default. The choice is remembered on the device (D-019, UI-08).
 - Every colour comes from a token. No colour is written inside a component rule (UI-09).
-- Fonts named by the design: Newsreader, Public Sans, Spline Sans Mono. Loading them from Google Fonts conflicts with local-first and offline use. This is an open question (Q-16).
+- Fonts named by the design: Newsreader, Public Sans, Spline Sans Mono. They are self-hosted (D-026, Q-16): loading them from Google Fonts would conflict with local-first and offline use.
 - Undecided: cover images, laptop Settings screen, wording of empty and error states, where the theme choice is saved (Q-15, frontend-ui open questions).
 
 ## Brand Commitments

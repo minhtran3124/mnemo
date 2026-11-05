@@ -13,7 +13,7 @@ This file expands the plan's risk table. Likelihood and impact are my judgement 
 | R-06 | Site rules | Low | Unknown | Keep saved text on your disk; do not share it. Not legal advice. | Plan to share or publish saved text |
 | R-07 | Project too big | Medium | High | Finish phases 0 to 4, use it for 2 weeks, then continue. See [roadmap](../product/roadmap.md). | A phase takes far more sessions than planned |
 | R-08 | The eval is subjective | Medium | Medium | Held-out set. Read 3 results every run. Fix the grader first. | You disagree with the grader often |
-| R-09 | Prefill fails on some models | Unknown | Low | Test in phase 1. Fallback: JSON inside tags, parsed in code. | JSON errors in phase 1 |
+| R-09 | Structured output ends in a refusal or a `max_tokens` cut, or breaks the schema | Unknown | Low | Phase 1 treats both stop reasons as invalid, retries once, then saves link only. Code checks tag count and summary length. | JSON errors in phase 1 |
 | R-10 | Caching does not help | Medium | Low | Read the two cache fields in `usage`. Keep caching only if numbers show gain. | Cache read tokens stay at zero |
 | R-11 | An agent changes your data | Low | High | Agents and folder tools only propose. You approve. | Any change made without a click |
 | R-12 | Cost grows | Medium | Medium | `max_tokens`, maximum page length, smaller model while building, spending cap. | Weekly spend above your limit |
