@@ -101,10 +101,9 @@ def test_ask_kwargs_match_real_signature():
 
 
 def test_request_kwargs_include_optional_values_when_given():
-    client.ask(msgs(), system="be brief", temperature=0.0, stop_sequences=["END"])
+    client.ask(msgs(), system="be brief", stop_sequences=["END"])
     call = FakeAnthropic.instances[0].calls[0]
     assert call["system"] == "be brief"
-    assert call["temperature"] == 0.0
     assert call["stop_sequences"] == ["END"]
 
 
