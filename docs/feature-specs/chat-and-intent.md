@@ -56,7 +56,7 @@ Final wording: Open question.
 | Two links in one message | Save both, one card each. Do not ask (decided). The text that is not a link is the reason for each link. |
 | A link inside a question | Treated as a link (regex wins). |
 | Text with no link that is meant as a note | Treated as a question until a note path exists. A note path is wanted (decided); how the user marks a note is an open question. |
-| Empty message | Ignored. |
+| Empty message | The server returns 400 with code `empty_message`. Nothing is saved. |
 | Text with no link, in phase 1 | The app replies "I can only save links for now. Asking comes later." Nothing is sent to Claude. From phase 4 it is a question. |
 | `note 42 for login tests` | Sets the reason of bookmark 42 to "for login tests" and marks it as the user's own. Reply: "Reason updated." |
 | `note 999 text` (no such bookmark) | "I do not have a bookmark with that number." Nothing changes. |
