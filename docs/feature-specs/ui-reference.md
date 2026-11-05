@@ -16,9 +16,9 @@ This file says how the built pages must follow the V3 mockup, and lists where th
 
 | Screen | Board | In phase 1 |
 | --- | --- | --- |
-| Chat, laptop | `V3LightChat` | Yes, without the parts listed under "Not built yet" |
+| Chat, laptop | `V3LightChat` | Built at `/` (web/index.html), without the parts listed under "Not built yet". **Unverified** in a browser against the board: sizes follow the tables below, no side-by-side check or screenshots yet |
 | Bookmark page, laptop | `V3LightBookmarks` | Yes, Ledger and Cards views |
-| Chat, phone | `V3LightPhoneChat` | Yes |
+| Chat, phone | `V3LightPhoneChat` | Built with the same page (margin column becomes a "Filed in" line under the text). **Unverified** at 390px |
 | Bookmarks, phone | `V3LightPhoneList` | Yes |
 | Settings, phone | `V3LightSettings` | Yes: theme and bookmark view |
 | Dark versions of all five | `V3Dark*` | Yes. Same markup as the light board; only the token set differs (see the [README](../design/v3-mockup/README.md)) |
@@ -80,6 +80,15 @@ The switcher is one bordered group with a 4px inner gap. Each option is 44px hig
 | The helper line "You can also paste text from Slack" | Phase 4 (import) |
 | Folder headings with real folders | Phase 3. In phase 1 the groups are the types |
 | Composer placeholder "…or ask about your bookmarks" | Phase 4. In phase 1: "Paste a link to save it" |
+
+## Chat page as built (phase 1)
+
+- The page shows no nav counts, no "Try asking" chips and no helper line. The shared header has only the brand, Settings and the theme control; the Chat and Bookmarks tabs of the board are not built yet (**Open question**: the header partial is outside this ticket).
+- A card has the margin column (Filed in, folder or "Unsorted", "No. N"), the type line, title, summary, up to 3 tags and "Why you saved it:" with a "guess" flag. The live reply and the redrawn history use the same card builder.
+- A saved bookmark whose page was not read gets the "Page not read" card with a "Paste the text" box. Save sends `POST /api/bookmarks/{id}/paste` with `{"text": "..."}` and replaces the card with the returned record. Errors show a short line by code: `text_too_short`, `summary_failed`, `already_read`; anything else shows "Something went wrong. Try again." The route is built in ticket #62 (see its docs in `server-api.md` and `honest-failure.md`); the page follows that contract and is **Unverified** against the real route until #62 merges.
+- A link that was not saved (`failed`) shows "I could not save this link." with no Paste box, because it has no bookmark id.
+- The saved chat is redrawn from `GET /api/chat/history`; a deleted bookmark shows "Bookmark N was deleted."
+- Phase 1 reply cards are not checked in a browser or in the dark theme yet: **Unverified**.
 
 ## Wording that comes from the board
 
