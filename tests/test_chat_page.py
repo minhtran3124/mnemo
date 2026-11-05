@@ -97,6 +97,14 @@ def test_history_is_loaded_on_start_and_deleted_entries_are_handled(client):
     assert "was deleted" in js
 
 
+def test_history_keeps_the_reply_text_next_to_the_cards(client):
+    js = script(client)
+    draw = js[js.index("function drawHistory") : js.index("var historyPending")]
+
+    assert draw.index("recordNode(record)") < draw.index("message.text) {")
+    assert 'el("p", "app-line", message.text)' in draw
+
+
 def test_sending_waits_until_the_history_is_drawn(client):
     js = script(client)
 

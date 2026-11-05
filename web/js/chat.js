@@ -321,6 +321,10 @@
       cards.forEach(function (record) {
         log.appendChild(recordNode(record));
       });
+      // The summary line keeps a partial failure visible after a reload.
+      if (message.text) {
+        log.appendChild(el("p", "app-line", message.text));
+      }
     });
   }
 
