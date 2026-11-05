@@ -8,6 +8,7 @@ docs/solutions/honest-failure.md). All writes go through store.py.
 from pathlib import Path
 from urllib.parse import urlsplit
 
+import anthropic
 from pydantic import BaseModel, ValidationError
 
 import client
@@ -54,7 +55,7 @@ def _summarise(text: str) -> SaveOutput | None:
     for _ in range(ATTEMPTS):
         try:
             out = client.parse(messages, SaveOutput, system=system)
-        except (RuntimeError, ValidationError):
+        except (anthropic.APIError, RuntimeError, ValidationError):
             continue
         checked = _check(out)
         if checked is not None:

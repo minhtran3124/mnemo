@@ -1,3 +1,4 @@
+import anthropic
 import pytest
 
 import config
@@ -95,6 +96,14 @@ def test_invalid_twice_saves_link_only(fetch_calls, parse_calls, data_dir):
 
 def test_runtime_error_retries_then_link_only(fetch_calls, parse_calls, data_dir):
     parse_calls["replies"] = [RuntimeError("refused"), RuntimeError("refused")]
+    record = save.save(URL)
+    assert len(parse_calls["calls"]) == 2
+    assert_link_only(record, data_dir)
+
+
+def test_api_error_retries_then_link_only(fetch_calls, parse_calls, data_dir):
+    error = anthropic.APIError("timeout", request=None, body=None)
+    parse_calls["replies"] = [error, error]
     record = save.save(URL)
     assert len(parse_calls["calls"]) == 2
     assert_link_only(record, data_dir)
