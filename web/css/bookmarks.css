@@ -137,3 +137,10 @@ main {
     flex-direction: column;
   }
 }
+
+.bm-folder {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--muted);
+}

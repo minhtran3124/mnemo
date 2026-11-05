@@ -42,7 +42,7 @@ Out: visual style (see [frontend-ui.md](frontend-ui.md)); how search works (see 
 
 ### Built in phase 1 (list view)
 
-- Served at `GET /bookmarks`. The server draws the list, grouped by type in a fixed order (empty groups skipped). A bookmark whose type is not in that list (for example hand-edited data) is shown in a final "Other" group, never dropped. A record missing optional fields (title, type, date, summary, reason, tags) still renders: the title falls back to the URL and the missing parts are left out. All bookmarks are in Unsorted.
+- Served at `GET /bookmarks`. The server draws the list, grouped by type in a fixed order (empty groups skipped). A bookmark whose type is not in that list (for example hand-edited data) is shown in a final "Other" group, never dropped. A record missing optional fields (title, type, date, summary, reason, tags) still renders: the title falls back to the URL and the missing parts are left out. All bookmarks are in Unsorted, and the page says so with a "Folder: Unsorted" line above the groups (hidden when the list is empty).
 - Each row shows title, type, host, date, tags, the reason (with a "guess" flag only when `reason_source` is `guess`), and a "page not read" badge for unreadable pages (no summary shown).
 - Test hooks in the markup: `data-open-url` on the title link, `data-delete-url` and `data-confirm` on the Delete button. There is no Move button before phase 3.
 - A "Needs a look" banner shows only when at least one unreadable bookmark exists. After a delete, the page script removes the banner when the last unreadable row is gone, and shows the empty message when the last bookmark is gone.

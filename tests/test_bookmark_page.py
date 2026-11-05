@@ -152,6 +152,17 @@ def test_page_gives_the_script_what_it_needs_after_a_delete(client):
     assert '<p class="empty" id="bm-empty" hidden>' in text
 
 
+def test_page_names_the_unsorted_folder_only_when_bookmarks_exist(client):
+    empty = client.get("/bookmarks").text
+    assert "Unsorted" not in empty
+
+    seed()
+    text = client.get("/bookmarks").text
+
+    assert 'id="bm-folder"' in text
+    assert "Unsorted" in text
+
+
 def test_empty_page_shows_the_empty_message_unhidden(client):
     text = client.get("/bookmarks").text
 

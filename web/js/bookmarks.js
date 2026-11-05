@@ -28,6 +28,10 @@
     var empty = document.getElementById("bm-empty");
     if (empty && !document.querySelector(".bm-row")) {
       empty.hidden = false;
+      var folder = document.getElementById("bm-folder");
+      if (folder) {
+        folder.remove();
+      }
     }
   }
 

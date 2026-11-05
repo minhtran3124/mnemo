@@ -121,7 +121,10 @@ def _empty_message(hidden: bool) -> str:
 def _bookmark_groups(items: list[dict]) -> str:
     if not items:
         return _empty_message(hidden=False)
-    sections = []
+    # Phase 1 has no real folders: every bookmark is in Unsorted. Say so.
+    sections = [
+        '<p class="bm-folder" id="bm-folder">Folder: <strong>Unsorted</strong></p>'
+    ]
     known = set(TYPE_ORDER)
     # A record with a type outside TYPE_ORDER (hand-edited data) must still show.
     groups = [(kind, TYPE_LABELS[kind], kind) for kind in TYPE_ORDER]
