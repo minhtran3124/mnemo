@@ -1,8 +1,8 @@
 # Server API (proposed design)
 
-Status: Draft v0.1 · Owner: KhoiTran · Phase: 1, A, B
+Status: Draft v0.1 · Owner: KhoiTran · Phase: 1, A, B · The server and the error format are built (`server.py`); the endpoints below are not.
 
-This file proposes a small set of HTTP endpoints for the web pages. It is a proposed design, not yet built. Names and fields may change.
+This file proposes a small set of HTTP endpoints for the web pages. The endpoints are a proposed design, not yet built. Names and fields may change.
 
 Visual page: [Architecture](https://claude.ai/artifact/HRJ54QxYXpooHoemp6uSgV). It is a snapshot of `main` at commit `ce40e28` and is private until you share it. This file is the source of truth; if they differ, fix the page.
 
@@ -46,7 +46,11 @@ Open question: the upload endpoint for PDFs and screenshots.
 - Token: a long random value kept in `.env` on the server and in the Shortcut or browser. Header name: Open question.
 - Phase A also adds a login for the web page. The token must never be in a public repo ([git-and-secrets.md](../process/git-and-secrets.md)).
 
-## Error format (proposed)
+## Start command
+
+`uv run python server.py` starts the server on `127.0.0.1:8000` (`HOST` in `server.py`, `PORT` in `config.py`). It never binds to another address.
+
+## Error format
 
 ```json
 { "error": { "code": "folder_not_found", "message": "Folder does not exist." } }
@@ -54,9 +58,9 @@ Open question: the upload endpoint for PDFs and screenshots.
 
 | Status | Use |
 | --- | --- |
-| 400 | Bad input (for example unknown folder) |
+| 400 | Bad input: a failed request validation (code `bad_request`) or an unknown folder |
 | 401 | Missing or wrong token |
-| 404 | Unknown bookmark |
+| 404 | Unknown route (code `not_found`) or unknown bookmark |
 | 429 | Spending cap or rate limit reached |
 | 500 | Server error |
 

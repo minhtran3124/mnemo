@@ -60,6 +60,10 @@ You need Node 20 or newer (`node -v`) and Claude Code.
 
 `uv run python scripts/check_memory.py` makes two real Claude calls and checks that the second answer remembers a fact from the first. It prints `memory check: PASS` and exits 0, or prints `memory check: FAIL` and exits 1. It exits 2 if `ANTHROPIC_API_KEY` is not set, and exits 3 with `memory check: ERROR` if an API call fails (bad key, network, timeout). It costs money, so CI does not run it.
 
+## Run the server
+
+`uv run python server.py` starts the server on `http://127.0.0.1:8000`. It binds to the loopback address only, so just this computer can reach it. Every error uses the format `{"error": {"code": ..., "message": ...}}`.
+
 ## Rules to keep
 
 - The design direction is V3, the ledger (D-016). Colours come from tokens only (UI-09). Impeccable suggestions must not break these.
