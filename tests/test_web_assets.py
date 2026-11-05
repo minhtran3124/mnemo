@@ -74,6 +74,23 @@ def test_tokens_defined_for_light_system_dark_and_explicit_dark():
         assert "color-scheme" in block
 
 
+def test_system_dark_and_explicit_dark_hold_identical_values():
+    text = (WEB / "css" / "tokens.css").read_text(encoding="utf-8")
+    _, dark_media, dark_attr = re.search(
+        r"^:root\s*\{(.*?)\}"
+        r".*?prefers-color-scheme:\s*dark\)\s*\{\s*"
+        r":root:not\(\[data-theme=\"light\"\]\)\s*\{(.*?)\}\s*\}"
+        r".*?:root\[data-theme=\"dark\"\]\s*\{(.*?)\}",
+        text,
+        re.DOTALL | re.MULTILINE,
+    ).groups()
+
+    def declarations(block):
+        return dict(re.findall(r"(--?[\w-]+)\s*:\s*([^;]+);", block))
+
+    assert declarations(dark_media) == declarations(dark_attr)
+
+
 def test_hex_colours_only_in_tokens_css():
     assert css_files()
     for path in css_files():
