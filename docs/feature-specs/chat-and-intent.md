@@ -60,6 +60,7 @@ Final wording: Open question.
 | Empty message | The server returns 400 with code `empty_message`. Nothing is saved. |
 | Text with no link, in phase 1 | The app replies "I can only save links for now. Asking comes later." Nothing is sent to Claude. From phase 4 it is a question. |
 | `note 42 for login tests` | Sets the reason of bookmark 42 to "for login tests" and marks it as the user's own. Reply: "Reason updated." |
+| `note 3 see https://example.com/a` (a note that contains a link) | A message with a link is a save, even when it starts with `note`. The link is saved, the text around it is ignored (as for any link), and the reason of bookmark 3 does not change. A message is a note only when it has no link. |
 | `note 999 text` (no such bookmark) | "I do not have a bookmark with that number." Nothing changes. |
 
 ## Acceptance criteria
