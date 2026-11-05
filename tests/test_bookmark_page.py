@@ -99,3 +99,15 @@ def test_delete_button_carries_delete_url_and_confirm_text(client):
     assert 'data-confirm="' in text
     confirm = text.split('data-confirm="', 1)[1].split('"', 1)[0]
     assert "Quarterly plan" in confirm
+
+
+def test_unknown_type_still_shows_under_other(client, monkeypatch):
+    seed(title="Known one")
+    odd = seed(title="Odd one")
+    odd["type"] = "podcast"
+    monkeypatch.setattr(store, "list_bookmarks", lambda *a, **k: [odd])
+
+    response = client.get("/bookmarks")
+
+    assert "Odd one" in response.text
+    assert 'data-type="other"' in response.text

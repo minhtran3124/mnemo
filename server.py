@@ -115,13 +115,20 @@ def _bookmark_groups(items: list[dict]) -> str:
             "to save your first bookmark.</p>"
         )
     sections = []
-    for kind in TYPE_ORDER:
-        rows = [item for item in items if item["type"] == kind]
+    known = set(TYPE_ORDER)
+    # A record with a type outside TYPE_ORDER (hand-edited data) must still show.
+    groups = [(kind, TYPE_LABELS[kind], kind) for kind in TYPE_ORDER]
+    groups.append(("other", "Other", None))
+    for kind, label, match in groups:
+        if match is None:
+            rows = [item for item in items if item["type"] not in known]
+        else:
+            rows = [item for item in items if item["type"] == match]
         if not rows:
             continue
         sections.append(
             f'<section class="bm-group" data-type="{kind}">'
-            f'<h2>{TYPE_LABELS[kind]} <span class="count">{len(rows)}</span></h2>'
+            f'<h2>{label} <span class="count">{len(rows)}</span></h2>'
             f'<ul class="bm-list">{"".join(_bookmark_row(r) for r in rows)}</ul>'
             "</section>"
         )
