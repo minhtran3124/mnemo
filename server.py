@@ -97,8 +97,9 @@ def _bookmark_row(item: dict) -> str:
         if item.get("reason_source") == "guess":
             flag = ' <span class="badge">guess</span>'
         parts.append(f'<p class="bm-reason">{_esc(item["reason"])}{flag}</p>')
-    if item.get("tags"):
-        tags = "".join(f"<li>{_esc(tag)}</li>" for tag in item["tags"])
+    raw_tags = item.get("tags")
+    if isinstance(raw_tags, list) and raw_tags:
+        tags = "".join(f"<li>{_esc(tag)}</li>" for tag in raw_tags)
         parts.append(f'<ul class="bm-tags" aria-label="Tags">{tags}</ul>')
     parts.append("</div>")
     parts.append(
@@ -215,9 +216,9 @@ def open_bookmark(bookmark_id: int) -> dict | JSONResponse:
         item = store.get_bookmark(bookmark_id)
         if item is None:
             return _not_found(bookmark_id)
-        updated = store.update_bookmark(
-            bookmark_id, {"opened_count": item["opened_count"] + 1}
-        )
+        count = item.get("opened_count")
+        count = count if isinstance(count, int) else 0
+        updated = store.update_bookmark(bookmark_id, {"opened_count": count + 1})
     store.log_event({"event": "open", "id": bookmark_id})
     return updated
 

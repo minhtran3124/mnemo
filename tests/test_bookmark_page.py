@@ -123,6 +123,24 @@ def test_record_missing_optional_fields_does_not_break_the_page(client, monkeypa
     assert "https://example.com/bare" in response.text
 
 
+def test_open_and_tags_survive_a_bare_record(client, monkeypatch):
+    bare = {"id": 7, "url": "https://example.com/bare", "tags": "abc"}
+    stored = {}
+    monkeypatch.setattr(store, "list_bookmarks", lambda *a, **k: [bare])
+    monkeypatch.setattr(store, "get_bookmark", lambda i: bare)
+    monkeypatch.setattr(
+        store, "update_bookmark", lambda i, f: stored.update(f) or {**bare, **f}
+    )
+    monkeypatch.setattr(store, "log_event", lambda e: None)
+
+    page = client.get("/bookmarks")
+    response = client.post("/api/bookmarks/7/open")
+
+    assert "<li>a</li>" not in page.text
+    assert response.status_code == 200
+    assert stored == {"opened_count": 1}
+
+
 def test_page_gives_the_script_what_it_needs_after_a_delete(client):
     seed(page_status="unreadable", summary=None, title="Locked page")
     seed(url="https://example.com/b", url_clean="https://example.com/b")
