@@ -128,7 +128,7 @@ def test_text_under_floor_saves_link_only(monkeypatch, parse_calls, data_dir):
 
 
 def test_pasted_text_skips_fetcher(fetch_calls, parse_calls):
-    record = save.save(URL, pasted_text="short paste")
+    record = save.save(URL, pasted_text="a" * config.MIN_TEXT_CHARS_GITHUB)
     assert fetch_calls == []
     assert record["page_status"] == "ok"
     assert len(parse_calls["calls"]) == 1
@@ -161,3 +161,10 @@ def test_github_floor_and_no_parse_for_unreadable(monkeypatch, parse_calls, data
     parse_calls["replies"] = []
     save.save(URL)
     assert len(parse_calls["calls"]) == before
+
+
+def test_tiny_pasted_text_saves_link_only(fetch_calls, parse_calls, data_dir):
+    record = save.save(URL, pasted_text="x")
+    assert fetch_calls == []
+    assert_link_only(record, data_dir)
+    assert parse_calls["calls"] == []

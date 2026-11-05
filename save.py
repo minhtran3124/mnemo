@@ -86,7 +86,8 @@ def _link_only(url: str, url_clean: str) -> dict:
 def save(url: str, pasted_text: str | None = None) -> dict:
     """Save a bookmark and return the stored record.
 
-    pasted_text skips the fetcher and the length floor. Without it, the page is
+    pasted_text skips the fetcher and uses the shortest floor (a one-character
+    paste must not produce an invented summary). Without it, the page is
     fetched. If the page cannot be read, is too short, or Claude gives invalid
     output twice, the link is saved with page_status unreadable and no summary.
     """
@@ -94,7 +95,7 @@ def save(url: str, pasted_text: str | None = None) -> dict:
 
     if pasted_text is not None:
         text = " ".join(pasted_text.split())
-        floor = 0
+        floor = config.MIN_TEXT_CHARS_GITHUB
     else:
         result = fetcher.fetch(url)
         if isinstance(result, fetcher.FetchFail):
