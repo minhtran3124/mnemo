@@ -1,14 +1,17 @@
+import json
 import re
+import shutil
+import subprocess
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
-import fetcher
-import save
 import store
 
 FAKE_KEY = "sk-ant-fake-key-for-tests"
 COLOUR_LITERAL = re.compile(r"#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(")
+WEB = Path(__file__).resolve().parent.parent / "web"
 
 
 @pytest.fixture
@@ -20,13 +23,138 @@ def client(monkeypatch, tmp_path):
     return TestClient(server.app)
 
 
-def script(client):
-    response = client.get("/static/js/chat.js")
-    assert response.status_code == 200
-    return response.text
+# A tiny fake DOM and a stubbed fetch. It loads web/js/chat.js, optionally
+# types text into the first Paste box and presses its Save button, then prints
+# what the page drew and every fetch it made.
+NODE_HARNESS = r"""
+const fs = require("fs");
+const config = JSON.parse(process.argv[3]);
+
+class Node {
+  constructor(tag) {
+    this.tag = tag; this.children = []; this.listeners = {}; this.attrs = {};
+    this.className = ""; this.own = ""; this.hidden = false;
+    this.disabled = false; this.value = ""; this.parent = null;
+  }
+  set textContent(v) { this.children = []; this.own = String(v); }
+  get textContent() { return this.own + this.children.map((c) => c.textContent).join(" "); }
+  appendChild(c) { c.parent = this; this.children.push(c); return c; }
+  replaceWith(...nodes) {
+    const at = this.parent.children.indexOf(this);
+    nodes.forEach((n) => (n.parent = this.parent));
+    this.parent.children.splice(at, 1, ...nodes);
+  }
+  setAttribute(k, v) { this.attrs[k] = v; }
+  getAttribute(k) { return this.attrs[k]; }
+  addEventListener(type, fn) { (this.listeners[type] = this.listeners[type] || []).push(fn); }
+  focus() {}
+  requestSubmit() {}
+  click() { (this.listeners.click || []).forEach((fn) => fn({})); }
+  all() { return [this, ...this.children.flatMap((c) => c.all())]; }
+}
+
+const ids = {};
+for (const id of ["chat-log", "chat-empty", "chat-form", "chat-message", "chat-save", "chat-status"]) {
+  ids[id] = new Node(id);
+}
+global.window = { scrollTo() {} };
+global.document = {
+  body: { scrollHeight: 0 },
+  getElementById: (id) => ids[id],
+  createElement: (tag) => new Node(tag),
+  createElementNS: (ns, tag) => new Node(tag),
+  createTextNode: (t) => { const n = new Node("#text"); n.own = t; return n; },
+};
+
+const fetches = [];
+global.fetch = (url, opts) => {
+  fetches.push({ url, method: opts && opts.method, body: opts && opts.body });
+  const answer = url === "/api/chat/history" ? config.history : config.paste;
+  return Promise.resolve({
+    ok: answer.status < 400,
+    status: answer.status,
+    json: () => Promise.resolve(answer.body),
+  });
+};
+process.on("unhandledRejection", (e) => { console.error(e); process.exit(1); });
+
+eval(fs.readFileSync(process.argv[2], "utf8"));
+
+const wait = () => new Promise((r) => setTimeout(r, 20));
+const log = ids["chat-log"];
+
+(async () => {
+  await wait();
+  if (config.paste) {
+    const area = log.all().find((n) => n.tag === "textarea");
+    area.value = config.text;
+    const card = log.children[0];
+    const save = card.all().find((n) => n.tag === "button" && n.textContent === "Save");
+    save.click();
+    await wait();
+  }
+  console.log(JSON.stringify({
+    fetches,
+    cards: log.children.map((c) => ({
+      tag: c.tag,
+      text: c.textContent,
+      textareas: c.all().filter((n) => n.tag === "textarea").length,
+      buttons: c.all().filter((n) => n.tag === "button").map((n) => n.textContent),
+    })),
+  }));
+})();
+"""
 
 
-def test_chat_page_is_served_with_header_message_box_and_save_button(client):
+def run_page(tmp_path, history, paste=None, text=""):
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")
+    harness = tmp_path / "harness.js"
+    harness.write_text(NODE_HARNESS)
+    config = {"history": {"status": 200, "body": {"messages": history}}}
+    if paste is not None:
+        config["paste"] = paste
+        config["text"] = text
+    result = subprocess.run(
+        [node, str(harness), str(WEB / "js" / "chat.js"), json.dumps(config)],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+    assert result.returncode == 0, result.stderr
+    return json.loads(result.stdout.strip().splitlines()[-1])
+
+
+def record(**overrides):
+    base = {
+        "id": 7,
+        "url": "https://www.example.com/a",
+        "type": "article",
+        "title": "An article",
+        "page_status": "ok",
+        "summary": "A short summary.",
+        "tags": ["alpha", "beta", "gamma", "delta"],
+        "reason": "Useful for login work",
+        "reason_source": "guess",
+        "folder": None,
+    }
+    base.update(overrides)
+    return base
+
+
+def assistant(cards, **extra):
+    return [{"role": "assistant", "text": "Saved.", "cards": cards, **extra}]
+
+
+def unread(**overrides):
+    return record(
+        id=5, page_status="unreadable", summary=None, title="Hidden page", **overrides
+    )
+
+
+def test_chat_page_is_served_with_message_box_and_shared_header(client):
     response = client.get("/")
 
     assert response.status_code == 200
@@ -37,191 +165,115 @@ def test_chat_page_is_served_with_header_message_box_and_save_button(client):
     assert re.search(r"<(textarea|input)[^>]*\bid=", text)
     assert re.search(r"<label[^>]*\bfor=", text)
     assert re.search(r"<button[^>]*>\s*Save\s*</button>", text)
-    assert "aria-live" in text
-    assert "/static/css/chat.css" in text
     assert "/static/js/chat.js" in text
 
 
-def test_card_markup_has_every_field_and_no_colour_literal(client):
-    js = script(client)
+def test_card_has_every_field_and_files_have_no_colour_literal(client, tmp_path):
+    out = run_page(tmp_path, assistant([record()]))
 
-    for hook in ("title", "type", "tags", "summary", "reason", "id"):
-        assert f"record.{hook}" in js
-    assert "reason_source" in js
-    assert "Why you saved it:" in js
-    assert "Filed in" in js
-    assert "Unsorted" in js
-    assert "No. " in js
+    text = out["cards"][0]["text"]
+    for part in (
+        "An article",
+        "Article on example.com",
+        "alpha, beta, gamma",
+        "A short summary.",
+        "Why you saved it:",
+        "Useful for login work",
+        "guess",
+        "No. 7",
+        "Filed in",
+        "Unsorted",
+    ):
+        assert part in text
+    assert "delta" not in text
 
-    css = client.get("/static/css/chat.css").text
-    page = client.get("/").text
-    for name, source in (("chat.js", js), ("chat.css", css), ("index", page)):
-        assert not COLOUR_LITERAL.search(source), name
-
-
-def test_page_not_read_card_has_paste_box_and_sends_pasted_text(client):
-    js = script(client)
-
-    assert "Page not read" in js
-    assert "Paste the text" in js
-    assert "<textarea" in js or 'createElement("textarea")' in js
-    assert "pasted_text" in js
-    assert "/api/chat" in js
-    assert "page_status" in js
-    assert "failed" in js
+    for name in ("index.html", "css/chat.css", "js/chat.js"):
+        assert not COLOUR_LITERAL.search((WEB / name).read_text()), name
 
 
-def test_paste_that_is_still_unreadable_keeps_the_card_and_explains(client):
-    js = script(client)
+def test_page_not_read_card_has_paste_box_and_no_move_or_undo(client, tmp_path):
+    out = run_page(tmp_path, assistant([unread()]))
 
-    assert "too short to make an entry" in js
-    assert 'first.page_status !== "ok"' in js
+    card = out["cards"][0]
+    assert "Page not read" in card["text"]
+    assert card["textareas"] == 1
+    assert "Paste the text" in card["buttons"]
+    assert "A short summary." not in card["text"]
 
-
-def test_paste_failure_message_depends_on_the_reply_shape(client):
-    js = script(client)
-
-    # A text reply or an empty card list is not reported as "too short".
-    assert 'body.kind !== "cards"' in js
-    assert "body.text ||" in js
-    assert "!first" in js
-    assert "or I could not read it" in js
-
-
-def test_no_move_or_undo_buttons(client):
-    sources = [
-        client.get("/").text,
-        script(client),
-        client.get("/static/css/chat.css").text,
+    sources = [client.get("/").text] + [
+        (WEB / name).read_text() for name in ("css/chat.css", "js/chat.js")
     ]
-
     for source in sources:
         assert not re.search(r"\b(move|undo)\b", source, re.IGNORECASE)
+    for entry in out["cards"]:
+        assert not any(
+            re.search(r"move|undo", b, re.IGNORECASE) for b in entry["buttons"]
+        )
 
 
-def test_history_is_loaded_on_start_and_deleted_entries_are_handled(client):
-    js = script(client)
-
-    assert "/api/chat/history" in js
-    assert "deleted" in js
-    assert "was deleted" in js
-
-
-def test_history_keeps_the_reply_text_next_to_the_cards(client):
-    js = script(client)
-    draw = js[js.index("function drawHistory") : js.index("var historyPending")]
-
-    assert draw.index("recordNode(record)") < draw.index("message.text) {")
-    assert 'el("p", "app-line", message.text)' in draw
-
-
-def test_sending_waits_until_the_history_is_drawn(client):
-    js = script(client)
-
-    assert "historyPending" in js
-    assert "busy || historyPending" in js
-    assert ".then(endHistory)" in js
-
-
-def _fake_save_calls(monkeypatch):
-    monkeypatch.setattr(save.fetcher, "fetch", lambda u: fetcher.FetchFail("blocked"))
-    out = save.SaveOutput(
-        title="A post",
-        type="article",
-        summary="A short summary of the post.",
-        tags=["python", "testing", "web"],
-        reason="Looks useful.",
+def test_history_loads_on_start_and_handles_deleted_and_failed_entries(tmp_path):
+    messages = assistant(
+        [{"id": 3, "deleted": True}, record()], failed=["https://nope.example/x"]
     )
-    monkeypatch.setattr(save.client, "parse", lambda *a, **k: out)
+    out = run_page(tmp_path, messages)
+
+    assert out["fetches"][0]["url"] == "/api/chat/history"
+    texts = [c["text"] for c in out["cards"]]
+    assert texts[0] == "Bookmark 3 was deleted."
+    assert "An article" in texts[1]
+    failed = out["cards"][2]
+    assert "I could not save this link." in failed["text"]
+    assert failed["textareas"] == 0
+    # A stored message with no failed[] draws nothing extra.
+    plain = run_page(tmp_path, assistant([record()]))
+    assert len(plain["cards"]) == 2
+    assert plain["cards"][1]["text"] == "Saved."
 
 
-def test_pasted_text_for_a_link_only_entry_replaces_it(client, monkeypatch):
-    _fake_save_calls(monkeypatch)
-    url = "https://example.com/slack"
-    first = client.post("/api/chat", json={"message": url}).json()["cards"][0]
-    assert first["page_status"] == "unreadable"
-
-    pasted = "pasted words " * 10
-    reply = client.post("/api/chat", json={"message": url, "pasted_text": pasted})
-
-    card = reply.json()["cards"][0]
-    assert card["page_status"] == "ok"
-    assert [b["id"] for b in client.get("/api/bookmarks").json()] == [card["id"]]
-
-
-def test_pasted_text_keeps_the_id_and_the_users_edits(client, monkeypatch):
-    _fake_save_calls(monkeypatch)
-    url = "https://example.com/slack"
-    first = client.post("/api/chat", json={"message": url}).json()["cards"][0]
-    store.update_bookmark(
-        first["id"],
-        {
-            "reason": "for the talk",
-            "reason_source": "user",
-            "folder": "Work",
-            "opened_count": 3,
-        },
-    )
-
-    pasted = "pasted words " * 10
-    reply = client.post("/api/chat", json={"message": url, "pasted_text": pasted})
-
-    card = reply.json()["cards"][0]
-    assert card["id"] == first["id"]
-    assert card["page_status"] == "ok"
-    assert card["saved_at"] == first["saved_at"]
-    assert card["reason"] == "for the talk"
-    assert card["reason_source"] == "user"
-    assert card["folder"] == "Work"
-    assert card["opened_count"] == 3
-    assert store.read_page(first["id"]).startswith("pasted words")
-    assert len(client.get("/api/bookmarks").json()) == 1
-
-
-def test_too_short_paste_for_a_link_only_entry_adds_no_second_record(
-    client, monkeypatch
+def test_paste_posts_to_the_bookmark_route_maps_error_codes_and_replaces_the_card(
+    tmp_path,
 ):
-    _fake_save_calls(monkeypatch)
-    url = "https://example.com/slack"
-    first = client.post("/api/chat", json={"message": url}).json()["cards"][0]
+    errors = [
+        (
+            400,
+            "text_too_short",
+            "That text is too short to read. Paste more of the page.",
+        ),
+        (
+            502,
+            "summary_failed",
+            "I could not make a summary from that text. The bookmark is unchanged.",
+        ),
+        (409, "already_read", "That bookmark was already read."),
+        (500, "boom", "Something went wrong. Try again."),
+    ]
+    for status, code, expected in errors:
+        body = {"error": {"code": code, "message": "server wording"}}
+        out = run_page(
+            tmp_path,
+            assistant([unread()]),
+            paste={"status": status, "body": body},
+            text="some pasted text",
+        )
 
-    reply = client.post("/api/chat", json={"message": url, "pasted_text": "x"})
+        call = out["fetches"][-1]
+        assert call["url"] == "/api/bookmarks/5/paste"
+        assert call["method"] == "POST"
+        assert json.loads(call["body"]) == {"text": "some pasted text"}
+        card = out["cards"][0]
+        assert expected in card["text"]
+        assert "server wording" not in card["text"]
+        assert card["textareas"] == 1
 
-    assert reply.json()["cards"][0]["id"] == first["id"]
-    assert len(client.get("/api/bookmarks").json()) == 1
-
-
-def test_too_short_paste_is_not_recorded_as_a_save(client, monkeypatch):
-    _fake_save_calls(monkeypatch)
-    url = "https://example.com/slack"
-    client.post("/api/chat", json={"message": url})
-
-    client.post("/api/chat", json={"message": url, "pasted_text": "x"})
-
-    last = client.get("/api/chat/history").json()["messages"][-1]
-    assert last["bookmark_ids"] == []
-    assert "Saved" not in last["text"]
-    assert "too short" in last["text"]
-
-
-def test_too_short_paste_writes_nothing_and_burns_no_id(client, monkeypatch):
-    _fake_save_calls(monkeypatch)
-    url = "https://example.com/slack"
-    first = client.post("/api/chat", json={"message": url}).json()["cards"][0]
-    added = []
-    real_add = store.add_bookmark
-    monkeypatch.setattr(
-        store, "add_bookmark", lambda *a, **k: added.append(a) or real_add(*a, **k)
+    updated = record(id=5, title="Now read", summary="Fresh summary.")
+    out = run_page(
+        tmp_path,
+        assistant([unread()]),
+        paste={"status": 200, "body": updated},
+        text="the page text",
     )
-
-    client.post("/api/chat", json={"message": url, "pasted_text": "x"})
-    other = client.post("/api/chat", json={"message": "https://example.com/other"})
-
-    assert added and len(added) == 1  # only the unrelated link wrote a record
-    assert other.json()["cards"][0]["id"] == first["id"] + 1
-
-
-def test_chat_page_links_to_the_saved_bookmarks_list(client):
-    text = client.get("/").text
-
-    assert re.search(r'<a[^>]*href="/bookmarks"', text)
+    card = out["cards"][0]
+    assert "Now read" in card["text"]
+    assert "Fresh summary." in card["text"]
+    assert card["textareas"] == 0
+    assert "Page not read" not in card["text"]

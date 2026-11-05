@@ -46,13 +46,10 @@
     window.scrollTo(0, document.body.scrollHeight);
   }
 
-  // Ask the server. Resolves with the JSON body; rejects with a readable message.
-  function post(message, pastedText) {
-    var payload = { message: message };
-    if (pastedText) {
-      payload.pasted_text = pastedText;
-    }
-    return fetch("/api/chat", {
+  // POST JSON. Resolves with the JSON body; rejects with an Error whose
+  // message is readable and whose code is the server's error code, if any.
+  function postJson(path, payload) {
+    return fetch(path, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -61,8 +58,10 @@
         return response.json().then(
           function (body) {
             if (!response.ok) {
-              var text = body && body.error && body.error.message;
-              throw new Error(text || "The server could not do that. Try again.");
+              var info = (body && body.error) || {};
+              var err = new Error(info.message || "The server could not do that. Try again.");
+              err.code = info.code;
+              throw err;
             }
             return body;
           },
@@ -76,6 +75,19 @@
       }
     );
   }
+
+  function post(message) {
+    return postJson("/api/chat", { message: message });
+  }
+
+  // Short honest lines for the paste route's error codes (ticket #62). Any
+  // other failure gets the generic line; no cause is guessed.
+  var PASTE_ERRORS = {
+    text_too_short: "That text is too short to read. Paste more of the page.",
+    summary_failed: "I could not make a summary from that text. The bookmark is unchanged.",
+    already_read: "That bookmark was already read."
+  };
+  var PASTE_GENERIC = "Something went wrong. Try again.";
 
   function hostOf(url) {
     try {
@@ -142,19 +154,25 @@
     return entry;
   }
 
-  // A link that was saved without a summary, or not saved at all. The link
-  // stays, nothing is invented about the page, and the user can paste the text.
-  function pageNotReadCard(url, record, title) {
+  // A link that was not saved at all: no bookmark id, so nothing to paste into.
+  function failedCard(url) {
     var entry = el("article", "entry");
-    if (record) {
-      entry.appendChild(marginColumn(record));
-    }
+    var main = el("div", "entry-main");
+    main.appendChild(el("h2", "entry-title", "I could not save this link."));
+    main.appendChild(el("p", "entry-url", url));
+    entry.appendChild(main);
+    return entry;
+  }
+
+  // A saved link without a summary. The link stays, nothing is invented about
+  // the page, and the user can paste the text into this same bookmark.
+  function pageNotReadCard(record) {
+    var entry = el("article", "entry");
+    entry.appendChild(marginColumn(record));
     var main = el("div", "entry-main");
     main.appendChild(warnLabel());
-    main.appendChild(
-      el("h2", "entry-title", title || "I could not read this page. I saved the link only.")
-    );
-    main.appendChild(el("p", "entry-url", url));
+    main.appendChild(el("h2", "entry-title", "I could not read this page. I saved the link only."));
+    main.appendChild(el("p", "entry-url", record.url));
     main.appendChild(
       el(
         "p",
@@ -208,38 +226,14 @@
       note.hidden = true;
       send.disabled = true;
       send.textContent = "Saving...";
-      // The pasted text goes to the first link of a message, so resend this
-      // link alone.
-      post(url, text).then(
-        function (body) {
-          var first = body.kind === "cards" && body.cards && body.cards[0];
-          var reason = null;
-          if (body.kind !== "cards") {
-            // A text reply (for example "links only"): show what the server said.
-            reason = body.text || "I could not save that text. Try again.";
-          } else if (!first) {
-            reason = "I could not save this link. Try again.";
-          } else if (first.page_status && first.page_status !== "ok") {
-            // Still not readable. The server gives one answer for a text that
-            // was too short and for a read that failed, so name both.
-            reason =
-              "That text was too short to make an entry, or I could not read it. Paste more of the page and try again.";
-          }
-          if (reason) {
-            // Keep this card and its box, say why, and let the user paste more.
-            send.disabled = false;
-            send.textContent = "Save";
-            note.textContent = reason;
-            note.hidden = false;
-            area.focus();
-            return;
-          }
-          entry.replaceWith.apply(entry, replyNodes(body));
+      postJson("/api/bookmarks/" + record.id + "/paste", { text: text }).then(
+        function (updated) {
+          entry.replaceWith(cardFor(updated));
         },
         function (err) {
           send.disabled = false;
           send.textContent = "Save";
-          note.textContent = err.message;
+          note.textContent = PASTE_ERRORS[err.code] || PASTE_GENERIC;
           note.hidden = false;
         }
       );
@@ -253,30 +247,33 @@
     return el("p", "app-line", "Bookmark " + record.id + " was deleted.");
   }
 
-  function recordNode(record) {
+  // The one card builder for a stored or returned record.
+  function cardFor(record) {
     if (record.deleted) {
       return deletedEntry(record);
     }
     if (record.page_status && record.page_status !== "ok") {
-      return pageNotReadCard(record.url, record);
+      return pageNotReadCard(record);
     }
     return savedCard(record);
   }
 
+  // Nodes for a list of records plus links that were not saved. The live reply
+  // and the redrawn history both use this.
+  function cardNodes(cards, failed) {
+    var nodes = (cards || []).map(cardFor);
+    (failed || []).forEach(function (url) {
+      nodes.push(failedCard(url));
+    });
+    return nodes;
+  }
+
   // Nodes for one /api/chat answer.
   function replyNodes(body) {
-    var nodes = [];
     if (body.kind === "cards") {
-      (body.cards || []).forEach(function (record) {
-        nodes.push(recordNode(record));
-      });
-      (body.failed || []).forEach(function (url) {
-        nodes.push(pageNotReadCard(url, null, "I could not save this link."));
-      });
-    } else {
-      nodes.push(el("p", "app-line", body.text || ""));
+      return cardNodes(body.cards, body.failed);
     }
-    return nodes;
+    return [el("p", "app-line", body.text || "")];
   }
 
   function appendUser(text) {
@@ -324,12 +321,12 @@
         return;
       }
       var cards = message.cards || [];
-      if (!cards.length) {
+      if (!cards.length && !(message.failed || []).length) {
         log.appendChild(el("p", "app-line", message.text || ""));
         return;
       }
-      cards.forEach(function (record) {
-        log.appendChild(recordNode(record));
+      cardNodes(cards, message.failed).forEach(function (node) {
+        log.appendChild(node);
       });
       // The summary line keeps a partial failure visible after a reload.
       if (message.text) {

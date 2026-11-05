@@ -84,8 +84,9 @@ The switcher is one bordered group with a 4px inner gap. Each option is 44px hig
 ## Chat page as built (phase 1)
 
 - The page shows no nav counts, no "Try asking" chips and no helper line. The shared header has only the brand, Settings and the theme control; the Chat and Bookmarks tabs of the board are not built yet (**Open question**: the header partial is outside this ticket).
-- A card reply has the margin column (Filed in, folder or "Unsorted", "No. N"), the type line, title, summary, up to 3 tags and "Why you saved it:" with a "guess" flag.
-- A link saved without a summary, or not saved, gets the "Page not read" card: the link, one honest line, "Paste the text" (opens a text box) and Save, which resends that one link with `pasted_text`. The board's second button is not built.
+- A card has the margin column (Filed in, folder or "Unsorted", "No. N"), the type line, title, summary, up to 3 tags and "Why you saved it:" with a "guess" flag. The live reply and the redrawn history use the same card builder.
+- A saved bookmark whose page was not read gets the "Page not read" card with a "Paste the text" box. Save sends `POST /api/bookmarks/{id}/paste` with `{"text": "..."}` and replaces the card with the returned record. Errors show a short line by code: `text_too_short`, `summary_failed`, `already_read`; anything else shows "Something went wrong. Try again." The route is built in ticket #62 (see its docs in `server-api.md` and `honest-failure.md`); the page follows that contract and is **Unverified** against the real route until #62 merges.
+- A link that was not saved (`failed`) shows "I could not save this link." with no Paste box, because it has no bookmark id.
 - The saved chat is redrawn from `GET /api/chat/history`; a deleted bookmark shows "Bookmark N was deleted."
 - Phase 1 reply cards are not checked in a browser or in the dark theme yet: **Unverified**.
 

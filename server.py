@@ -319,38 +319,6 @@ def _note_reply(bookmark_id: int | None, text: str | None) -> str:
     return "Reason updated."
 
 
-def _fill_in(old: dict, fields: dict, page: str | None) -> dict:
-    """Move what the app read (`fields`, `page`) into the saved record `old`.
-
-    The record keeps its id, saved_at, folder, opened_count and any reason the
-    user wrote: the app never deletes or replaces a bookmark on its own.
-    """
-    # store.py has no public page writer yet; reuse its own private helpers.
-    store._atomic_write(store._page_path(old["id"]), page or "")
-    update = {
-        key: fields[key] for key in ("type", "title", "page_status", "summary", "tags")
-    }
-    if old["reason_source"] != "user":
-        update["reason"] = fields["reason"]
-        update["reason_source"] = fields["reason_source"]
-    return store.update_bookmark(old["id"], update)
-
-
-def _save_link(link: str, url_clean: str, pasted: str | None) -> tuple[dict, bool]:
-    """Save one link. Pasted text for a link already saved as link only fills
-    that entry in place: same id, no duplicate, no delete of the user's record.
-    Nothing is written for a paste that is too short to read; the flag is False
-    then and the returned record is the untouched first one."""
-    old = store.find_by_url_clean(url_clean) if pasted is not None else None
-    if old is None or old["page_status"] == "ok":
-        return save.save(link, pasted_text=pasted), True
-    fields, page = save.prepare(link, pasted_text=pasted)
-    if fields["page_status"] == "ok":
-        return _fill_in(old, fields, page), True
-    # The paste was too short to read: keep the first record, write nothing.
-    return old, False
-
-
 @app.post("/api/chat", response_model=None)
 def chat(body: ChatBody) -> dict | JSONResponse:
     if not body.message.strip():
@@ -363,8 +331,6 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         _record_exchange(body.message, LINKS_ONLY_TEXT, [])
         return {"kind": "text", "text": LINKS_ONLY_TEXT}
     cards = []
-    saved_ids = []
-    rejected = 0
     failed = []
     last_error = None
     seen = set()
@@ -377,12 +343,7 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         pasted = body.pasted_text if index == 0 else None
         try:
             with _write_lock:
-                card, saved = _save_link(link, key, pasted)
-            cards.append(card)
-            if saved:
-                saved_ids.append(card["id"])
-            else:
-                rejected += 1
+                cards.append(save.save(link, pasted_text=pasted))
         except (store.StoreError, OSError) as exc:
             # Only a storage failure is reported per link. Key, auth and other
             # errors propagate to the global handler (a JSON 500). Log the class
@@ -397,23 +358,19 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         result["failed"] = failed
     _record_exchange(
         body.message,
-        _cards_reply_text(len(saved_ids), len(failed), rejected),
-        saved_ids,
+        _cards_reply_text(len(cards), len(failed)),
+        [c["id"] for c in cards],
     )
     return result
 
 
-def _cards_reply_text(saved: int, failed: int, rejected: int = 0) -> str:
-    if saved == 0 and rejected and not failed:
-        return "That pasted text was too short to read. Nothing was saved."
+def _cards_reply_text(saved: int, failed: int) -> str:
     if saved == 0 and failed:
         n = f"{failed} link{'' if failed == 1 else 's'}"
         return f"I could not save {'it' if failed == 1 else 'any of the ' + n}."
     text = f"Saved {saved} bookmark{'' if saved == 1 else 's'}."
     if failed:
         text += f" {failed} could not be saved."
-    if rejected:
-        text += " The pasted text was too short to read."
     return text
 
 
