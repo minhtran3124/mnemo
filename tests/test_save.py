@@ -87,6 +87,13 @@ def test_wrong_tag_count_retries_once(fetch_calls, parse_calls):
     assert record["page_status"] == "ok"
 
 
+def test_duplicate_tags_after_lowercasing_do_not_count(fetch_calls, parse_calls):
+    parse_calls["replies"] = [good(tags=["Python", "python", "PYTHON"]), good()]
+    record = save.save(URL)
+    assert len(parse_calls["calls"]) == 2
+    assert record["tags"] == ["python", "testing", "web"]
+
+
 def test_invalid_twice_saves_link_only(fetch_calls, parse_calls, data_dir):
     parse_calls["replies"] = [good(tags=["a"]), good(summary="word " * 61)]
     record = save.save(URL)

@@ -32,8 +32,8 @@ class SaveOutput(BaseModel):
 
 
 def _check(out: SaveOutput) -> SaveOutput | None:
-    """Return the output with lowercased tags if the code checks pass, else None."""
-    tags = [t.strip().lower() for t in out.tags if t.strip()]
+    """Return the output with lowercased, deduplicated tags if the code checks pass, else None."""
+    tags = list(dict.fromkeys(t.strip().lower() for t in out.tags if t.strip()))
     if not store.MIN_TAGS <= len(tags) <= store.MAX_TAGS:
         return None
     if not out.summary.strip() or len(out.summary.split()) > store.MAX_SUMMARY_WORDS:
