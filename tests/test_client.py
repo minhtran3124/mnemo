@@ -5,6 +5,7 @@ from typing import ClassVar
 
 import anthropic
 import pytest
+from pydantic import BaseModel
 
 import client
 import config
@@ -19,12 +20,21 @@ class FakeAnthropic:
         self.init_kwargs = kwargs
         self.calls: list[dict] = []
         self.response = make_response([text_block("hello")])
-        self.messages = SimpleNamespace(create=self._create)
+        self.parse_response = make_parse_response(Note(title="t"))
+        self.messages = SimpleNamespace(create=self._create, parse=self._parse)
         FakeAnthropic.instances.append(self)
 
     def _create(self, **kwargs):
         self.calls.append(kwargs)
         return self.response
+
+    def _parse(self, **kwargs):
+        self.calls.append(kwargs)
+        return self.parse_response
+
+
+class Note(BaseModel):
+    title: str
 
 
 def text_block(text):
@@ -37,6 +47,12 @@ def make_response(blocks, input_tokens=11, output_tokens=7, stop_reason="end_tur
         stop_reason=stop_reason,
         usage=SimpleNamespace(input_tokens=input_tokens, output_tokens=output_tokens),
     )
+
+
+def make_parse_response(parsed, stop_reason="end_turn"):
+    resp = make_response([], stop_reason=stop_reason)
+    resp.parsed_output = parsed
+    return resp
 
 
 @pytest.fixture(autouse=True)
@@ -182,3 +198,51 @@ def test_usage_log_has_tokens_and_latency_but_not_prompt(caplog):
     assert "latency_ms=" in text
     assert "SECRET PROMPT TEXT" not in text
     assert "SECRET SYSTEM TEXT" not in text
+
+
+def _parse_fake():
+    client.parse(msgs(), Note)
+    return FakeAnthropic.instances[0]
+
+
+def test_parse_returns_parsed_output(caplog):
+    caplog.set_level(logging.INFO, logger="mnemo.client")
+    result = client.parse(msgs(), Note, system="be brief")
+    assert result == Note(title="t")
+    call = FakeAnthropic.instances[0].calls[0]
+    assert call["output_format"] is Note
+    assert call["system"] == "be brief"
+    assert "input_tokens=11" in caplog.text
+
+
+@pytest.mark.parametrize("reason", ["refusal", "max_tokens"])
+def test_parse_bad_stop_reason_raises_without_key(reason, caplog):
+    caplog.set_level(logging.DEBUG)
+    _parse_fake()
+    FakeAnthropic.instances[0].parse_response = make_parse_response(
+        Note(title="t"), stop_reason=reason
+    )
+    with pytest.raises(RuntimeError, match="refused|max_tokens") as exc:
+        client.parse(msgs(), Note)
+    assert FAKE_KEY not in str(exc.value)
+    assert FAKE_KEY not in caplog.text
+
+
+def test_parse_sends_no_prefill_stop_sequences_or_beta_header():
+    fake = _parse_fake()
+    call = fake.calls[0]
+    assert "system" not in call
+    assert "stop_sequences" not in call
+    assert "extra_headers" not in call
+    assert "betas" not in call
+    assert call["messages"][-1]["role"] == "user"
+    assert "anthropic-beta" not in fake.init_kwargs.get("default_headers", {})
+
+
+def test_parse_kwargs_match_real_signature():
+    parse_params = inspect.signature(client.parse).parameters
+    dummies = {"messages": msgs(), "output_format": Note, "system": "be brief"}
+    client.parse(**{name: dummies[name] for name in parse_params})
+    sent = FakeAnthropic.instances[0].calls[0]
+    real = inspect.signature(anthropic.resources.messages.Messages.parse).parameters
+    assert set(sent) <= set(real)
