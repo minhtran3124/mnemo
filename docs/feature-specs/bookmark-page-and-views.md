@@ -40,6 +40,15 @@ Out: visual style (see [frontend-ui.md](frontend-ui.md)); how search works (see 
 - A reason marked "guess" is labeled so you can tell your words from the app's.
 - Cover images follow the rule in [frontend-ui.md](frontend-ui.md).
 
+### Built in phase 1 (list view)
+
+- Served at `GET /bookmarks`. The server draws the list, grouped by type in a fixed order (empty groups skipped). All bookmarks are in Unsorted.
+- Each row shows title, type, host, date, tags, the reason (with a "guess" flag only when `reason_source` is `guess`), and a "page not read" badge for unreadable pages (no summary shown).
+- Test hooks in the markup: `data-open-url` on the title link, `data-delete-url` and `data-confirm` on the Delete button. There is no Move button before phase 3.
+- A "Needs a look" banner shows only when at least one unreadable bookmark exists.
+- Not built here: the Grid/List switcher, folders panel, filters and search.
+- **Unverified**: the click flow (open logs a count, Delete confirm and row removal, error message) and the 390px layout have not been checked in a real browser.
+
 ### Mockups
 
 Five mockups (V1 to V5) exist in the Claude design canvas. They are not in this repo. They are mockups only. A view switcher built with the CSS `:has()` selector was used in a mockup. Unverified: that `:has()` works in the real viewer. Test it in the real browser.
