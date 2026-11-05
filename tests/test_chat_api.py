@@ -161,3 +161,26 @@ def test_later_link_failure_keeps_the_saved_cards(api, fetch_calls, monkeypatch)
     assert len(body["cards"]) == 1
     assert body["failed"] == ["https://example.com/bad"]
     assert len(store.list_bookmarks()) == 1
+
+
+def test_later_unexpected_error_keeps_the_saved_cards(api, fetch_calls, monkeypatch):
+    real = save.save
+
+    def fake(url, pasted_text=None):
+        if "bad" in url:
+            raise RuntimeError("boom")
+        return real(url, pasted_text=pasted_text)
+
+    monkeypatch.setattr(save.client, "parse", lambda *a, **k: good())
+    monkeypatch.setattr(save, "save", fake)
+
+    response = api.post(
+        "/api/chat",
+        json={"message": "https://example.com/a https://example.com/bad"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body["cards"]) == 1
+    assert body["failed"] == ["https://example.com/bad"]
+    assert len(store.list_bookmarks()) == 1
