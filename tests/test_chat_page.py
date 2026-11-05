@@ -78,6 +78,16 @@ def test_paste_that_is_still_unreadable_keeps_the_card_and_explains(client):
     assert 'first.page_status !== "ok"' in js
 
 
+def test_paste_failure_message_depends_on_the_reply_shape(client):
+    js = script(client)
+
+    # A text reply or an empty card list is not reported as "too short".
+    assert 'body.kind !== "cards"' in js
+    assert "body.text ||" in js
+    assert "!first" in js
+    assert "or I could not read it" in js
+
+
 def test_no_move_or_undo_buttons(client):
     sources = [
         client.get("/").text,
