@@ -324,6 +324,36 @@ def _append_line(path: Path, obj: dict[str, Any]) -> None:
         os.fsync(f.fileno())
 
 
+def _last_chat_id(path: Path) -> int:
+    """Return the id of the last chat line (0 if none) by reading only the file tail."""
+    if not path.exists():
+        return 0
+    size = path.stat().st_size
+    chunk = 4096
+    with path.open("rb") as f:
+        while True:
+            start = max(0, size - chunk)
+            f.seek(start)
+            lines = [x for x in f.read().splitlines() if x.strip()]
+            # With a cut start the first line may be partial, so want two whole lines.
+            if start == 0 or len(lines) >= 3:
+                break
+            chunk *= 4
+    if start > 0:
+        lines = lines[1:]
+    for index in range(len(lines) - 1, -1, -1):
+        try:
+            record = json.loads(lines[index])
+        except ValueError as exc:
+            if index == len(lines) - 1:
+                continue  # torn last line, skipped like _read_lines does
+            raise StoreError(f"{path} has a line that is not JSON ({exc}).") from exc
+        if not isinstance(record, dict) or not _is_int(record.get("id")):
+            raise StoreError(f"{path} has a last line without an integer id.")
+        return record["id"]
+    return 0
+
+
 def append_chat(message: dict[str, Any]) -> dict[str, Any]:
     """Append one chat line. The server sets id (counts on from the last line) and time."""
     if message.get("role") not in {"user", "app"}:
@@ -334,8 +364,7 @@ def append_chat(message: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(ids, list) or not all(_is_int(i) for i in ids):
         raise InvalidRecord("bookmark_ids must be a list of integers")
     path = _paths()[2]
-    existing = _read_lines(path)
-    next_id = existing[-1]["id"] + 1 if existing else 1
+    next_id = _last_chat_id(path) + 1
     line = {
         "id": next_id,
         "time": _now(),

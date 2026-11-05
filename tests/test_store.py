@@ -197,3 +197,17 @@ def test_chat_bad_middle_line_still_raises(data_dir):
     (data_dir / "chat.jsonl").write_text('not json\n{"id": 2}\n', encoding="utf-8")
     with pytest.raises(store.StoreError):
         store.list_chat()
+
+
+def test_chat_append_rejects_last_line_without_integer_id(data_dir):
+    (data_dir / "chat.jsonl").write_text(
+        '{"id": 1}\n{"text": "no id"}\n', encoding="utf-8"
+    )
+    with pytest.raises(store.StoreError):
+        store.append_chat({"role": "user", "text": "x"})
+
+
+def test_chat_append_counts_on_from_a_long_file(data_dir):
+    for i in range(300):
+        store.append_chat({"role": "user", "text": "x" * 50 + str(i)})
+    assert store.append_chat({"role": "app", "text": "y"})["id"] == 301
