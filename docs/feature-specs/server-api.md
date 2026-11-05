@@ -46,6 +46,10 @@ Open question: the upload endpoint for PDFs and screenshots.
 - Token: a long random value kept in `.env` on the server and in the Shortcut or browser. Header name: Open question.
 - Phase A also adds a login for the web page. The token must never be in a public repo ([git-and-secrets.md](../process/git-and-secrets.md)).
 
+## Start command
+
+`uv run python server.py` starts the server on `127.0.0.1` (`HOST` in `server.py`). It never binds to another address.
+
 ## Error format (proposed)
 
 ```json
@@ -54,9 +58,9 @@ Open question: the upload endpoint for PDFs and screenshots.
 
 | Status | Use |
 | --- | --- |
-| 400 | Bad input (for example unknown folder) |
+| 400 | Bad input (for example unknown folder, or a request that fails validation; code `bad_request`) |
 | 401 | Missing or wrong token |
-| 404 | Unknown bookmark |
+| 404 | Unknown bookmark or unknown route (code `not_found`) |
 | 429 | Spending cap or rate limit reached |
 | 500 | Server error |
 
