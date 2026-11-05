@@ -19,6 +19,42 @@ from fetcher.result import FetchFail, FetchOk
 
 _GITHUB_HOSTS = ("github.com", "www.github.com")
 _NAME = r"[A-Za-z0-9_.-]+"
+# First path segments GitHub uses for its own pages, never a repo owner.
+_RESERVED_OWNERS = frozenset(
+    {
+        "orgs",
+        "topics",
+        "settings",
+        "sponsors",
+        "marketplace",
+        "features",
+        "about",
+        "pricing",
+        "explore",
+        "collections",
+        "trending",
+        "search",
+        "login",
+        "join",
+        "notifications",
+        "issues",
+        "pulls",
+        "new",
+        "apps",
+        "enterprise",
+        "events",
+        "readme",
+        "security",
+        "codespaces",
+        "customer-stories",
+        "organizations",
+        "users",
+        "site",
+        "contact",
+        "account",
+        "dashboard",
+    }
+)
 _REPO_PATH = re.compile(rf"^/({_NAME})/({_NAME})/?$")
 
 
@@ -38,6 +74,8 @@ def parse_repo(url: str) -> tuple[str, str] | None:
         return None
     owner, repo = match.groups()
     repo = repo.removesuffix(".git")
+    if owner.lower() in _RESERVED_OWNERS:
+        return None
     if not repo or repo in (".", "..") or owner in (".", ".."):
         return None
     return owner, repo

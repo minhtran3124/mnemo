@@ -149,6 +149,11 @@ def test_github_repo_uses_api_and_returns_description_and_readme():
     assert fetcher.github.parse_repo("https://github.com/octo/hello/issues") is None
 
 
+def test_github_site_pages_are_not_repos():
+    for path in ("orgs/foo", "topics/python", "settings/profile", "Sponsors/x"):
+        assert fetcher.github.parse_repo(f"https://github.com/{path}") is None, path
+
+
 def test_transient_error_retried_once():
     calls = []
 
