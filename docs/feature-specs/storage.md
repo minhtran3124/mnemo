@@ -46,6 +46,7 @@ Errors: `InvalidRecord` (a `ValueError`) for a bad record, `NotFound` for an unk
 ## Behavior and rules
 
 - Files: `data/bookmarks.json`, `data/pages/<id>.txt`, `data/chat.jsonl`, `data/log.jsonl`.
+- `data/pages/<id>.txt` holds the same text Claude was given: whitespace collapsed once, cut to `MAX_PAGE_CHARS` once. Pasted text under 40 characters is not stored (link only).
 - `bookmarks.json` is `{"next_id": n, "bookmarks": [...]}`. `next_id` only goes up, so an ID is never reused, even after a delete.
 - `DATA_DIR` in `store.py` is read at call time, so tests point it at a temp folder.
 - Undo needs the previous folder to be remembered. Open question: where it is kept (a field or the log).

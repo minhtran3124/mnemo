@@ -22,7 +22,19 @@ Many pages cannot be read: logins, paywalls, pages built with JavaScript, blocke
 6. For a partial read (for example only a video description), the card says what was used.
 7. Show a "page not read" badge on the bookmark page row.
 
-Open question: what "too short" means in characters. The plan does not set a number.
+"Too short" means under 300 characters for HTML and under 40 for GitHub, after whitespace is collapsed. Set in `config.py` (`MIN_TEXT_CHARS_HTML`, `MIN_TEXT_CHARS_GITHUB`). Pasted text skips the fetch but has its own floor of 40 characters (`MIN_TEXT_CHARS_PASTED`), so a one-character paste is saved as link only with `page_status` `unreadable` and a null summary. The text Claude sees is the text stored in `data/pages/<id>.txt`: whitespace collapsed once, cut to `MAX_PAGE_CHARS` once.
+
+## Claude API errors on save
+
+The rule: a revoked or wrong key must never look like an unreadable page.
+
+| Case | Behavior |
+| --- | --- |
+| Transient: connection error, timeout, 429, 5xx, 408, 409, 529 | Retry once. If it fails again, save link only. |
+| Invalid output: refusal, `max_tokens`, schema mismatch, failed code checks (tags, words, type, title) | Retry once. If it fails again, save link only. No further identical retries. |
+| Permanent: 400, 401, 403, 404, any other 4xx, or a missing `ANTHROPIC_API_KEY` | Not retried and not swallowed. The error propagates and nothing is saved. |
+
+Each retry and each link-only fallback is logged once with the exception class and status code. No key and no page text is logged, and nothing is logged on success.
 
 ## Why
 - Product rule 2: be right, or say you are not sure.
