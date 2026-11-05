@@ -5,11 +5,13 @@ Every error response uses one JSON shape: {"error": {"code": ..., "message": ...
 
 import logging
 import threading
+from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 import store
@@ -17,9 +19,34 @@ import store
 # Only this computer can reach the server (NF-01, D-021).
 HOST = "127.0.0.1"
 
+# Found from this file, so it works from any working directory.
+WEB_DIR = Path(__file__).resolve().parent / "web"
+
 app = FastAPI()
 
 _log = logging.getLogger("mnemo.server")
+
+# Only these folders are public. Pages and partials hold unrendered
+# placeholders, so they are never served as files.
+for _folder in ("css", "js", "fonts"):
+    app.mount(
+        f"/static/{_folder}",
+        StaticFiles(directory=WEB_DIR / _folder),
+        name=f"static-{_folder}",
+    )
+
+
+def render_page(name: str) -> str:
+    """Read a page from web/ and put the shared header where it says <!--HEADER-->."""
+    header = (WEB_DIR / "partials" / "header.html").read_text(encoding="utf-8")
+    page = (WEB_DIR / name).read_text(encoding="utf-8")
+    return page.replace("<!--HEADER-->", header)
+
+
+@app.get("/settings", response_class=HTMLResponse)
+def settings() -> str:
+    return render_page("settings.html")
+
 
 # Sync routes run in a threadpool. This lock makes each read-modify-write on
 # bookmarks.json one step, so two requests cannot lose an update.
