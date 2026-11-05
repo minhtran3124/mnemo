@@ -12,10 +12,14 @@ Your sample list had one repeat: the same GitHub repo (`gyoridavid/ai_agents_az`
 ## Solution
 1. Take the link the user pastes.
 2. Remove the query parameter `fbclid`.
-3. Remove query parameters that start with `utm_`.
-4. Keep every other part of the link.
+3. Remove query parameters that start with `utm_`. Names match ignoring case (`UTM_Source` and `FBCLID` are removed too).
+4. Keep every other part of the link: other parameters stay as written and in order, and the fragment (`#...`) is kept.
 5. Save both: `url` keeps the link as pasted, and `url_clean` holds the clean link (decided). Fetching, opening and the duplicate check use `url_clean`.
-6. Compare clean links to find an exact duplicate.
+6. If no parameter is left, the link has no `?`.
+7. Compare clean links to find an exact duplicate.
+
+## Code
+The function is `clean_url(url)` in `urlclean.py`. It is pure and makes no network call. Tests: `tests/test_url_clean.py`.
 
 ## Other parameters
 The plan names only `fbclid` and `utm_*`. Other tracking parameters exist, but this file does not list any the plan did not name. Open question: which other parameters to remove. Decide from real links you save. Removing a parameter that the page needs would break the link, so add one only when you can show it is safe.
