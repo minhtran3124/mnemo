@@ -121,3 +121,69 @@ def test_unhandled_error_logs_the_traceback_but_not_the_response(app, caplog):
     assert records[0].exc_info is not None
     assert records[0].exc_info[0] is ValueError
     assert "secret cause detail" in caplog.text
+
+
+def test_unhandled_error_gives_500_error_format(app):
+    @app.get("/_test/crash")
+    def crash() -> None:
+        raise RuntimeError("internal detail")
+
+    response = TestClient(app, raise_server_exceptions=False).get("/_test/crash")
+
+    assert response.status_code == 500
+    assert response.json() == {
+        "error": {
+            "code": "server_error",
+            "message": "Something went wrong on the server.",
+        }
+    }
+
+
+def test_unhandled_error_message_holding_the_api_key_never_reaches_the_response(app):
+    @app.get("/_test/key-in-error")
+    def leak() -> None:
+        raise RuntimeError(f"upstream rejected key {FAKE_KEY}")
+
+    response = TestClient(app, raise_server_exceptions=False).get("/_test/key-in-error")
+
+    assert response.status_code == 500
+    assert FAKE_KEY not in response.text
+    assert "upstream rejected" not in response.text
+
+
+def test_http_exception_message_holding_the_api_key_is_not_a_route_message_leak(app):
+    from fastapi import HTTPException
+
+    @app.get("/_test/odd-key")
+    def raise_key() -> None:
+        raise HTTPException(status_code=409, detail={"key": FAKE_KEY})
+
+    response = TestClient(app).get("/_test/odd-key")
+
+    assert response.status_code == 409
+    assert FAKE_KEY not in response.text
+
+
+def test_wrong_method_gives_405_error_format(client):
+    response = client.post("/_test/items/1")
+
+    assert response.status_code == 405
+    assert response.json() == {
+        "error": {
+            "code": "method_not_allowed",
+            "message": "Method Not Allowed",
+        }
+    }
+
+
+def test_http_exception_with_plain_text_detail_passes_through(app):
+    from fastapi import HTTPException
+
+    @app.get("/_test/teapot")
+    def teapot() -> None:
+        raise HTTPException(status_code=400, detail="Bad link.")
+
+    response = TestClient(app).get("/_test/teapot")
+
+    assert response.status_code == 400
+    assert response.json() == {"error": {"code": "bad_request", "message": "Bad link."}}
