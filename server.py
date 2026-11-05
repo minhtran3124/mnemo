@@ -364,11 +364,14 @@ def chat(body: ChatBody) -> dict | JSONResponse:
             with _write_lock:
                 cards.append(save.save(link, pasted_text=pasted))
         except Exception as exc:
-            # Nothing saved yet: key, auth and other errors propagate to the
-            # global handler (a JSON 500), safe to retry. Once a card is saved,
-            # any error is reported per link so the saved cards are returned and
-            # recorded (a retry would save them again). Log the class only: the
-            # text can hold paths or page content.
+            # Auth and config errors (save.is_permanent_error) always propagate
+            # to the global handler, a JSON 500, whatever the link order. With
+            # nothing saved yet, any other non-storage error propagates too.
+            # Once a card is saved, the rest are reported per link so the saved
+            # cards are returned and recorded (a retry would save them again).
+            # Log the class only: the text can hold paths or page content.
+            if save.is_permanent_error(exc):
+                raise
             if not cards and not isinstance(exc, (store.StoreError, OSError)):
                 raise
             _log.error("Could not save a link: %s", type(exc).__name__)

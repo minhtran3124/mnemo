@@ -186,6 +186,47 @@ def test_later_unexpected_error_keeps_the_saved_cards(api, fetch_calls, monkeypa
     assert len(store.list_bookmarks()) == 1
 
 
+def _auth_error():
+    import anthropic
+    import httpx2 as httpx
+
+    request = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+    return anthropic.AuthenticationError(
+        "bad key", response=httpx.Response(401, request=request), body=None
+    )
+
+
+def _post_with_bad(api, monkeypatch, message):
+    real = save.save
+
+    def fake(url, pasted_text=None):
+        if "bad" in url:
+            raise _auth_error()
+        return real(url, pasted_text=pasted_text)
+
+    monkeypatch.setattr(save.client, "parse", lambda *a, **k: good())
+    monkeypatch.setattr(save, "save", fake)
+    return TestClient(api.app, raise_server_exceptions=False).post(
+        "/api/chat", json={"message": message}
+    )
+
+
+def test_auth_error_on_first_link_is_a_500(api, fetch_calls, monkeypatch):
+    response = _post_with_bad(
+        api, monkeypatch, "https://example.com/bad https://example.com/a"
+    )
+
+    assert response.status_code == 500
+
+
+def test_auth_error_on_later_link_is_a_500_too(api, fetch_calls, monkeypatch):
+    response = _post_with_bad(
+        api, monkeypatch, "https://example.com/a https://example.com/bad"
+    )
+
+    assert response.status_code == 500
+
+
 def test_chat_malformed_link_does_not_500(api, fetch_calls, parse_calls):
     response = api.post("/api/chat", json={"message": "see http://[abc here"})
 
