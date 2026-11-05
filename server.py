@@ -339,12 +339,13 @@ def _note_reply(bookmark_id: int | None, text: str | None) -> str:
 def chat(body: ChatBody) -> dict | JSONResponse:
     if not body.message.strip():
         return error_response(400, "empty_message", "The message is empty.")
-    note = intent.parse_note(body.message)
+    links = intent.find_links(body.message)
+    # A message with a link is a save, even when it starts with "note" (CI-02).
+    note = None if links else intent.parse_note(body.message)
     if note is not None:
         reply = _note_reply(*note)
         _record_exchange(body.message, reply, [])
         return {"kind": "text", "text": reply}
-    links = intent.find_links(body.message)
     if not links:
         _record_exchange(body.message, LINKS_ONLY_TEXT, [])
         return {"kind": "text", "text": LINKS_ONLY_TEXT}
