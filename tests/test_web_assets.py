@@ -66,7 +66,7 @@ def test_tokens_defined_for_light_system_dark_and_explicit_dark():
         r":root:not\(\[data-theme=\"light\"\]\)\s*\{(.*?)\}\s*\}"
         r".*?:root\[data-theme=\"dark\"\]\s*\{(.*?)\}",
         text,
-        re.S | re.M,
+        re.DOTALL | re.MULTILINE,
     ).groups()
     for block in (light, dark_media, dark_attr):
         for token in TOKENS:
