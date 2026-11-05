@@ -69,7 +69,7 @@ Final wording: Open question.
 | --- | --- |
 | Page not readable | "Page not read" card, paste option |
 | Server not reachable | A clear message, no blank page |
-| API error or limit reached | A short message; the bookmark is still saved as link only. Open question: exact behavior |
+| Transient API error or limit reached | A short message; the bookmark is still saved as link only. A permanent error (bad or revoked key) is shown as a server error, not as an unreadable page. See [honest-failure.md](../solutions/honest-failure.md) |
 | Login failed (phase A) | A short message |
 
 ## Acceptance criteria

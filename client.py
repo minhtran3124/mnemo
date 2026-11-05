@@ -18,6 +18,12 @@ TIMEOUT_SECONDS = 30.0
 MAX_RETRIES = 2
 
 _log = logging.getLogger("mnemo.client")
+
+
+class InvalidOutput(RuntimeError):
+    """Claude refused, hit max_tokens or gave no parsed output. Callers retry or fall back."""
+
+
 _client: anthropic.Anthropic | None = None
 
 
@@ -92,7 +98,7 @@ def parse[T: BaseModel](
     """Send messages to Claude and return the reply as a validated output_format object.
 
     Sends no prefill, no stop sequence and no beta header. A refusal or a reply cut
-    off at max_tokens raises RuntimeError; callers treat that as invalid output.
+    off at max_tokens raises InvalidOutput (a RuntimeError); callers treat that as invalid output.
     """
     kwargs: dict = {
         "model": config.MODEL,
@@ -117,11 +123,11 @@ def parse[T: BaseModel](
     )
 
     if response.stop_reason == "refusal":
-        raise RuntimeError("Claude refused the request; treat the output as invalid")
+        raise InvalidOutput("Claude refused the request; treat the output as invalid")
     if response.stop_reason == "max_tokens":
-        raise RuntimeError(
+        raise InvalidOutput(
             f"Claude reply hit max_tokens={config.MAX_TOKENS}; treat the output as invalid"
         )
     if response.parsed_output is None:
-        raise RuntimeError("Claude returned no parsed output")
+        raise InvalidOutput("Claude returned no parsed output")
     return response.parsed_output

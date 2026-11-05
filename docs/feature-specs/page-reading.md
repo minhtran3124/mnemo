@@ -20,7 +20,7 @@ Out: PDFs and screenshots (see [pdf-and-screenshots.md](pdf-and-screenshots.md))
 | PR-01 | The fetcher is code in `fetcher/`. Claude Code writes it. |
 | PR-02 | For GitHub repos, use the official GitHub API: description and README. |
 | PR-03 | If a fetch fails with a transient error (timeout, connection error, HTTP 500, 502, 503, 504), retry once. Do not retry other errors (4xx, too many redirects, a refused address, a refused type or size). Then show the honest failure card. |
-| PR-04 | If the text is shorter than a minimum length, treat the page as unreadable. |
+| PR-04 | If the text is shorter than a minimum length, treat the page as unreadable. Pasted text uses a floor of 40 characters. |
 | PR-05 | Cut page text at a maximum page length (NF-02). Both limits live in `config.py`. |
 | PR-06 | An unreadable page is saved as link only: `page_status` = `unreadable`, `summary` = `null`. |
 | PR-07 | For YouTube, use only the video description. The card says so. |
