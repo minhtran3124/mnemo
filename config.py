@@ -41,6 +41,9 @@ FETCH_MAX_URL_CHARS = 2048
 # these; save.py decides when text is too short.
 MIN_TEXT_CHARS_HTML = 300
 MIN_TEXT_CHARS_GITHUB = 40
+# Pasted text skips the fetch but uses the same low floor, so a one-character
+# paste never gets an invented summary.
+MIN_TEXT_CHARS_PASTED = 40
 
 USER_AGENT = "Mnemo/0.1 (personal bookmark app)"
 GITHUB_API_BASE = "https://api.github.com"

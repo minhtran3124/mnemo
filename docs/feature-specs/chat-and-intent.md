@@ -33,7 +33,7 @@ Out: how Claude classifies (see [classification-and-filing.md](classification-an
 - Saving needs no choices. You paste a link and get a card.
 - You can write the link and a reason in the same message, for example a link followed by "for login test cases". The reason is the text that is not the link.
 - From phase 3, Move and Undo stay visible on every card (D-005). See [folders.md](folders.md).
-- The paste-text path: when a page cannot be read, you paste the page text. The app then runs the normal save on that text. It is the same path used for Slack messages: you paste the message text and the app finds the links in it (see [import.md](import.md)).
+- The paste-text path: when a page cannot be read, you paste the page text. The app then runs the normal save on that text. Pasted text under 40 characters is saved as link only with no summary. It is the same path used for Slack messages: you paste the message text and the app finds the links in it (see [import.md](import.md)).
 - The app never writes a summary of text it did not see (NF-04).
 
 ### Messages (the wording of the V3 mockup; see [ui-reference.md](ui-reference.md))

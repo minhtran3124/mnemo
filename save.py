@@ -6,7 +6,9 @@ docs/solutions/honest-failure.md). All writes go through store.py.
 """
 
 import logging
+import re
 from pathlib import Path
+from typing import Literal, get_args
 from urllib.parse import urlsplit
 
 import anthropic
@@ -28,10 +30,28 @@ class SaveOutput(BaseModel):
     """What Claude returns for one page."""
 
     title: str
-    type: str
+    type: Literal[
+        "github_repo", "article", "video_page", "tool", "pdf", "image", "note"
+    ]
     summary: str
     tags: list[str]
     reason: str
+
+
+# Keep the Literal in step with store.TYPES (checked at import).
+assert set(get_args(SaveOutput.model_fields["type"].annotation)) == store.TYPES
+
+# 408 request timeout, 409 conflict, 529 overloaded, and every 5xx are transient.
+_TRANSIENT_STATUS = {408, 409, 529}
+_PAGE_TAG = re.compile(r"<(\s*/?\s*page\s*)>", re.IGNORECASE)
+
+
+def _is_transient(err: anthropic.APIError) -> bool:
+    if isinstance(err, anthropic.APIConnectionError | anthropic.RateLimitError):
+        return True  # APITimeoutError is a subclass of APIConnectionError
+    if isinstance(err, anthropic.APIStatusError):
+        return err.status_code >= 500 or err.status_code in _TRANSIENT_STATUS
+    return False
 
 
 def _check(out: SaveOutput) -> SaveOutput | None:
@@ -47,28 +67,36 @@ def _check(out: SaveOutput) -> SaveOutput | None:
 
 
 def _summarise(text: str) -> SaveOutput | None:
-    """Ask Claude, with one retry. None means link only."""
+    """Ask Claude, with one retry. None means link only.
+
+    Transient API errors and invalid output are retried once, then None.
+    Permanent API errors (4xx other than 408/409/429) and a missing key
+    propagate so a revoked key never looks like an unreadable page.
+    """
     system = PROMPT_FILE.read_text(encoding="utf-8")
-    messages = [
-        {
-            "role": "user",
-            "content": f"<page>\n{text[: config.MAX_PAGE_CHARS]}\n</page>",
-        }
-    ]
-    for _ in range(ATTEMPTS):
+    # A literal <page> or </page> in the text must not close or open the wrapper.
+    safe = _PAGE_TAG.sub(r"&lt;\1>", text)
+    messages = [{"role": "user", "content": f"<page>\n{safe}\n</page>"}]
+    for attempt in range(1, ATTEMPTS + 1):
         try:
             out = client.parse(messages, SaveOutput, system=system)
         except anthropic.APIError as err:
+            if isinstance(err, anthropic.APIStatusError) and not _is_transient(err):
+                raise
+            reason = f"{type(err).__name__} status={getattr(err, 'status_code', None)}"
+        except (client.InvalidOutput, ValidationError) as err:
+            reason = type(err).__name__
+        else:
+            checked = _check(out)
+            if checked is not None:
+                return checked
+            reason = "failed checks"
+        if attempt < ATTEMPTS:
             _log.warning(
-                "claude call failed, will retry or save link only: %s",
-                type(err).__name__,
+                "claude save attempt %s failed, retrying once: %s", attempt, reason
             )
-            continue
-        except (RuntimeError, ValidationError):
-            continue
-        checked = _check(out)
-        if checked is not None:
-            return checked
+        else:
+            _log.warning("claude save failed twice, saving link only: %s", reason)
     return None
 
 
@@ -95,16 +123,18 @@ def _link_only(url: str, url_clean: str) -> dict:
 def save(url: str, pasted_text: str | None = None) -> dict:
     """Save a bookmark and return the stored record.
 
-    pasted_text skips the fetcher and uses the shortest floor (a one-character
-    paste must not produce an invented summary). Without it, the page is
-    fetched. If the page cannot be read, is too short, or Claude gives invalid
-    output twice, the link is saved with page_status unreadable and no summary.
+    pasted_text skips the fetcher and must reach MIN_TEXT_CHARS_PASTED (a
+    one-character paste must not produce an invented summary). Without it, the
+    page is fetched. If the page cannot be read, is too short, or Claude gives
+    invalid output or a transient error twice, the link is saved with
+    page_status unreadable and no summary. Permanent API errors and a missing
+    key propagate (see _summarise).
     """
     url_clean = urlclean.clean_url(url)
 
     if pasted_text is not None:
         raw = pasted_text
-        floor = config.MIN_TEXT_CHARS_GITHUB
+        floor = config.MIN_TEXT_CHARS_PASTED
     else:
         result = fetcher.fetch(url)
         if isinstance(result, fetcher.FetchFail):
@@ -116,7 +146,8 @@ def save(url: str, pasted_text: str | None = None) -> dict:
             else config.MIN_TEXT_CHARS_HTML
         )
 
-    text = " ".join(raw.split())
+    # One string: the text Claude sees is the text that is stored.
+    text = " ".join(raw.split())[: config.MAX_PAGE_CHARS]
     if not text or len(text) < floor:
         return _link_only(url, url_clean)
 
@@ -138,5 +169,5 @@ def save(url: str, pasted_text: str | None = None) -> dict:
             "folder": None,
             "opened_count": 0,
         },
-        page_text=raw.strip()[: config.MAX_PAGE_CHARS],
+        page_text=text,
     )
