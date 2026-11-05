@@ -109,6 +109,9 @@ a:hover {
   font-weight: 700;
   color: var(--ink);
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control);
 }
 
 .site-nav {

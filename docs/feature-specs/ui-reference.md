@@ -18,7 +18,7 @@ This file says how the built pages must follow the V3 mockup, and lists where th
 | --- | --- | --- |
 | Chat, laptop | `V3LightChat` | Built at `/` (web/index.html), without the parts listed under "Not built yet". **Unverified** in a browser against the board: sizes follow the tables below, no side-by-side check or screenshots yet |
 | Bookmark page, laptop | `V3LightBookmarks` | Yes, Ledger and Cards views |
-| Chat, phone | `V3LightPhoneChat` | Built with the same page (margin column becomes a "Filed in" line under the text). **Unverified** at 390px |
+| Chat, phone | `V3LightPhoneChat` | Built with the same page (margin column becomes a "Filed in" line under the text). NF-05 (touch targets, contrast, focus) measured at 390px, light: pass ([check](../manual-testing/phase1-nf05-check.md)). Layout against the board is still **Unverified** |
 | Bookmarks, phone | `V3LightPhoneList` | Yes |
 | Settings, phone | `V3LightSettings` | Yes: theme and bookmark view |
 | Dark versions of all five | `V3Dark*` | Yes. Same markup as the light board; only the token set differs (see the [README](../design/v3-mockup/README.md)) |
