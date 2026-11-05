@@ -60,7 +60,12 @@ Open question: the upload endpoint for PDFs and screenshots.
 | --- | --- |
 | 400 | Bad input: a failed request validation (code `bad_request`) or an unknown folder |
 | 401 | Missing or wrong token |
+| 403 | Not allowed (code `forbidden`) |
 | 404 | Unknown route (code `not_found`) or unknown bookmark |
+| 409 | Conflict (code `conflict`) |
+| 413 | Body too large (code `payload_too_large`) |
+| 415 | Wrong content type (code `unsupported_media_type`) |
+| 422 | Cannot be processed (code `unprocessable_entity`) |
 | 429 | Spending cap or rate limit reached |
 | 500 | Server error |
 

@@ -64,3 +64,26 @@ def test_error_bodies_never_contain_the_api_key(client):
 
     assert FAKE_KEY not in not_found.text
     assert FAKE_KEY not in bad_request.text
+
+
+@pytest.mark.parametrize(
+    ("status", "code"),
+    [
+        (403, "forbidden"),
+        (409, "conflict"),
+        (413, "payload_too_large"),
+        (415, "unsupported_media_type"),
+        (422, "unprocessable_entity"),
+    ],
+)
+def test_http_statuses_get_a_matching_error_code(app, status, code):
+    from fastapi import HTTPException
+
+    @app.get(f"/_test/status/{status}")
+    def raise_status() -> None:
+        raise HTTPException(status_code=status, detail="Nope.")
+
+    response = TestClient(app).get(f"/_test/status/{status}")
+
+    assert response.status_code == status
+    assert response.json() == {"error": {"code": code, "message": "Nope."}}
