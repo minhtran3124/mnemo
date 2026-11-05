@@ -12,8 +12,11 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+import intent
+import save
 import store
 
 # Only this computer can reach the server (NF-01, D-021).
@@ -120,6 +123,30 @@ def delete_bookmark(bookmark_id: int) -> dict | JSONResponse:
         except store.NotFound:
             return _not_found(bookmark_id)
     return {"deleted": bookmark_id}
+
+
+class ChatBody(BaseModel):
+    message: str
+    pasted_text: str | None = None
+
+
+LINKS_ONLY_TEXT = "I can only save links for now. Asking comes later."
+
+
+@app.post("/api/chat", response_model=None)
+def chat(body: ChatBody) -> dict | JSONResponse:
+    if not body.message.strip():
+        return error_response(400, "empty_message", "The message is empty.")
+    links = intent.find_links(body.message)
+    if not links:
+        return {"kind": "text", "text": LINKS_ONLY_TEXT}
+    cards = []
+    for index, link in enumerate(links):
+        # Pasted text belongs to the first link in the same message only.
+        pasted = body.pasted_text if index == 0 else None
+        with _write_lock:
+            cards.append(save.save(link, pasted_text=pasted))
+    return {"kind": "cards", "cards": cards}
 
 
 def main() -> None:
