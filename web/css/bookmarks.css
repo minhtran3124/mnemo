@@ -79,7 +79,9 @@ main {
 }
 
 .bm-title {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control);
   color: var(--ink);
   font-family: var(--font-serif);
   font-size: var(--row-title-size);
