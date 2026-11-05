@@ -39,6 +39,7 @@ Result of the parity check of 2026-11-05 (see [phase 1 parity check](../manual-t
 - A10 **Settings, both widths.** The "Bookmark view" section, its Compact row and the preview entry are not built. They need a script change outside ticket 42 (the choice is stored by `view-switcher.js`).
 - A11 **Settings, 1280px.** No board exists. The page keeps the phone layout in a narrow column; compared with the phone board and the measurement tables.
 - A12 **Bookmarks, 390px.** Delete sits under the row text on the phone; the board has no Delete (decision 1).
+- A13 **Each board at the other width.** A board is drawn at one width only (laptop boards at 1280px, phone boards at 390px). The build shows each page at both widths, so the other width was read against the laptop or phone column of the measurement table, not against a board.
 
 ## Measurements from the boards
 
