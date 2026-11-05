@@ -244,6 +244,31 @@ def delete_bookmark(bookmark_id: int) -> dict | JSONResponse:
     return {"deleted": bookmark_id}
 
 
+class ReasonBody(BaseModel):
+    reason: str | None = None
+
+
+def _set_reason(bookmark_id: int, text: str) -> dict | None:
+    """Set the user's own reason. Return None when the bookmark does not exist."""
+    with _write_lock:
+        if store.get_bookmark(bookmark_id) is None:
+            return None
+        return store.update_bookmark(
+            bookmark_id, {"reason": text, "reason_source": "user"}
+        )
+
+
+@app.patch("/api/bookmarks/{bookmark_id}", response_model=None)
+def patch_bookmark(bookmark_id: int, body: ReasonBody) -> dict | JSONResponse:
+    text = (body.reason or "").strip()
+    if not text:
+        return error_response(400, "empty_reason", "The reason is empty.")
+    updated = _set_reason(bookmark_id, text)
+    if updated is None:
+        return _not_found(bookmark_id)
+    return updated
+
+
 class ChatBody(BaseModel):
     message: str
     pasted_text: str | None = None
@@ -252,10 +277,21 @@ class ChatBody(BaseModel):
 LINKS_ONLY_TEXT = "I can only save links for now. Asking comes later."
 
 
+def _note_reply(bookmark_id: int | None, text: str | None) -> str:
+    if bookmark_id is None or text is None:
+        return "What should the reason say? Write note <id> <text>."
+    if _set_reason(bookmark_id, text) is None:
+        return "I do not have a bookmark with that number."
+    return "Reason updated."
+
+
 @app.post("/api/chat", response_model=None)
 def chat(body: ChatBody) -> dict | JSONResponse:
     if not body.message.strip():
         return error_response(400, "empty_message", "The message is empty.")
+    note = intent.parse_note(body.message)
+    if note is not None:
+        return {"kind": "text", "text": _note_reply(*note)}
     links = intent.find_links(body.message)
     if not links:
         return {"kind": "text", "text": LINKS_ONLY_TEXT}
