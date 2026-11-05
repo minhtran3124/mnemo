@@ -181,6 +181,23 @@ def test_too_short_paste_for_a_link_only_entry_adds_no_second_record(
     assert len(client.get("/api/bookmarks").json()) == 1
 
 
+def test_too_short_paste_writes_nothing_and_burns_no_id(client, monkeypatch):
+    _fake_save_calls(monkeypatch)
+    url = "https://example.com/slack"
+    first = client.post("/api/chat", json={"message": url}).json()["cards"][0]
+    added = []
+    real_add = store.add_bookmark
+    monkeypatch.setattr(
+        store, "add_bookmark", lambda *a, **k: added.append(a) or real_add(*a, **k)
+    )
+
+    client.post("/api/chat", json={"message": url, "pasted_text": "x"})
+    other = client.post("/api/chat", json={"message": "https://example.com/other"})
+
+    assert added and len(added) == 1  # only the unrelated link wrote a record
+    assert other.json()["cards"][0]["id"] == first["id"] + 1
+
+
 def test_chat_page_links_to_the_saved_bookmarks_list(client):
     text = client.get("/").text
 

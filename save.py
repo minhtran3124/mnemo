@@ -100,28 +100,31 @@ def _summarise(text: str) -> SaveOutput | None:
     return None
 
 
-def _link_only(url: str, url_clean: str) -> dict:
+def _link_only(url: str, url_clean: str) -> tuple[dict, str | None]:
     host = urlsplit(url).hostname or url
-    return store.add_bookmark(
-        {
-            "url": url,
-            "url_clean": url_clean,
-            "type": "article",
-            "title": host,
-            "page_status": "unreadable",
-            "summary": None,
-            "tags": [],
-            "reason": "",
-            "reason_source": "guess",
-            "folder": None,
-            "opened_count": 0,
-        },
-        page_text=None,
-    )
+    return {
+        "url": url,
+        "url_clean": url_clean,
+        "type": "article",
+        "title": host,
+        "page_status": "unreadable",
+        "summary": None,
+        "tags": [],
+        "reason": "",
+        "reason_source": "guess",
+        "folder": None,
+        "opened_count": 0,
+    }, None
 
 
 def save(url: str, pasted_text: str | None = None) -> dict:
-    """Save a bookmark and return the stored record.
+    """Save a bookmark and return the stored record. See prepare for the rules."""
+    fields, page_text = prepare(url, pasted_text)
+    return store.add_bookmark(fields, page_text=page_text)
+
+
+def prepare(url: str, pasted_text: str | None = None) -> tuple[dict, str | None]:
+    """Read and summarise a link; return (record fields, page text). Writes nothing.
 
     pasted_text skips the fetcher and must reach MIN_TEXT_CHARS_PASTED (a
     one-character paste must not produce an invented summary). Without it, the
@@ -155,19 +158,16 @@ def save(url: str, pasted_text: str | None = None) -> dict:
     if out is None:
         return _link_only(url, url_clean)
 
-    return store.add_bookmark(
-        {
-            "url": url,
-            "url_clean": url_clean,
-            "type": out.type,
-            "title": out.title.strip(),
-            "page_status": "ok",
-            "summary": out.summary.strip(),
-            "tags": out.tags,
-            "reason": out.reason.strip(),
-            "reason_source": "guess",
-            "folder": None,
-            "opened_count": 0,
-        },
-        page_text=text,
-    )
+    return {
+        "url": url,
+        "url_clean": url_clean,
+        "type": out.type,
+        "title": out.title.strip(),
+        "page_status": "ok",
+        "summary": out.summary.strip(),
+        "tags": out.tags,
+        "reason": out.reason.strip(),
+        "reason_source": "guess",
+        "folder": None,
+        "opened_count": 0,
+    }, text

@@ -319,43 +319,35 @@ def _note_reply(bookmark_id: int | None, text: str | None) -> str:
     return "Reason updated."
 
 
-def _fill_in(old: dict, new: dict) -> dict:
-    """Move what the app read in `new` into the saved record `old`.
+def _fill_in(old: dict, fields: dict, page: str | None) -> dict:
+    """Move what the app read (`fields`, `page`) into the saved record `old`.
 
     The record keeps its id, saved_at, folder, opened_count and any reason the
     user wrote: the app never deletes or replaces a bookmark on its own.
     """
-    page = store.read_page(new["id"])
     # store.py has no public page writer yet; reuse its own private helpers.
     store._atomic_write(store._page_path(old["id"]), page or "")
-    fields = {
-        "type": new["type"],
-        "title": new["title"],
-        "page_status": new["page_status"],
-        "summary": new["summary"],
-        "tags": new["tags"],
+    update = {
+        key: fields[key] for key in ("type", "title", "page_status", "summary", "tags")
     }
     if old["reason_source"] != "user":
-        fields["reason"] = new["reason"]
-        fields["reason_source"] = new["reason_source"]
-    return store.update_bookmark(old["id"], fields)
+        update["reason"] = fields["reason"]
+        update["reason_source"] = fields["reason_source"]
+    return store.update_bookmark(old["id"], update)
 
 
 def _save_link(link: str, url_clean: str, pasted: str | None) -> dict:
     """Save one link. Pasted text for a link already saved as link only fills
-    that entry in place: same id, no duplicate, no delete of the user's record."""
+    that entry in place: same id, no duplicate, no delete of the user's record.
+    Nothing is written for a paste that is too short to read."""
     old = store.find_by_url_clean(url_clean) if pasted is not None else None
     if old is None or old["page_status"] == "ok":
         return save.save(link, pasted_text=pasted)
-    new = save.save(link, pasted_text=pasted)
-    try:
-        if new["page_status"] == "ok":
-            return _fill_in(old, new)
-        # The paste was too short to read: keep the first record, add no second.
-        return old
-    finally:
-        # `new` is only a scratch record; the saved one is `old`.
-        store.delete_bookmark(new["id"])
+    fields, page = save.prepare(link, pasted_text=pasted)
+    if fields["page_status"] == "ok":
+        return _fill_in(old, fields, page)
+    # The paste was too short to read: keep the first record, write nothing.
+    return old
 
 
 @app.post("/api/chat", response_model=None)
