@@ -181,6 +181,19 @@ def test_too_short_paste_for_a_link_only_entry_adds_no_second_record(
     assert len(client.get("/api/bookmarks").json()) == 1
 
 
+def test_too_short_paste_is_not_recorded_as_a_save(client, monkeypatch):
+    _fake_save_calls(monkeypatch)
+    url = "https://example.com/slack"
+    client.post("/api/chat", json={"message": url})
+
+    client.post("/api/chat", json={"message": url, "pasted_text": "x"})
+
+    last = client.get("/api/chat/history").json()["messages"][-1]
+    assert last["bookmark_ids"] == []
+    assert "Saved" not in last["text"]
+    assert "too short" in last["text"]
+
+
 def test_too_short_paste_writes_nothing_and_burns_no_id(client, monkeypatch):
     _fake_save_calls(monkeypatch)
     url = "https://example.com/slack"

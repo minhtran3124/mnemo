@@ -336,18 +336,19 @@ def _fill_in(old: dict, fields: dict, page: str | None) -> dict:
     return store.update_bookmark(old["id"], update)
 
 
-def _save_link(link: str, url_clean: str, pasted: str | None) -> dict:
+def _save_link(link: str, url_clean: str, pasted: str | None) -> tuple[dict, bool]:
     """Save one link. Pasted text for a link already saved as link only fills
     that entry in place: same id, no duplicate, no delete of the user's record.
-    Nothing is written for a paste that is too short to read."""
+    Nothing is written for a paste that is too short to read; the flag is False
+    then and the returned record is the untouched first one."""
     old = store.find_by_url_clean(url_clean) if pasted is not None else None
     if old is None or old["page_status"] == "ok":
-        return save.save(link, pasted_text=pasted)
+        return save.save(link, pasted_text=pasted), True
     fields, page = save.prepare(link, pasted_text=pasted)
     if fields["page_status"] == "ok":
-        return _fill_in(old, fields, page)
+        return _fill_in(old, fields, page), True
     # The paste was too short to read: keep the first record, write nothing.
-    return old
+    return old, False
 
 
 @app.post("/api/chat", response_model=None)
@@ -362,6 +363,8 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         _record_exchange(body.message, LINKS_ONLY_TEXT, [])
         return {"kind": "text", "text": LINKS_ONLY_TEXT}
     cards = []
+    saved_ids = []
+    rejected = 0
     failed = []
     last_error = None
     seen = set()
@@ -374,7 +377,12 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         pasted = body.pasted_text if index == 0 else None
         try:
             with _write_lock:
-                cards.append(_save_link(link, key, pasted))
+                card, saved = _save_link(link, key, pasted)
+            cards.append(card)
+            if saved:
+                saved_ids.append(card["id"])
+            else:
+                rejected += 1
         except (store.StoreError, OSError) as exc:
             # Only a storage failure is reported per link. Key, auth and other
             # errors propagate to the global handler (a JSON 500). Log the class
@@ -389,19 +397,23 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         result["failed"] = failed
     _record_exchange(
         body.message,
-        _cards_reply_text(len(cards), len(failed)),
-        [c["id"] for c in cards],
+        _cards_reply_text(len(saved_ids), len(failed), rejected),
+        saved_ids,
     )
     return result
 
 
-def _cards_reply_text(saved: int, failed: int) -> str:
+def _cards_reply_text(saved: int, failed: int, rejected: int = 0) -> str:
+    if saved == 0 and rejected and not failed:
+        return "That pasted text was too short to read. Nothing was saved."
     if saved == 0 and failed:
         n = f"{failed} link{'' if failed == 1 else 's'}"
         return f"I could not save {'it' if failed == 1 else 'any of the ' + n}."
     text = f"Saved {saved} bookmark{'' if saved == 1 else 's'}."
     if failed:
         text += f" {failed} could not be saved."
+    if rejected:
+        text += " The pasted text was too short to read."
     return text
 
 
