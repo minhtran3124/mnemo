@@ -51,6 +51,9 @@ def test_intent_imports_no_client_or_fetcher():
         ("save https://a.com", None),
         ("https://a.com https://b.com", None),
         ("  https://a.com  ", None),
+        ("[docs](https://a.com/x) for tests", "[docs] for tests"),
+        ("see (https://a.com/x) for tests", "see for tests"),
+        ("wiki https://a.com/w_(x) page", "wiki page"),
     ],
 )
 def test_find_reason(text, expected):

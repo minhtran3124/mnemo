@@ -32,6 +32,7 @@ def find_links(text: str) -> list[str]:
     return links
 
 
+_EMPTY_BRACKETS = re.compile(r"\(\s*\)|\[\s*\]")
 _COMMAND_WORD = re.compile(r"^(save|add)\b[\s:,-]*", re.IGNORECASE)
 
 
@@ -41,6 +42,12 @@ def find_reason(text: str) -> str | None:
     Links are removed, a leading "save" or "add" is dropped, and white space is
     collapsed to one line.
     """
-    rest = _COMMAND_WORD.sub("", _LINK.sub(" ", text).strip())
-    reason = " ".join(rest.split()).strip(" ,;:-")
+    # Cut out only the trimmed link, as find_links reports it, so a closing
+    # bracket or full stop after it stays with the sentence.
+    stripped = _LINK.sub(
+        lambda match: " " + match.group()[len(_trim(match.group())) :], text
+    )
+    stripped = _EMPTY_BRACKETS.sub(" ", stripped)
+    rest = _COMMAND_WORD.sub("", stripped.strip())
+    reason = " ".join(rest.split()).strip(" ,;:-.!?")
     return reason or None
