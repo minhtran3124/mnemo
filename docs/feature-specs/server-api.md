@@ -66,7 +66,7 @@ Open question: the upload endpoint for PDFs and screenshots.
 | 409 | Conflict (code `conflict`) |
 | 413 | Body too large (code `payload_too_large`) |
 | 415 | Wrong content type (code `unsupported_media_type`) |
-| 422 | Cannot be processed (code `unprocessable_entity`) |
+| 422 | Only when a route raises it on purpose (code `unprocessable_entity`). A failed request validation is never 422: it gives 400 |
 | 429 | Spending cap or rate limit reached |
 | 500 | Server error |
 

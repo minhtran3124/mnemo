@@ -58,6 +58,17 @@ def test_validation_error_gives_400_error_format(client):
     assert set(body) == {"error"}
 
 
+def test_docs_say_validation_failures_give_400_not_422():
+    from pathlib import Path
+
+    doc = Path(__file__).parent.parent / "docs/feature-specs/server-api.md"
+    row = next(
+        line for line in doc.read_text().splitlines() if line.startswith("| 422")
+    )
+
+    assert "validation is never 422" in row
+
+
 def test_error_bodies_never_contain_the_api_key(client):
     not_found = client.get("/no/such/route")
     bad_request = client.get("/_test/items/not-a-number")
