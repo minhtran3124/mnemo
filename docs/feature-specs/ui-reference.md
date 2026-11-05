@@ -87,23 +87,23 @@ For another unreadable page, keep the title and use one honest line for the caus
 
 ## Additions that the board does not show
 
-These come from the specs and need a place in the layout. Put them where the ledger style suggests, and show the result in the parity check.
+These come from the specs and need a place in the layout. Put them where the ledger style suggests (decisions 1 and 2 below fix two of them), and show the result in the parity check.
 
 | Addition | Where | Why |
 | --- | --- | --- |
 | Bookmark number ("No. 42", mono, `muted`) | Under the folder in the entry's margin column | `note <id>` needs it (CI-08) |
 | Save date | In the row meta line | BP-04. The board leaves dates out |
-| Open and Delete | See "Open decisions" | BP-05 |
+| Open and Delete | Decisions 1 | BP-05 |
 | Delete confirmation | A dialog or inline confirm, 44px buttons | BP-08 |
 | Empty and error states | Plain text, same type scale | UI acceptance 5 |
 
-## Open decisions (ask before building these)
+## Decisions (settled 2026-11-05)
 
-1. **Row actions.** The board has no Open, Delete or detail view: a whole row is a link. Proposal: the title opens the link (and calls `POST /api/bookmarks/:id/open`); a text button "Delete" with a confirm sits at the right of the meta line.
-2. **Reason on a row.** The board shows only the "guess" flag, not the reason text. BP-04 says the row shows the reason. Proposal: show the reason under the meta line when there is one.
-3. **A question in phase 1.** Asking is built in phase 4, but CI-02 sends text without a link to the question path. Proposal: reply "I can only save links for now. Asking comes later." as an app message.
-4. **Type names on the page.** The board shows "Article", "Code repository", "Documentation", "PDF book". Proposal for the rest: `video_page` "Video", `tool` "Tool", `image` "Image", `note` "Note", `other` "Page". Only the first four are in the board.
-5. **Ledger columns.** The settings text says "One entry per line", but the laptop board wraps rows into two columns. Proposal: follow the laptop board.
+1. **Row actions.** The title of a row opens the link (`url_clean`, in a new tab) and sends `POST /api/bookmarks/:id/open` in the background. A text button "Delete" (44px high) sits at the right of the meta line and asks for confirmation (BP-08). Move joins it in phase 3.
+2. **Reason on a row.** When a reason exists, show it under the meta line. The "reason is a guess" flag stays beside the meta when Claude wrote it.
+3. **A question in phase 1.** Asking is built in phase 4. In phase 1 a message without a link (and not `note <id> <text>`) gets this app message: "I can only save links for now. Asking comes later." Nothing is searched and nothing is sent to Claude.
+4. **Type names on the page.** `github_repo` "Code repository", `article` "Article", `docs` "Documentation" (if D-013 is accepted), `pdf` "PDF book", `video_page` "Video", `tool` "Tool", `image` "Image", `note` "Note", `other` "Page". The first four are in the board; the rest are new and can change when `/impeccable` shapes the pages.
+5. **Ledger columns.** Follow the laptop board: rows wrap into two columns from about 960px. On the phone, one column.
 
 ## Parity check (part of the phase 1 done-when)
 

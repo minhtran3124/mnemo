@@ -23,7 +23,7 @@ Use links from [sample links](../reference/sample-links.md). Mark each row Pass 
 
 ## Notes
 - Rows 1 to 7 map to features F-01, F-02, F-03 and F-07. Rows 8 and 9 map to NF-05 and NF-01.
-- Rows 6 and 7 apply from phase 4. Before phase 4, mark them "not built yet".
+- Rows 6 and 7 apply from phase 4. Before phase 4, mark them "not built yet", and a question in the chat gets "I can only save links for now. Asking comes later."
 - Rows 12 and 13 apply from phase 1.
 - Rows 3 and 4 (Move, Undo) apply from phase 3. In phases 1 and 2 mark them "not built yet".
 - Row 11: Unsorted always exists (decision D-005, see [decision log](../process/decision-log.md)).

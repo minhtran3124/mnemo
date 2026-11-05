@@ -43,6 +43,7 @@ Out: how Claude classifies (see [classification-and-filing.md](classification-an
 | Page not read | "I could not read this page. I saved the link only." |
 | Slack link | "I cannot open Slack links. I saved the link only." Then: "Copy the message in Slack and paste it here. I will find the links in it." |
 | Nothing found | "nothing found" |
+| A question in phase 1 (asking is not built yet) | "I can only save links for now. Asking comes later." |
 | Exact duplicate | "You saved this already" |
 | Near-duplicate | "You saved something similar" |
 
@@ -56,6 +57,7 @@ Final wording: Open question.
 | A link inside a question | Treated as a link (regex wins). |
 | Text with no link that is meant as a note | Treated as a question until a note path exists. A note path is wanted (decided); how the user marks a note is an open question. |
 | Empty message | Ignored. |
+| Text with no link, in phase 1 | The app replies "I can only save links for now. Asking comes later." Nothing is sent to Claude. From phase 4 it is a question. |
 | `note 42 for login tests` | Sets the reason of bookmark 42 to "for login tests" and marks it as the user's own. Reply: "Reason updated." |
 | `note 999 text` (no such bookmark) | "I do not have a bookmark with that number." Nothing changes. |
 
