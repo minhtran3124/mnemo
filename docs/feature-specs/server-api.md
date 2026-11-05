@@ -1,8 +1,8 @@
 # Server API (proposed design)
 
-Status: Draft v0.1 · Owner: KhoiTran · Phase: 1, A, B · The server and the error format are built (`server.py`); the endpoints below are not.
+Status: Draft v0.1 · Owner: KhoiTran · Phase: 1, A, B
 
-This file proposes a small set of HTTP endpoints for the web pages. The endpoints are a proposed design, not yet built. Names and fields may change.
+This file proposes a small set of HTTP endpoints for the web pages. It is a proposed design, not yet built. Names and fields may change.
 
 Visual page: [Architecture](https://claude.ai/artifact/HRJ54QxYXpooHoemp6uSgV). It is a snapshot of `main` at commit `ce40e28` and is private until you share it. This file is the source of truth; if they differ, fix the page.
 
@@ -48,9 +48,9 @@ Open question: the upload endpoint for PDFs and screenshots.
 
 ## Start command
 
-`uv run python server.py` starts the server on `127.0.0.1:8000` (`HOST` in `server.py`, `PORT` in `config.py`). It never binds to another address.
+`uv run python server.py` starts the server on `127.0.0.1` (`HOST` in `server.py`). It never binds to another address.
 
-## Error format
+## Error format (proposed)
 
 ```json
 { "error": { "code": "folder_not_found", "message": "Folder does not exist." } }
@@ -58,15 +58,9 @@ Open question: the upload endpoint for PDFs and screenshots.
 
 | Status | Use |
 | --- | --- |
-| 400 | Bad input: a failed request validation (code `bad_request`) or an unknown folder |
+| 400 | Bad input (for example unknown folder, or a request that fails validation; code `bad_request`) |
 | 401 | Missing or wrong token |
-| 403 | Not allowed (code `forbidden`) |
-| 404 | Unknown route (code `not_found`) or unknown bookmark |
-| 405 | Wrong method for a route (code `method_not_allowed`) |
-| 409 | Conflict (code `conflict`) |
-| 413 | Body too large (code `payload_too_large`) |
-| 415 | Wrong content type (code `unsupported_media_type`) |
-| 422 | Only when a route raises it on purpose (code `unprocessable_entity`). A failed request validation is never 422: it gives 400 |
+| 404 | Unknown bookmark or unknown route (code `not_found`) |
 | 429 | Spending cap or rate limit reached |
 | 500 | Server error |
 

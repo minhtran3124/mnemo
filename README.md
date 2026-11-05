@@ -62,7 +62,7 @@ You need Node 20 or newer (`node -v`) and Claude Code.
 
 ## Run the server
 
-`uv run python server.py` starts the server on `http://127.0.0.1:8000`. It binds to the loopback address only, so just this computer can reach it. Every error uses the format `{"error": {"code": ..., "message": ...}}`.
+`uv run python server.py` starts the server on `127.0.0.1` (uvicorn's default port, 8000). It binds to the loopback address only, so just this computer can reach it. Every error uses the format `{"error": {"code": ..., "message": ...}}`.
 
 ## Rules to keep
 
