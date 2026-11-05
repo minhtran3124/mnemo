@@ -48,7 +48,6 @@ def _get_client() -> anthropic.Anthropic:
 def ask(
     messages: list[dict],
     system: str | None = None,
-    temperature: float | None = None,
     stop_sequences: list[str] | None = None,
 ) -> str:
     """Send messages to Claude and return the concatenated text of the reply."""
@@ -59,8 +58,6 @@ def ask(
     }
     if system is not None:
         kwargs["system"] = system
-    if temperature is not None:
-        kwargs["temperature"] = temperature
     if stop_sequences is not None:
         kwargs["stop_sequences"] = stop_sequences
 
