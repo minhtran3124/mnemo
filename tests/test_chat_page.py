@@ -134,3 +134,9 @@ def test_too_short_paste_for_a_link_only_entry_adds_no_second_record(
 
     assert reply.json()["cards"][0]["id"] == first["id"]
     assert len(client.get("/api/bookmarks").json()) == 1
+
+
+def test_chat_page_links_to_the_saved_bookmarks_list(client):
+    text = client.get("/").text
+
+    assert re.search(r'<a[^>]*href="/bookmarks"', text)
