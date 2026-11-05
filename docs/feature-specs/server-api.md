@@ -52,6 +52,14 @@ Open question: the upload endpoint for PDFs and screenshots.
 
 `uv run python server.py` starts the server on `127.0.0.1` (`HOST` in `server.py`). It never binds to another address.
 
+## POST /api/chat in phase 1
+
+- Request: `message` (required) and optional `pasted_text`. `pasted_text` applies only to the first link in the same message.
+- A blank or whitespace-only `message` returns 400 with code `empty_message`.
+- A message with one or more distinct links saves each in order (links with the same `url_clean` are saved once) and returns `{"kind": "cards", "cards": [record, ...]}`. If a link fails to store (a `StoreError` or `OSError`) after another saved, the response is still 200 with the saved cards plus `"failed": [link, ...]`, so a retry does not save them twice. If no link saved, the response is the usual 500. Missing key, auth and other errors are never put in `failed`: they return the usual JSON 500.
+- A message with no link returns `{"kind": "text", "text": "I can only save links for now. Asking comes later."}`. Nothing is sent to Claude.
+- Phase 1 appends nothing to the chat history here. History is its own ticket. `note <id> <text>` is also its own ticket.
+
 ## Error format (proposed)
 
 ```json
@@ -60,7 +68,7 @@ Open question: the upload endpoint for PDFs and screenshots.
 
 | Status | Use |
 | --- | --- |
-| 400 | Bad input (for example unknown folder, or a request that fails validation; code `bad_request`) |
+| 400 | Bad input (for example unknown folder, or a request that fails validation; code `bad_request`; a blank chat message; code `empty_message`) |
 | 401 | Missing or wrong token |
 | 404 | Unknown bookmark (code `bookmark_not_found`) or unknown route (code `not_found`) |
 | 429 | Spending cap or rate limit reached |

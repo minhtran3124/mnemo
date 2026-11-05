@@ -14,9 +14,13 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+import intent
+import save
 import store
+import urlclean
 
 # Only this computer can reach the server (NF-01, D-021).
 HOST = "127.0.0.1"
@@ -238,6 +242,50 @@ def delete_bookmark(bookmark_id: int) -> dict | JSONResponse:
         except store.NotFound:
             return _not_found(bookmark_id)
     return {"deleted": bookmark_id}
+
+
+class ChatBody(BaseModel):
+    message: str
+    pasted_text: str | None = None
+
+
+LINKS_ONLY_TEXT = "I can only save links for now. Asking comes later."
+
+
+@app.post("/api/chat", response_model=None)
+def chat(body: ChatBody) -> dict | JSONResponse:
+    if not body.message.strip():
+        return error_response(400, "empty_message", "The message is empty.")
+    links = intent.find_links(body.message)
+    if not links:
+        return {"kind": "text", "text": LINKS_ONLY_TEXT}
+    cards = []
+    failed = []
+    last_error = None
+    seen = set()
+    for index, link in enumerate(links):
+        key = urlclean.clean_url(link)
+        if key in seen:
+            continue
+        seen.add(key)
+        # Pasted text belongs to the first link in the message only.
+        pasted = body.pasted_text if index == 0 else None
+        try:
+            with _write_lock:
+                cards.append(save.save(link, pasted_text=pasted))
+        except (store.StoreError, OSError) as exc:
+            # Only a storage failure is reported per link. Key, auth and other
+            # errors propagate to the global handler (a JSON 500). Log the class
+            # only: the text can hold paths or page content.
+            _log.error("Could not save a link: %s", type(exc).__name__)
+            failed.append(link)
+            last_error = exc
+    if last_error is not None and not cards:
+        raise last_error  # nothing saved: a plain 500 is honest and safe to retry
+    result: dict = {"kind": "cards", "cards": cards}
+    if failed:
+        result["failed"] = failed
+    return result
 
 
 def main() -> None:
