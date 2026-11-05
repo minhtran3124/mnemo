@@ -9,11 +9,16 @@
   <link rel="stylesheet" href="/static/css/bookmarks.css">
   <script src="/static/js/theme.js"></script>
   <script src="/static/js/bookmarks.js" defer></script>
+  <script src="/static/js/view-switcher.js" defer></script>
 </head>
 <body>
 <!--HEADER-->
 <main>
   <h1>Bookmarks</h1>
+  <div class="view-switcher" role="group" aria-label="View">
+    <button type="button" class="view-btn" data-view="cards" aria-pressed="false">Cards</button>
+    <button type="button" class="view-btn" data-view="ledger" aria-pressed="true">Ledger</button>
+  </div>
   <!--BANNER-->
   <p id="bm-status" class="status" role="status" hidden></p>
   <div id="bm-groups">
