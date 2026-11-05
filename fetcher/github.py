@@ -28,7 +28,10 @@ def parse_repo(url: str) -> tuple[str, str] | None:
         parts = urlsplit(url)
     except ValueError:
         return None
-    if parts.scheme not in ("http", "https") or (parts.hostname or "").lower() not in _GITHUB_HOSTS:
+    if (
+        parts.scheme not in ("http", "https")
+        or (parts.hostname or "").lower() not in _GITHUB_HOSTS
+    ):
         return None
     match = _REPO_PATH.match(parts.path)
     if not match:
@@ -41,7 +44,12 @@ def parse_repo(url: str) -> tuple[str, str] | None:
 
 
 def _get(
-    client: httpx2.Client, path: str, accept: str, started: float, *, optional: bool = False
+    client: httpx2.Client,
+    path: str,
+    accept: str,
+    started: float,
+    *,
+    optional: bool = False,
 ) -> bytes | None:
     url = f"{config.GITHUB_API_BASE}{path}"
     refused = guard.check_url(url) or guard.check_host(url)
@@ -70,7 +78,13 @@ def _attempt(owner: str, repo: str, transport: httpx2.BaseTransport | None) -> F
     base = f"/repos/{owner}/{repo}"
     with new_client(transport) as client:
         info = _get(client, base, "application/vnd.github+json", started)
-        readme = _get(client, f"{base}/readme", "application/vnd.github.raw+json", started, optional=True)
+        readme = _get(
+            client,
+            f"{base}/readme",
+            "application/vnd.github.raw+json",
+            started,
+            optional=True,
+        )
     try:
         description = (json.loads(info or b"{}").get("description") or "").strip()
     except (ValueError, AttributeError):

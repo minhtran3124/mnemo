@@ -140,6 +140,8 @@ def _attempt(url: str, transport: httpx2.BaseTransport | None) -> FetchOk:
     return FetchOk(text=text, source="web")
 
 
-def fetch_page(url: str, transport: httpx2.BaseTransport | None = None) -> FetchOk | FetchFail:
+def fetch_page(
+    url: str, transport: httpx2.BaseTransport | None = None
+) -> FetchOk | FetchFail:
     """Fetch a plain page and return its text, or a failure. Never raises for expected failures."""
     return with_retry(lambda: _attempt(url, transport))

@@ -76,7 +76,13 @@ def test_loopback_and_private_addresses_rejected(monkeypatch):
         hits.append(str(request.url))
         return httpx2.Response(200, headers=HTML_HEADERS, content=HTML)
 
-    for address in ("127.0.0.1", "10.0.0.5", "169.254.169.254", "::1", "::ffff:192.168.1.1"):
+    for address in (
+        "127.0.0.1",
+        "10.0.0.5",
+        "169.254.169.254",
+        "::1",
+        "::ffff:192.168.1.1",
+    ):
         monkeypatch.setattr(guard, "resolve", lambda host, port, a=address: [a])
         result = fetcher.fetch_page("https://example.com/x", transport(handler))
         assert result == FetchFail("address is not allowed"), address
@@ -90,7 +96,9 @@ def test_loopback_and_private_addresses_rejected(monkeypatch):
 
     def redirecting(request):
         hits.append(str(request.url))
-        return httpx2.Response(302, headers={"location": "https://internal.test/secret"})
+        return httpx2.Response(
+            302, headers={"location": "https://internal.test/secret"}
+        )
 
     result = fetcher.fetch_page("https://example.com/r", transport(redirecting))
     assert result == FetchFail("address is not allowed")
@@ -117,13 +125,18 @@ def test_github_repo_uses_api_and_returns_description_and_readme():
         seen.append(request.url.path)
         assert request.url.host == "api.github.com"
         if request.url.path == "/repos/octo/hello":
-            return httpx2.Response(200, content=json.dumps({"description": "A greeter"}).encode())
+            return httpx2.Response(
+                200, content=json.dumps({"description": "A greeter"}).encode()
+            )
         return httpx2.Response(200, content=b"# Hello\nUsage notes")
 
     result = fetcher.github.fetch_repo("octo", "hello", transport(handler))
     assert result == FetchOk(text="A greeter\n\n# Hello\nUsage notes", source="github")
     assert seen == ["/repos/octo/hello", "/repos/octo/hello/readme"]
-    assert fetcher.github.parse_repo("https://github.com/octo/hello") == ("octo", "hello")
+    assert fetcher.github.parse_repo("https://github.com/octo/hello") == (
+        "octo",
+        "hello",
+    )
     assert fetcher.github.parse_repo("https://github.com/octo/hello/issues") is None
 
 
@@ -158,7 +171,9 @@ def test_second_failure_returns_failure_and_404_is_not_retried():
         calls.append(1)
         return httpx2.Response(404)
 
-    assert isinstance(fetcher.fetch_page("https://example.com/none", transport(missing)), FetchFail)
+    assert isinstance(
+        fetcher.fetch_page("https://example.com/none", transport(missing)), FetchFail
+    )
     assert len(calls) == 1
 
 
