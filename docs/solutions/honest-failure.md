@@ -22,7 +22,7 @@ Many pages cannot be read: logins, paywalls, pages built with JavaScript, blocke
 6. For a partial read (for example only a video description), the card says what was used.
 7. Show a "page not read" badge on the bookmark page row.
 
-Open question: what "too short" means in characters. The plan does not set a number.
+"Too short" means under 300 characters for HTML and under 40 for GitHub, after whitespace is collapsed. Set in `config.py` (`MIN_TEXT_CHARS_HTML`, `MIN_TEXT_CHARS_GITHUB`). Pasted text skips this check.
 
 ## Why
 - Product rule 2: be right, or say you are not sure.
