@@ -38,7 +38,7 @@ Result of the parity check of 2026-11-05 (see [phase 1 parity check](../manual-t
 - A9 **Bookmarks, both widths.** The view switcher has Ledger and Cards, no Compact: phase 3.
 - A10 **Settings, both widths.** The "Bookmark view" section, its Compact row and the preview entry are not built. They need a script change outside ticket 42 (the choice is stored by `view-switcher.js`).
 - A11 **Settings, 1280px.** No board exists. The page keeps the phone layout in a narrow column; compared with the phone board and the measurement tables.
-- A12 **Bookmarks and Settings, 390px.** Delete sits under the row text on the phone; the board has no Delete (decision 1).
+- A12 **Bookmarks, 390px.** Delete sits under the row text on the phone; the board has no Delete (decision 1).
 
 ## Measurements from the boards
 
@@ -105,7 +105,7 @@ The switcher is one bordered group with a 4px inner gap. Each option is 44px hig
 - A saved bookmark whose page was not read gets the "Page not read" card with a "Paste the text" box. Save sends `POST /api/bookmarks/{id}/paste` with `{"text": "..."}` and replaces the card with the returned record. Errors show a short line by code: `text_too_short`, `summary_failed`, `already_read`; anything else shows "Something went wrong. Try again." The route is built in ticket #62 (see its docs in `server-api.md` and `honest-failure.md`); the page follows that contract and is **Unverified** against the real route until #62 merges.
 - A link that was not saved (`failed`) shows "I could not save this link." with no Paste box, because it has no bookmark id.
 - The saved chat is redrawn from `GET /api/chat/history`; a deleted bookmark shows "Bookmark N was deleted."
-- Phase 1 reply cards are not checked in a browser or in the dark theme yet: **Unverified**.
+- Reply cards were checked in a browser at 1280px and 390px, light and dark, on 2026-11-05 (see Accepted differences).
 
 ## Wording that comes from the board
 
