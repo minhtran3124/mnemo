@@ -19,6 +19,18 @@ import intent
         ("", []),
         ("see https://", []),
         ("[x](https://example.com/a)", ["https://example.com/a"]),
+        (
+            "see https://en.wikipedia.org/wiki/Foo_(bar).",
+            ["https://en.wikipedia.org/wiki/Foo_(bar)"],
+        ),
+        (
+            "(https://en.wikipedia.org/wiki/Foo_(bar))",
+            ["https://en.wikipedia.org/wiki/Foo_(bar)"],
+        ),
+        (
+            "https://example.com/a and again https://example.com/a.",
+            ["https://example.com/a"],
+        ),
     ],
 )
 def test_find_links(text, expected):

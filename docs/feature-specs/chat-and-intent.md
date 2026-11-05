@@ -54,6 +54,8 @@ Final wording: Open question.
 | Input | Result |
 | --- | --- |
 | Two links in one message | Save both, one card each. Do not ask (decided). The text that is not a link is the reason for each link. |
+| The same link twice in one message | Saved once. Links are compared after trailing punctuation is removed. |
+| A link ending in a closing bracket | The bracket stays when the link has its opening bracket (for example a Wikipedia address with `(bar)`). An unmatched closing bracket is removed. |
 | A link inside a question | Treated as a link (regex wins). |
 | Text with no link that is meant as a note | Treated as a question until a note path exists. A note path is wanted (decided); how the user marks a note is an open question. |
 | Empty message | The server returns 400 with code `empty_message`. Nothing is saved. |

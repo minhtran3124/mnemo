@@ -9,13 +9,24 @@ import re
 _LINK = re.compile(r"https?://[^\s<>\"']+", re.IGNORECASE)
 # Punctuation that ends a sentence or closes a bracket, not part of the link.
 _TRAILING = ".,)]!?;"
+_PAIRS = {")": "(", "]": "["}
+
+
+def _trim(link: str) -> str:
+    """Strip trailing punctuation, keeping a closing bracket that has its opener."""
+    while link and link[-1] in _TRAILING:
+        end = link[-1]
+        if end in _PAIRS and link.count(end) <= link.count(_PAIRS[end]):
+            break
+        link = link[:-1]
+    return link
 
 
 def find_links(text: str) -> list[str]:
-    """Return the http(s) links in the text, in order, without trailing punctuation."""
-    links = []
+    """Return the distinct http(s) links in the text, in order, without trailing punctuation."""
+    links: list[str] = []
     for match in _LINK.finditer(text):
-        link = match.group().rstrip(_TRAILING)
-        if re.match(r"https?://.", link, re.IGNORECASE):
+        link = _trim(match.group())
+        if re.match(r"https?://.", link, re.IGNORECASE) and link not in links:
             links.append(link)
     return links
