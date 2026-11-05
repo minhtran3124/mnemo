@@ -54,6 +54,7 @@
   --h1-size: 3rem;
   --h2-size: 1.875rem;
   --text-meta: 0.8125rem;
+  --row-title-size: 1.3125rem;
 }
 
 @media (max-width: 40rem) {
@@ -64,6 +65,7 @@
     --brand-size: 1.5rem;
     --h1-size: 2rem;
     --h2-size: 1.5rem;
+    --row-title-size: 1.1875rem;
   }
 }
 

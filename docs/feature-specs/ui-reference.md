@@ -17,7 +17,7 @@ This file says how the built pages must follow the V3 mockup, and lists where th
 | Screen | Board | In phase 1 |
 | --- | --- | --- |
 | Chat, laptop | `V3LightChat` | Built at `/` (web/index.html), without the parts listed under "Not built yet". Compared with the board in a browser on 2026-11-05 at 1280px, light and dark; the differences left are under "Accepted differences" |
-| Bookmark page, laptop | `V3LightBookmarks` | Yes, Ledger and Cards views. Ledger compared with the board in a browser; the Cards view is **Unverified** (read from CSS only, not compared in a browser) |
+| Bookmark page, laptop | `V3LightBookmarks` | Yes, Ledger and Cards views. Both compared with the board in a browser on 2026-11-05 |
 | Chat, phone | `V3LightPhoneChat` | Built with the same page (margin column becomes a "Filed in" line under the text). Compared at 390px, light and dark, on 2026-11-05 |
 | Bookmarks, phone | `V3LightPhoneList` | Yes |
 | Settings, phone | `V3LightSettings` | Theme is built; the bookmark view choice and the preview are not (A10). At 1280px there is no board: compared with the phone board and the measurement tables |
@@ -25,7 +25,7 @@ This file says how the built pages must follow the V3 mockup, and lists where th
 
 ## Accepted differences
 
-Result of the parity check of 2026-11-05 (see [phase 1 parity check](../manual-testing/phase1-parity-check.md); screenshots are in the PR). Ledger view was compared in screenshots; the Cards view was checked against its CSS values only and is **Unverified** against the boards in a browser (**Open question**: compare Cards at 1280px and 390px, light and dark). Each line is a difference the build keeps for now.
+Result of the parity check of 2026-11-05 (see [phase 1 parity check](../manual-testing/phase1-parity-check.md); screenshots are in the PR). The Ledger and Cards views were both compared with the boards in screenshots and computed styles, at 1280px and 390px, light and dark. The Cards box, grid and gaps match the boards; the one size difference found (row title and meta on the phone) was fixed. Each line is a difference the build keeps for now.
 
 - A1 **All pages, header.** The board has Chat and Bookmarks tabs with a count (laptop) and a bottom tab bar (phone). The build has the brand, a Settings link and the theme control. Reason: the tabs are not built (see the Open question under "Chat page as built"); the count needs server data.
 - A2 **Chat, both widths.** No Move and Undo buttons and no real folder name: phase 3.
@@ -40,6 +40,7 @@ Result of the parity check of 2026-11-05 (see [phase 1 parity check](../manual-t
 - A11 **Settings, 1280px.** No board exists. The page keeps the phone layout in a narrow column; compared with the phone board and the measurement tables.
 - A12 **Bookmarks, 390px.** Delete sits under the row text on the phone; the board has no Delete (decision 1).
 - A13 **Each board at the other width.** A board is drawn at one width only (laptop boards at 1280px, phone boards at 390px). The build shows each page at both widths, so the other width was read against the laptop or phone column of the measurement table, not against a board.
+- A14 **Bookmarks, Cards view.** The card contents differ as in A8 and A12 (summary, reason and Delete inside the card, tags on their own line). At 1280px the board draws the content column 40px further in than the header, so its three cards are 352px wide; the build keeps the 48px page padding, so they are 379px wide. Border, radius, fill, padding, gap, columns and the title and meta sizes match at both widths.
 
 ## Measurements from the boards
 
