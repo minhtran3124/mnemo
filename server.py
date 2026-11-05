@@ -323,6 +323,7 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         return {"kind": "text", "text": _note_reply(*note)}
     links = intent.find_links(body.message)
     if not links:
+        _record_exchange(body.message, LINKS_ONLY_TEXT, [])
         return {"kind": "text", "text": LINKS_ONLY_TEXT}
     cards = []
     failed = []
@@ -350,7 +351,46 @@ def chat(body: ChatBody) -> dict | JSONResponse:
     result: dict = {"kind": "cards", "cards": cards}
     if failed:
         result["failed"] = failed
+    _record_exchange(
+        body.message,
+        _cards_reply_text(len(cards), len(failed)),
+        [c["id"] for c in cards],
+    )
     return result
+
+
+def _cards_reply_text(saved: int, failed: int) -> str:
+    if saved == 0 and failed:
+        n = f"{failed} link{'' if failed == 1 else 's'}"
+        return f"I could not save {'it' if failed == 1 else 'any of the ' + n}."
+    text = f"Saved {saved} bookmark{'' if saved == 1 else 's'}."
+    if failed:
+        text += f" {failed} could not be saved."
+    return text
+
+
+def _record_exchange(user_text: str, app_text: str, bookmark_ids: list[int]) -> None:
+    with _write_lock:
+        store.append_chat({"role": "user", "text": user_text})
+        store.append_chat(
+            {"role": "app", "text": app_text, "bookmark_ids": bookmark_ids}
+        )
+
+
+@app.get("/api/chat/history", response_model=None)
+def chat_history(limit: int = 50) -> dict | JSONResponse:
+    if limit < 1:
+        return error_response(400, "bad_request", "limit must be at least 1.")
+    messages = []
+    for message in store.list_chat(limit):
+        cards = []
+        for bookmark_id in message.get("bookmark_ids", []):
+            card = store.get_bookmark(bookmark_id)
+            cards.append(
+                card if card is not None else {"id": bookmark_id, "deleted": True}
+            )
+        messages.append({**message, "cards": cards})
+    return {"messages": messages}
 
 
 def main() -> None:
