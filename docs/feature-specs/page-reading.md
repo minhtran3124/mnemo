@@ -57,7 +57,13 @@ Researched on 2026-11-05 by a read-only sub-agent. **Every number is a starting 
 | Environment | `trust_env=False` (no proxy from the environment), a new client per fetch, no cookies. Never send a GitHub token to another host |
 | Text extraction | Pass our own downloaded bytes to `trafilatura.extract()`. Do not use `trafilatura.fetch_url`: it would skip these guards |
 | User agent | `Mnemo/0.1 (personal bookmark app)` plus a contact if the owner wants one. Not a browser string |
-| GitHub API | 60 requests per hour without a token; enough for the 5 test links. An optional `GITHUB_TOKEN` in `.env` raises it to 5,000 per hour. On 403 or 429, do not retry: save link only and say the rate limit was reached |
+| GitHub API | 60 requests per hour without a token; enough for the 5 test links. An optional `GITHUB_TOKEN` in `.env` raises it to 5,000 per hour. On 429, or a 403 with `X-RateLimit-Remaining: 0` or `Retry-After`, do not retry: save link only and say the rate limit was reached. Any other 403 is saved link only and reported as a refusal, never as a rate limit |
+
+GitHub README rules: a repo with no README (404) keeps its description. A README larger than the maximum download is cut at that size, and the description plus the cut README are used. A transient README error (5xx or timeout) is retried once on the README call alone, so the repo call is never repeated and the hourly rate limit is not spent twice. Any other README failure, or a transient one that fails again, fails the whole fetch with a reason (the bookmark is saved link only). It is never treated as a missing README and the description is not used alone.
+
+Constants in `config.py` (built in `fetcher/`, #30): `FETCH_CONNECT_TIMEOUT`, `FETCH_READ_TIMEOUT`, `FETCH_WRITE_TIMEOUT`, `FETCH_POOL_TIMEOUT`, `FETCH_ATTEMPT_SECONDS`, `FETCH_RETRY_DELAY`, `FETCH_MAX_BYTES`, `FETCH_CONTENT_TYPES`, `FETCH_MAX_REDIRECTS`, `FETCH_ALLOWED_PORTS`, `FETCH_MAX_URL_CHARS`, `MIN_TEXT_CHARS_HTML`, `MIN_TEXT_CHARS_GITHUB`, `USER_AGENT`, `GITHUB_API_BASE`. `fetch(url)` returns `FetchOk(text, source)` or `FetchFail(reason)` and does not raise for expected failures. It does not cut text to `MAX_PAGE_CHARS` and does not judge "too short": `save.py` does both, using the two `MIN_TEXT_CHARS_*` floors. Redirects are followed by hand so the checks run on every hop. The calibration of the text floors against the sample links is still **Unverified**.
+
+**Decision (phase 1):** the DNS rebinding gap below is accepted. The app is local, single-user and bound to `127.0.0.1`. Revisit before the server is reachable from a network.
 
 Known gap: after the address check, the connection could still go to a different address if DNS changes in between (DNS rebinding). Pinning the connection to the checked address was not verified for httpx2. Phase 1 may accept this for a local, single-user app; log the decision when you build it.
 
