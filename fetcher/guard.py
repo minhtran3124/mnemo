@@ -6,6 +6,8 @@ reason when it is refused. They run again on every redirect hop.
 
 import ipaddress
 import socket
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FutureTimeout
 from urllib.parse import urlsplit
 
 import config
@@ -17,14 +19,19 @@ def resolve(host: str, port: int) -> list[str]:
     return [str(info[4][0]) for info in infos]
 
 
+NAT64_PREFIX = ipaddress.IPv6Network("64:ff9b::/96")
+
+
 def is_allowed_address(address: str) -> bool:
-    """True only for a global address. IPv4-mapped IPv6 is unwrapped first."""
+    """True only for a global address. IPv4-mapped and NAT64 IPv6 are unwrapped first."""
     try:
         ip = ipaddress.ip_address(address.split("%", 1)[0])
     except ValueError:
         return False
     if isinstance(ip, ipaddress.IPv6Address) and ip.ipv4_mapped is not None:
         ip = ip.ipv4_mapped
+    elif isinstance(ip, ipaddress.IPv6Address) and ip in NAT64_PREFIX:
+        ip = ipaddress.IPv4Address(int(ip) & 0xFFFFFFFF)
     return ip.is_global
 
 
@@ -55,10 +62,19 @@ def check_host(url: str) -> str | None:
     parts = urlsplit(url)
     host = parts.hostname or ""
     port = parts.port or (443 if parts.scheme == "https" else 80)
+    # Looked up at call time so tests can replace guard.resolve. A timed-out
+    # lookup thread may linger until getaddrinfo returns; the caller stops waiting.
+    pool = ThreadPoolExecutor(max_workers=1)
     try:
-        addresses = resolve(host, port)
+        addresses = pool.submit(lambda: resolve(host, port)).result(
+            timeout=config.FETCH_DNS_TIMEOUT
+        )
+    except FutureTimeout:
+        return "host lookup took too long"
     except (OSError, UnicodeError):
         return "could not look up the host"
+    finally:
+        pool.shutdown(wait=False)
     if not addresses:
         return "could not look up the host"
     if not all(is_allowed_address(a) for a in addresses):
