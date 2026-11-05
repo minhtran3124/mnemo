@@ -101,3 +101,19 @@ def test_delete_unknown_id_gives_404(client):
 
     assert response.status_code == 404
     assert response.json()["error"]["code"] == "bookmark_not_found"
+
+
+def test_concurrent_opens_do_not_lose_updates(client):
+    from concurrent.futures import ThreadPoolExecutor
+
+    item = seed()
+    with ThreadPoolExecutor(max_workers=20) as pool:
+        codes = list(
+            pool.map(
+                lambda _: client.post(f"/api/bookmarks/{item['id']}/open").status_code,
+                range(40),
+            )
+        )
+
+    assert set(codes) == {200}
+    assert store.get_bookmark(item["id"])["opened_count"] == 40

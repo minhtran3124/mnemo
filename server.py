@@ -3,6 +3,8 @@
 Every error response uses one JSON shape: {"error": {"code": ..., "message": ...}}.
 """
 
+import threading
+
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -15,6 +17,10 @@ import store
 HOST = "127.0.0.1"
 
 app = FastAPI()
+
+# Sync routes run in a threadpool. This lock makes each read-modify-write on
+# bookmarks.json one step, so two requests cannot lose an update.
+_write_lock = threading.Lock()
 
 
 def error_response(status: int, code: str, message: str) -> JSONResponse:
@@ -47,22 +53,24 @@ def list_bookmarks() -> list[dict]:
 
 @app.post("/api/bookmarks/{bookmark_id}/open", response_model=None)
 def open_bookmark(bookmark_id: int) -> dict | JSONResponse:
-    item = store.get_bookmark(bookmark_id)
-    if item is None:
-        return _not_found(bookmark_id)
-    updated = store.update_bookmark(
-        bookmark_id, {"opened_count": item["opened_count"] + 1}
-    )
+    with _write_lock:
+        item = store.get_bookmark(bookmark_id)
+        if item is None:
+            return _not_found(bookmark_id)
+        updated = store.update_bookmark(
+            bookmark_id, {"opened_count": item["opened_count"] + 1}
+        )
     store.log_event({"event": "open", "id": bookmark_id})
     return updated
 
 
 @app.delete("/api/bookmarks/{bookmark_id}", response_model=None)
 def delete_bookmark(bookmark_id: int) -> dict | JSONResponse:
-    try:
-        store.delete_bookmark(bookmark_id)
-    except store.NotFound:
-        return _not_found(bookmark_id)
+    with _write_lock:
+        try:
+            store.delete_bookmark(bookmark_id)
+        except store.NotFound:
+            return _not_found(bookmark_id)
     return {"deleted": bookmark_id}
 
 
