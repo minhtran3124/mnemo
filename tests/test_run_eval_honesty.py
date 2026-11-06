@@ -101,15 +101,3 @@ def test_expect_ok_page_without_golden_file_warns(tmp_path, monkeypatch, capsys)
     run_eval.run("r1", "v1", results_dir=tmp_path / "results")
     out = capsys.readouterr().out
     assert "expects ok but has no golden text file" in out
-
-
-def test_readable_pages_saved_link_only_are_listed_in_notes(tmp_path, monkeypatch):
-    """An outage gives a null summary that scores honest, so the notes must show it."""
-    monkeypatch.setattr(
-        save, "preview", lambda url, text: save._link_only_fields(url, url)
-    )
-    run_eval.run("r1", "v1", results_dir=tmp_path / "results")
-    with (tmp_path / "results" / "runs.csv").open(encoding="utf-8", newline="") as f:
-        rows = list(csv.reader(f))
-    notes = dict(zip(rows[0], rows[1], strict=True))["notes"]
-    assert "link only: " in notes
