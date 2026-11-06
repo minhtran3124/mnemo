@@ -42,7 +42,7 @@ def _check(raw: dict) -> Expected:
         hard_case=raw["hard_case"],
         expect=raw["expect"],
         note=raw.get("note", ""),
-        draft=raw["draft"],
+        draft=raw.get("draft", False),
     )
     if entry.expected_type not in store.TYPES:
         raise ValueError(f"{page_id}: type must be one of {sorted(store.TYPES)}")

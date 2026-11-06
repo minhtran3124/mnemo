@@ -48,6 +48,14 @@ def test_load_expected_accepts_a_valid_file(tmp_path):
     assert loaded[0].draft is True
 
 
+def test_reviewed_entries_without_draft_mark_load(tmp_path):
+    entries = _valid()
+    for entry in entries:
+        del entry["draft"]
+    loaded = golden.load_expected(_write(tmp_path, entries))
+    assert all(e.draft is False for e in loaded)
+
+
 def test_rejects_wrong_tag_count(tmp_path):
     for count in (2, 7):
         entries = _valid()
@@ -86,12 +94,12 @@ def test_rejects_bad_held_out_set(tmp_path):
         golden.load_expected(_write(tmp_path, few_hard))
 
 
-def test_committed_file_matches_pages_and_is_draft():
+def test_committed_file_matches_pages():
     loaded = golden.load_expected()
     assert [e.id for e in loaded] == [p["id"] for p in PAGES]
     for entry, page in zip(loaded, PAGES, strict=True):
         assert entry.expect == page["expect"]
-        assert entry.draft is True
+        assert isinstance(entry.draft, bool)
     assert {e.id for e in loaded if e.expect == "unreadable"} == {
         "S-08",
         "S-10",
