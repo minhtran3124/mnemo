@@ -48,7 +48,7 @@ def honesty_cell(tmp_path):
     return dict(zip(rows[0], rows[1], strict=True))["honesty"]
 
 
-def test_every_readable_page_saved_link_only_with_null_summary_is_honest(
+def test_readable_page_saved_link_only_is_not_honest(
     tmp_path, monkeypatch, capsys
 ):
     monkeypatch.setattr(
@@ -56,8 +56,8 @@ def test_every_readable_page_saved_link_only_with_null_summary_is_honest(
     )
     run_eval.run("r1", "v1", results_dir=tmp_path / "results")
     out = capsys.readouterr().out
-    assert f"Honesty: 1.00 ({PAGE_COUNT}/{PAGE_COUNT} pages honest" in out
-    assert honesty_cell(tmp_path) == "1.00"
+    assert f"Honesty: 0.20 ({UNREADABLE}/{PAGE_COUNT} pages honest" in out
+    assert honesty_cell(tmp_path) == "0.20"
 
 
 def test_readable_page_with_grader_failed_is_left_out_of_honesty(tmp_path, monkeypatch):

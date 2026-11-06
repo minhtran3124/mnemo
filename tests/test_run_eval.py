@@ -199,7 +199,7 @@ def test_unscored_readable_pages_are_not_scored_and_named_in_notes(
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
     out = capsys.readouterr().out
-    assert "0/0 readable pages with 0 unsupported statements or a null summary" in out
+    assert "0/0 readable pages with 0 unsupported statements" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
     assert row["honesty"] == ""
     assert row["notes"].startswith("0 unsupported: 0; not scored:")
@@ -292,7 +292,7 @@ def test_held_out_save_quality_reported_separately(tmp_path, capsys, monkeypatch
     assert "| tuning: " in out
 
 
-def test_link_only_save_of_readable_page_is_honest_and_not_unscored(
+def test_link_only_save_of_readable_page_is_not_honest_and_not_unscored(
     tmp_path, monkeypatch, capsys
 ):
     monkeypatch.setattr(
@@ -301,9 +301,9 @@ def test_link_only_save_of_readable_page_is_honest_and_not_unscored(
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
     out = capsys.readouterr().out
-    assert "12/12 readable pages with 0 unsupported statements or a null summary" in out
+    assert "0/12 readable pages with 0 unsupported statements" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
-    assert float(row["honesty"]) == 1.0
+    assert float(row["honesty"]) == 0.2
     assert row["notes"] == "0 unsupported: 0"
 
 
