@@ -116,19 +116,31 @@ def test_permanent_error_stops_run_and_writes_no_row(tmp_path, monkeypatch, caps
 def test_data_dir_untouched(tmp_path, monkeypatch):
     calls = []
 
-    def fake_parse(messages, output_format, system=None, **kwargs):
-        calls.append(1)
-        out = save.SaveOutput(
+    class Usage:
+        input_tokens = 100
+        output_tokens = 20
+
+    class Response:
+        usage = Usage()
+        stop_reason = "end_turn"
+        parsed_output = save.SaveOutput(
             title="A page",
             type="article",
             summary="A short summary.",
             tags=["a", "b", "c"],
             reason="Useful.",
         )
-        return out, client.Usage(100, 20)
+
+    class Messages:
+        def parse(self, **kwargs):
+            calls.append(1)
+            return Response()
+
+    class Sdk:
+        messages = Messages()
 
     monkeypatch.setattr(save, "preview", REAL_PREVIEW)
-    monkeypatch.setattr(client, "parse_with_usage", fake_parse)
+    monkeypatch.setattr(client, "_get_client", lambda: Sdk())
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
     row = rows(results / "runs.csv")[1]
@@ -169,3 +181,44 @@ def test_unscored_readable_pages_count_as_honesty_failures(
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
     assert float(row["honesty"]) < 1.0
     assert row["notes"].startswith("not scored:")
+
+
+def test_tokens_include_billed_calls_rejected_as_invalid_output(tmp_path, monkeypatch):
+    """A reply cut off at max_tokens is billed even though the retry replaces it."""
+    out = save.SaveOutput(
+        title="A page",
+        type="article",
+        summary="A short summary.",
+        tags=["a", "b", "c"],
+        reason="Useful.",
+    )
+    calls = []
+
+    class Usage:
+        input_tokens = 100
+        output_tokens = 20
+
+    class Response:
+        usage = Usage()
+
+        def __init__(self, stop_reason, parsed):
+            self.stop_reason = stop_reason
+            self.parsed_output = parsed
+
+    class Messages:
+        def parse(self, **kwargs):
+            calls.append(1)
+            if len(calls) % 2 == 1:
+                return Response("max_tokens", None)
+            return Response("end_turn", out)
+
+    class Sdk:
+        messages = Messages()
+
+    monkeypatch.setattr(save, "preview", REAL_PREVIEW)
+    monkeypatch.setattr(client, "_get_client", lambda: Sdk())
+    results = tmp_path / "results"
+    run_eval.run("r1", "v1", results_dir=results)
+    row = rows(results / "runs.csv")[1]
+    assert len(calls) % 2 == 0 and calls
+    assert int(row[6]) == len(calls) * 120 + (len(calls) // 2) * 15

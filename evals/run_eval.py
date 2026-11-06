@@ -43,21 +43,37 @@ COLUMNS = [
 SAVE_CHECKS = ("schema", "tags", "summary_length", "type_match")
 
 
+class _CountingMessages:
+    """Wrap sdk.messages so every response's usage is counted, even one that fails later."""
+
+    def __init__(self, messages, total: list[int]):
+        self._messages = messages
+        self._total = total
+
+    def parse(self, **kwargs):
+        response = self._messages.parse(**kwargs)
+        self._total[0] += response.usage.input_tokens + response.usage.output_tokens
+        return response
+
+
+class _CountingSdk:
+    def __init__(self, sdk, total: list[int]):
+        self.messages = _CountingMessages(sdk.messages, total)
+
+
 def _preview_counting(url: str, text: str | None) -> tuple[dict, int]:
-    """Run save.preview and return the record and the tokens its Claude calls used."""
-    original = client.parse_with_usage
+    """Run save.preview and return the record and the tokens its Claude calls used.
+
+    Counts at the SDK response, so a billed call that client.py then rejects
+    (refusal, max_tokens, no parsed output) and save.py retries is still counted.
+    """
+    original = client._get_client
     total = [0]
-
-    def counting(*args, **kwargs):
-        parsed, usage = original(*args, **kwargs)
-        total[0] += usage.input_tokens + usage.output_tokens
-        return parsed, usage
-
-    client.parse_with_usage = counting
+    client._get_client = lambda: _CountingSdk(original(), total)
     try:
         record = save.preview(url, text)
     finally:
-        client.parse_with_usage = original
+        client._get_client = original
     return record, total[0]
 
 
