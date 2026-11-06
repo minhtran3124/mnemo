@@ -340,8 +340,11 @@ def test_tokens_include_grader_calls_rejected_as_invalid_output(tmp_path, monkey
             calls.append(1)
             if len(calls) % 2 == 1:
                 return Response("max_tokens", None)
+            facts = kwargs["messages"][0]["content"].split("<key_facts>")[1]
+            answers = [True] * len(facts.strip().splitlines()[:-1])
             return Response(
-                "end_turn", faithful.FaithfulOutput(unsupported=[], key_fact_results=[])
+                "end_turn",
+                faithful.FaithfulOutput(unsupported=[], key_fact_results=answers),
             )
 
     class Sdk:
