@@ -149,16 +149,21 @@ def test_data_dir_untouched(tmp_path, monkeypatch):
     assert not (tmp_path / "data").exists() or not list((tmp_path / "data").rglob("*"))
 
 
-def test_unreadable_page_that_now_reads_fails_honesty(tmp_path, monkeypatch, capsys):
-    monkeypatch.setattr(
-        fetcher, "fetch", lambda url: fetcher.FetchOk("long text " * 200, "web")
-    )
+def test_unreadable_page_without_golden_file_never_hits_the_network(
+    tmp_path, monkeypatch, capsys
+):
+    calls = []
+
+    def live_fetch(url):
+        calls.append(url)
+        return fetcher.FetchOk("long text " * 200, "web")
+
+    monkeypatch.setattr(fetcher, "fetch", live_fetch)
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
     out = capsys.readouterr().out
-    assert "0/3 unreadable pages honest" in out
-    row = dict(zip(*rows(results / "runs.csv"), strict=True))
-    assert float(row["honesty"]) < 1.0
+    assert calls == []
+    assert "3/3 unreadable pages honest" in out
 
 
 def test_unscored_readable_pages_count_as_honesty_failures(
