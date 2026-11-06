@@ -56,6 +56,13 @@ def test_uppercase_tag_fails():
     assert not result.passed
 
 
+def test_unreadable_record_still_checks_tag_limits():
+    base = {"page_status": "unreadable", "summary": None}
+    assert graders.grade_tags(make_record(tags=[], **base)).passed
+    assert not graders.grade_tags(make_record(tags=["Python"], **base)).passed
+    assert not graders.grade_tags(make_record(tags=list("abcdefg"), **base)).passed
+
+
 def test_summary_of_61_words_fails():
     assert not graders.grade_summary_length(make_record(summary="w " * 61)).passed
 
