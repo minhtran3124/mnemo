@@ -32,9 +32,7 @@ def _valid():
     entries = []
     for number in range(1, 16):
         page_id = f"S-{number:02d}"
-        entries.append(
-            _entry(page_id, page_id in HELD_OUT, page_id in HARD)
-        )
+        entries.append(_entry(page_id, page_id in HELD_OUT, page_id in HARD))
     return entries
 
 

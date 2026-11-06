@@ -49,15 +49,13 @@ def _check(raw: dict) -> Expected:
     if entry.expect not in EXPECTS:
         raise ValueError(f"{page_id}: expect must be one of {sorted(EXPECTS)}")
     if not isinstance(entry.draft, bool):
-        raise ValueError(f"{page_id}: draft must be true or false")
+        raise ValueError(f"{page_id}: draft must be true or false")  # noqa: TRY004
     if entry.expect == "unreadable":
         if entry.expected_tags or entry.key_facts:
             raise ValueError(f"{page_id}: unreadable needs no tags and no key facts")
         return entry
     if not store.MIN_TAGS <= len(entry.expected_tags) <= store.MAX_TAGS:
-        raise ValueError(
-            f"{page_id}: needs {store.MIN_TAGS} to {store.MAX_TAGS} tags"
-        )
+        raise ValueError(f"{page_id}: needs {store.MIN_TAGS} to {store.MAX_TAGS} tags")
     if any(tag != tag.lower() for tag in entry.expected_tags):
         raise ValueError(f"{page_id}: tags must be lowercase")
     if not MIN_FACTS <= len(entry.key_facts) <= MAX_FACTS:
