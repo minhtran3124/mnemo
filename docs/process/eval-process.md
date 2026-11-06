@@ -77,7 +77,7 @@ Both baseline rows were scored under the old honesty rule (the share of unreadab
 
 Noise level: 0.08 (the faithful-summary count moved by 1 page of 12; save quality and honesty did not move, mean tag overlap moved by 0.07).
 
-A later change must beat these gaps to count as an improvement.
+**Unverified:** these gaps and the noise level were measured under the old honesty rule, so they are not yet a valid bar for a later change under the new rule. Do not use them to judge an improvement until the baseline is re-run under the new rule (a later ticket; the committed rows stay as they are).
 
 Read 3 results with the grader's reasons (S-03, S-06 and S-09, the pages the grader failed):
 - S-03 (Airtable home): failed with 2 unsupported statements in baseline-2, passed in baseline-1, and passed with 0 when graded again for this note. The grader is not stable on this page. This is the main source of the faithful-summary gap.

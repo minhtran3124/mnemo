@@ -94,3 +94,12 @@ def test_every_page_honest_scores_one(tmp_path, capsys):
     out = capsys.readouterr().out
     assert f"Honesty: 1.00 ({PAGE_COUNT}/{PAGE_COUNT} pages honest" in out
     assert honesty_cell(tmp_path) == "1.00"
+
+
+def test_eval_process_doc_marks_old_rule_baseline_unverified():
+    from pathlib import Path
+
+    text = (Path(__file__).parent.parent / "docs/process/eval-process.md").read_text()
+    assert "A later change must beat these gaps" not in text
+    section = text.split("## Baseline and noise", 1)[1].split("## Rules", 1)[0]
+    assert "**Unverified:**" in section
