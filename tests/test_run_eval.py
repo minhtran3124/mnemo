@@ -267,3 +267,18 @@ def test_held_out_save_quality_reported_separately(tmp_path, capsys, monkeypatch
     out = capsys.readouterr().out
     assert f"Save quality held-out: 0.00 (0/{len(held)} pass)" in out
     assert "| tuning: " in out
+
+
+def test_link_only_save_of_readable_page_is_honest_and_not_unscored(
+    tmp_path, monkeypatch, capsys
+):
+    monkeypatch.setattr(
+        save, "preview", lambda url, text: save._link_only_fields(url, url)
+    )
+    results = tmp_path / "results"
+    run_eval.run("r1", "v1", results_dir=results)
+    out = capsys.readouterr().out
+    assert "12/12 readable pages" in out
+    row = dict(zip(*rows(results / "runs.csv"), strict=True))
+    assert float(row["honesty"]) == 1.0
+    assert row["notes"] == ""

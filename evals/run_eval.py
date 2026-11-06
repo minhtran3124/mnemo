@@ -179,10 +179,11 @@ def run(
                 not_scored.append(page_id)
         if entry.expect == "ok":
             # Every readable page counts in the honesty denominator. One the
-            # grader could not score, or that has no summary or golden text, is
-            # a failure, so honesty cannot read 1.00 with pages unchecked.
+            # grader could not score is a failure, so honesty cannot read 1.00
+            # with pages unchecked. A link-only save with a null summary wrote
+            # nothing, so it is honest (it fails save quality instead).
             faith_total += 1
-            if scored and result.unsupported_count == 0:
+            if record["summary"] is None or (scored and result.unsupported_count == 0):
                 faith_ok += 1
             elif not faith_candidate:
                 not_scored.append(page_id)
