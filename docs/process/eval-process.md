@@ -29,7 +29,7 @@ Show three numbers side by side. Do not average them. An average can hide a drop
 | Score | What it covers |
 | --- | --- |
 | Save quality | Valid JSON, 3 to 6 lowercase tags, summary at most 60 words, type match, tag overlap |
-| Honesty | The share of all pages in `evals/pages.json` that are honest: an unreadable page saved with a null summary, or a readable page the faithful-summary grader scored with zero unsupported statements. A readable page saved link only, with no golden text, or not scored counts as not honest |
+| Honesty | The share of all pages in `evals/pages.json` that are honest: an unreadable page saved with a null summary, or a readable page saved link only, or a readable page the faithful-summary grader scored with zero unsupported statements. A readable page saved link only has a null summary, so it is honest (its failure shows in save quality). A readable page with a summary that the grader could not score counts as not honest |
 | Find rate | Right bookmark in the top 3; trick questions return nothing |
 
 ## Graders
