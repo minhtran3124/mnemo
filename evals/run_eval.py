@@ -107,12 +107,17 @@ def _fmt(value: float | None) -> str:
     return "n/a" if value is None else f"{value:.2f}"
 
 
-def _faithful_cell(result: faithful.FaithfulResult | None, scored: bool) -> str:
+def _faithful_cell(
+    result: faithful.FaithfulResult | None, scored: bool, fact_count: int
+) -> str:
     if result is None:
         return "-"
     if not scored:
         return "not scored"
-    return "pass" if result.passed else f"fail ({result.unsupported_count} unsupported)"
+    verdict = (
+        "pass" if result.passed else f"fail ({result.unsupported_count} unsupported)"
+    )
+    return f"{verdict}, facts {sum(result.key_facts)}/{fact_count}"
 
 
 def _grade_with_retry(
@@ -220,7 +225,9 @@ def run(
             f"{name}: {'PASS' if grade.passed else 'FAIL'} ({grade.reason})"
             for name, grade in grades.items()
         ]
-        cells.append(f"faithful: {_faithful_cell(result, scored)}")
+        cells.append(
+            f"faithful: {_faithful_cell(result, scored, len(entry.key_facts))}"
+        )
         table.append(f"{page_id} | {entry.expect} | " + " | ".join(cells))
 
     save_quality = _rate(save_ok, save_total)
