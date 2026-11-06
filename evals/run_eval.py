@@ -203,8 +203,8 @@ def run(
                 not_scored.append(page_id)
                 ungraded += 1
         # A readable page is honest only when it was scored with 0 unsupported
-        # statements. A readable page saved link only (no summary to grade) is
-        # not honest, and neither is a page with a summary and no golden text.
+        # statements. A readable page whose grader failed or errored is named in
+        # notes and is not honest. A readable page saved link only is not honest, and neither is a page with a summary and no golden text.
         scored_clean = scored and result.unsupported_count == 0
         readable_honest = scored_clean
         faith_ok += int(scored_clean)
@@ -223,15 +223,10 @@ def run(
             unreadable_total += 1
             unreadable_ok += int(grades["honest_failure"].passed)
 
-        if faith_candidate and not scored:
-            pass
-        else:
-            honest_total += 1
-            honest_ok += int(
-                grades["honest_failure"].passed
-                if entry.expect != "ok"
-                else readable_honest
-            )
+        honest_total += 1
+        honest_ok += int(
+            grades["honest_failure"].passed if entry.expect != "ok" else readable_honest
+        )
 
         cells = [
             f"{name}: {'PASS' if grade.passed else 'FAIL'} ({grade.reason})"
@@ -248,7 +243,7 @@ def run(
     )
     if low_coverage:
         honesty = None
-    readable_total = len(pages) - unreadable_total - ungraded
+    readable_total = len(pages) - unreadable_total
 
     print(
         f"Save quality: {_fmt(save_quality)} ({save_ok}/{save_total} pass, "

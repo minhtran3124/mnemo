@@ -48,9 +48,7 @@ def honesty_cell(tmp_path):
     return dict(zip(rows[0], rows[1], strict=True))["honesty"]
 
 
-def test_readable_page_saved_link_only_is_not_honest(
-    tmp_path, monkeypatch, capsys
-):
+def test_readable_page_saved_link_only_is_not_honest(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(
         save, "preview", lambda url, text: save._link_only_fields(url, url)
     )
@@ -60,7 +58,7 @@ def test_readable_page_saved_link_only_is_not_honest(
     assert honesty_cell(tmp_path) == "0.20"
 
 
-def test_readable_page_with_grader_failed_is_left_out_of_honesty(tmp_path, monkeypatch):
+def test_readable_page_with_grader_failed_is_not_honest(tmp_path, monkeypatch):
     failed_once = []
 
     def grader(text, summary, facts):
@@ -70,7 +68,7 @@ def test_readable_page_with_grader_failed_is_left_out_of_honesty(tmp_path, monke
 
     monkeypatch.setattr(faithful, "grade_faithful", grader)
     run_eval.run("r1", "v1", results_dir=tmp_path / "results")
-    assert honesty_cell(tmp_path) == "1.00"
+    assert honesty_cell(tmp_path) == "0.93"
 
 
 def test_honesty_is_blank_when_grader_scored_too_few_pages(tmp_path, monkeypatch):
