@@ -36,7 +36,9 @@ def test_no_unsupported_statements_passes(monkeypatch):
 
 def test_two_unsupported_statements_fail_with_reasons(monkeypatch):
     reasons = ["It is free: not in the page.", "It uses AI: not in the page."]
-    out = faithful.FaithfulOutput(unsupported=reasons, key_fact_results=[True, False, True])
+    out = faithful.FaithfulOutput(
+        unsupported=reasons, key_fact_results=[True, False, True]
+    )
     monkeypatch.setattr(client, "parse_with_usage", fake_parse([out], []))
     result = faithful.grade_faithful(PAGE, SUMMARY, KEY_FACTS)
     assert result.passed is False
