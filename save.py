@@ -47,6 +47,14 @@ _TRANSIENT_STATUS = {408, 409, 529}
 _PAGE_TAG = re.compile(r"<(\s*/?\s*page\s*)>", re.IGNORECASE)
 
 
+def normalise_text(raw: str) -> str:
+    """The one rule for page text: collapse whitespace, cap at MAX_PAGE_CHARS.
+
+    The text Claude sees is the text that is stored, so every path uses this.
+    """
+    return " ".join(raw.split())[: config.MAX_PAGE_CHARS]
+
+
 def _is_transient(err: anthropic.APIError) -> bool:
     if isinstance(err, anthropic.APIConnectionError | anthropic.RateLimitError):
         return True  # APITimeoutError is a subclass of APIConnectionError
@@ -111,24 +119,65 @@ def _summarise(text: str) -> SaveOutput | None:
     return None
 
 
-def _link_only(url: str, url_clean: str) -> dict:
+def _link_only_fields(url: str, url_clean: str) -> dict:
     host = urlsplit(url).hostname or url
-    return store.add_bookmark(
-        {
-            "url": url,
-            "url_clean": url_clean,
-            "type": "article",
-            "title": host,
-            "page_status": "unreadable",
-            "summary": None,
-            "tags": [],
-            "reason": "",
-            "reason_source": "guess",
-            "folder": None,
-            "opened_count": 0,
-        },
-        page_text=None,
+    return {
+        "url": url,
+        "url_clean": url_clean,
+        "type": "article",
+        "title": host,
+        "page_status": "unreadable",
+        "summary": None,
+        "tags": [],
+        "reason": "",
+        "reason_source": "guess",
+        "folder": None,
+        "opened_count": 0,
+    }
+
+
+def _ok_fields(url: str, url_clean: str, out: SaveOutput) -> dict:
+    return {
+        "url": url,
+        "url_clean": url_clean,
+        "type": out.type,
+        "title": out.title.strip(),
+        "page_status": "ok",
+        "summary": out.summary.strip(),
+        "tags": out.tags,
+        "reason": out.reason.strip(),
+        "reason_source": "guess",
+        "folder": None,
+        "opened_count": 0,
+    }
+
+
+def _link_only(url: str, url_clean: str) -> dict:
+    return store.add_bookmark(_link_only_fields(url, url_clean), page_text=None)
+
+
+def preview(url: str, text: str | None) -> dict:
+    """Return the record fields save() would store for this text, writing nothing.
+
+    Runs the same floor check, Claude call (one retry) and code checks as
+    save(). text=None, or text under the floor, gives the link-only fields.
+    Permanent API errors and a missing key propagate (see _summarise).
+    """
+    url_clean = urlclean.clean_url(url)
+    if text is None:
+        return _link_only_fields(url, url_clean)
+    floor = (
+        config.MIN_TEXT_CHARS_GITHUB
+        if fetcher.github.parse_repo(url) is not None
+        else config.MIN_TEXT_CHARS_HTML
     )
+    norm = normalise_text(text)
+    if not norm or len(norm) < floor:
+        return _link_only_fields(url, url_clean)
+    out = _summarise(norm)
+    if out is None:
+        return _link_only_fields(url, url_clean)
+    return _ok_fields(url, url_clean, out)
 
 
 def save(url: str, pasted_text: str | None = None) -> dict:
@@ -157,8 +206,7 @@ def save(url: str, pasted_text: str | None = None) -> dict:
             else config.MIN_TEXT_CHARS_HTML
         )
 
-    # One string: the text Claude sees is the text that is stored.
-    text = " ".join(raw.split())[: config.MAX_PAGE_CHARS]
+    text = normalise_text(raw)
     if not text or len(text) < floor:
         return _link_only(url, url_clean)
 
@@ -166,22 +214,7 @@ def save(url: str, pasted_text: str | None = None) -> dict:
     if out is None:
         return _link_only(url, url_clean)
 
-    return store.add_bookmark(
-        {
-            "url": url,
-            "url_clean": url_clean,
-            "type": out.type,
-            "title": out.title.strip(),
-            "page_status": "ok",
-            "summary": out.summary.strip(),
-            "tags": out.tags,
-            "reason": out.reason.strip(),
-            "reason_source": "guess",
-            "folder": None,
-            "opened_count": 0,
-        },
-        page_text=text,
-    )
+    return store.add_bookmark(_ok_fields(url, url_clean, out), page_text=text)
 
 
 class FillInError(Exception):
@@ -208,7 +241,7 @@ def fill_in(bookmark_id: int, pasted_text: str, write_lock=None) -> dict:
     if current["page_status"] != "unreadable":
         raise FillInError("already_read", "This page was already read.")
 
-    text = " ".join(pasted_text.split())[: config.MAX_PAGE_CHARS]
+    text = normalise_text(pasted_text)
     if len(text) < config.MIN_TEXT_CHARS_PASTED:
         raise FillInError("text_too_short", "The pasted text is too short.")
 
