@@ -119,3 +119,10 @@ def test_grade_record_returns_all_six_results():
         "type_match",
         "tag_overlap",
     }
+
+
+def test_grade_record_fails_every_grader_for_a_non_dict_record():
+    for bad in (None, "text", ["a"]):
+        results = graders.grade_record(bad, make_expected())
+        assert len(results) == 6
+        assert not any(result.passed for result in results.values())

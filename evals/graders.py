@@ -109,10 +109,26 @@ def grade_tag_overlap(record: dict[str, Any], expected: dict[str, Any]) -> Grade
     )
 
 
+GRADER_NAMES = (
+    "schema",
+    "tags",
+    "summary_length",
+    "honest_failure",
+    "type_match",
+    "tag_overlap",
+)
+
+
 def grade_record(
     record: dict[str, Any], expected: dict[str, Any]
 ) -> dict[str, GradeResult]:
-    """All six results, keyed by grader name. Scores are not averaged."""
+    """All six results, keyed by grader name. Scores are not averaged.
+
+    A record that is not a dict (for example None) fails every grader.
+    """
+    if not isinstance(record, dict):
+        failed = GradeResult(False, "record must be a dict")
+        return {name: failed for name in GRADER_NAMES}
     return {
         "schema": grade_schema(record),
         "tags": grade_tags(record),
