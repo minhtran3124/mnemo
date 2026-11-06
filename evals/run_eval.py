@@ -3,6 +3,7 @@
 Run from the repo root:
     uv run python -m evals.run_eval --run-id <id> --prompt-version <name>
 
+An unreadable page with no saved text is fetched live first.
 Each page goes through `save.preview` (nothing is written to data/), then the
 code graders and, for readable pages, the faithful-summary grader. Three scores
 are printed side by side and never averaged. One row is appended to
@@ -20,6 +21,7 @@ import anthropic
 
 import client
 import config
+import fetcher
 import save
 from evals import faithful, golden, graders
 
@@ -111,6 +113,13 @@ def run(
         entry = expected[page_id]
         golden_file = GOLDEN_DIR / f"{page_id}.txt"
         text = golden_file.read_text(encoding="utf-8") if golden_file.exists() else None
+        if text is None and entry.expect == "unreadable":
+            # No saved text: try the live fetch, as save.save does. Only a real
+            # failure gives the link-only path; a page that now reads goes to
+            # Claude, so the honesty check can fail.
+            fetched = fetcher.fetch(page["url"])
+            if isinstance(fetched, fetcher.FetchOk):
+                text = fetched.text
         record, used = _preview_counting(page["url"], text)
         tokens += used
         grades = graders.grade_record(record, asdict(entry))

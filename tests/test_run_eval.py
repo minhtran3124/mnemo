@@ -7,6 +7,7 @@ import pytest
 
 import client
 import config
+import fetcher
 import save
 import store
 from evals import faithful, run_eval
@@ -39,6 +40,9 @@ def fakes(tmp_path, monkeypatch):
         lambda text, summary, facts: faithful.FaithfulResult(
             passed=True, unsupported_count=0, usage=client.Usage(10, 5)
         ),
+    )
+    monkeypatch.setattr(
+        fetcher, "fetch", lambda url: fetcher.FetchFail("test: no network")
     )
     monkeypatch.setattr(run_eval, "RESULTS_DIR", tmp_path / "results")
 
@@ -131,3 +135,15 @@ def test_data_dir_untouched(tmp_path, monkeypatch):
     assert calls
     assert int(row[6]) == len(calls) * (100 + 20) + len(calls) * (10 + 5)
     assert not (tmp_path / "data").exists() or not list((tmp_path / "data").rglob("*"))
+
+
+def test_unreadable_page_that_now_reads_fails_honesty(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(
+        fetcher, "fetch", lambda url: fetcher.FetchOk("long text " * 200, "web")
+    )
+    results = tmp_path / "results"
+    run_eval.run("r1", "v1", results_dir=results)
+    out = capsys.readouterr().out
+    assert "0/3 unreadable pages honest" in out
+    row = dict(zip(*rows(results / "runs.csv"), strict=True))
+    assert float(row["honesty"]) < 1.0
