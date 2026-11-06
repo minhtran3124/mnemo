@@ -12,6 +12,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # Haiku 5.5 for save.py (D-022). Name checked on the official models page.
 MODEL = "claude-haiku-5-5"
 
+# Sonnet 5.5 grades summaries in the eval harness. The grader is stronger than
+# the writer (MODEL), so it can catch what the writer got wrong. Name checked on
+# the official models page.
+EVAL_GRADER_MODEL = "claude-sonnet-5-5"
+
 # Output cap per call. A summary, title and folder fit well under this, and a
 # low cap bounds the cost of one call (NF-02).
 MAX_TOKENS = 1024
