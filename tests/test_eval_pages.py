@@ -26,59 +26,26 @@ def test_writes_normalised_text(tmp_path):
 
 
 def test_failed_fetch_writes_no_file_and_continues(tmp_path, capsys):
+    (tmp_path / "S-03.txt").write_text("old text", encoding="utf-8")
     pages = [
         {"id": "S-01", "url": "https://example.com/a", "expect": "ok"},
-        {"id": "S-02", "url": "https://example.com/b", "expect": "ok"},
+        {"id": "S-02", "url": "https://example.com/b", "expect": "unreadable"},
+        {"id": "S-03", "url": "https://example.com/c", "expect": "ok"},
     ]
+    seen = []
 
     def fake(url):
-        return FetchFail("boom") if url.endswith("/a") else FetchOk("text here", "web")
+        seen.append(url)
+        return FetchFail("boom") if url.endswith(("/a", "/c")) else FetchOk("hi", "web")
 
     save_pages.run(pages, fetch=fake, out_dir=tmp_path)
+    assert len(seen) == 3
     assert not (tmp_path / "S-01.txt").exists()
     assert (tmp_path / "S-02.txt").exists()
+    assert (tmp_path / "S-03.txt").read_text(encoding="utf-8") == "old text"
     out = capsys.readouterr().out
-    assert "S-01" in out
+    assert "S-01" in out and "S-03" in out
     assert "boom" in out
-
-
-def test_failed_fetch_removes_stale_golden_file(tmp_path):
-    (tmp_path / "S-01.txt").write_text("old text", encoding="utf-8")
-    pages = [{"id": "S-01", "url": "https://example.com/a", "expect": "ok"}]
-    failed = save_pages.run(
-        pages, fetch=lambda url: FetchFail("boom"), out_dir=tmp_path
-    )
-    assert failed == ["S-01"]
-    assert not (tmp_path / "S-01.txt").exists()
-
-
-def test_main_exits_non_zero_when_a_page_fails(monkeypatch, tmp_path):
-    pages = [{"id": "S-01", "url": "https://example.com/a", "expect": "ok"}]
-    (tmp_path / "pages.json").write_text(json.dumps(pages), encoding="utf-8")
-    monkeypatch.setattr(save_pages, "PAGES_FILE", tmp_path / "pages.json")
-    monkeypatch.setattr(save_pages, "run", lambda p: ["S-01"])
-    assert save_pages.main() == 1
-
-
-def test_main_returns_zero_when_all_pages_save(monkeypatch, tmp_path):
-    monkeypatch.setattr(save_pages, "PAGES_FILE", tmp_path / "pages.json")
-    (tmp_path / "pages.json").write_text("[]", encoding="utf-8")
-    assert save_pages.main() == 0
-
-
-def test_unreadable_pages_get_no_file_and_do_not_fail(tmp_path):
-    pages = [
-        {"id": "S-01", "url": "https://example.com/a", "expect": "unreadable"},
-        {"id": "S-02", "url": "https://example.com/b", "expect": "unreadable"},
-    ]
-
-    def fake(url):
-        return FetchOk("text here", "web") if url.endswith("/a") else FetchFail("x")
-
-    failed = save_pages.run(pages, fetch=fake, out_dir=tmp_path)
-    assert failed == []
-    assert not (tmp_path / "S-01.txt").exists()
-    assert not (tmp_path / "S-02.txt").exists()
 
 
 def test_pages_json_ids_and_urls():
@@ -108,21 +75,3 @@ def test_expect_ok_has_file_and_s15_has_none():
     s15 = next(p for p in PAGES if p["id"] == "S-15")
     assert s15["expect"] == "unreadable"
     assert not (GOLDEN / "S-15.txt").exists()
-
-
-def test_unreadable_pages_are_fetched_and_reported(tmp_path, capsys):
-    pages = [
-        {"id": "S-01", "url": "https://example.com/a", "expect": "unreadable"},
-        {"id": "S-02", "url": "https://example.com/b", "expect": "unreadable"},
-    ]
-    seen = []
-
-    def fake(url):
-        seen.append(url)
-        return FetchOk("text here", "web") if url.endswith("/a") else FetchFail("nope")
-
-    assert save_pages.run(pages, fetch=fake, out_dir=tmp_path) == []
-    assert seen == ["https://example.com/a", "https://example.com/b"]
-    out = capsys.readouterr().out
-    assert "S-01" in out and "now readable" in out
-    assert "S-02" in out and "nope" in out

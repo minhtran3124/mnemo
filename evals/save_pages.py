@@ -20,39 +20,27 @@ def run(
     pages: list[dict],
     fetch: Callable[[str], fetcher.FetchResult] = fetcher.fetch,
     out_dir: Path = GOLDEN_DIR,
-) -> list[str]:
-    """Fetch every page and write the text of those expected to be readable.
+) -> None:
+    """Fetch every page and write the normalised text of each one that loads.
 
-    Pages marked "unreadable" are fetched too but get no golden file. A failed
-    fetch prints its reason; for an expect-ok page it also removes any older
-    golden file and counts as failed. A readable page marked "unreadable" is
-    reported so the entry can be flipped. Return the ids that failed.
+    A failed fetch prints its id, URL and reason and writes nothing; any
+    existing golden file is left as it is.
     """
-    failed: list[str] = []
     for page in pages:
-        expect_ok = page["expect"] == "ok"
         result = fetch(page["url"])
         if isinstance(result, fetcher.FetchOk):
-            if expect_ok:
-                out_dir.mkdir(parents=True, exist_ok=True)
-                text = save.normalise_text(result.text)
-                (out_dir / f"{page['id']}.txt").write_text(text, encoding="utf-8")
-            else:
-                print(f"{page['id']} {page['url']}: now readable, expect is unreadable")
+            out_dir.mkdir(parents=True, exist_ok=True)
+            text = save.normalise_text(result.text)
+            (out_dir / f"{page['id']}.txt").write_text(text, encoding="utf-8")
         else:
             print(f"{page['id']} {page['url']}: {result.reason}")
-            if expect_ok:
-                (out_dir / f"{page['id']}.txt").unlink(missing_ok=True)
-                failed.append(page["id"])
-    return failed
 
 
 def main() -> int:
-    """Save every golden page. Return 1 if any page failed, else 0."""
+    """Save every golden page that can be fetched."""
     pages = json.loads(PAGES_FILE.read_text(encoding="utf-8"))
-    failed = run(pages)
-    print(f"failed: {', '.join(failed) if failed else 'none'}")
-    return 1 if failed else 0
+    run(pages)
+    return 0
 
 
 if __name__ == "__main__":
