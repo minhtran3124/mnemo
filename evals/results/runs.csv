@@ -1,0 +1,3 @@
+run_id,prompt_version,model,save_quality,honesty,find_rate,tokens_used,notes
+baseline-1,save_v1,claude-haiku-5-5,0.92,1.00,,124480,0 unsupported: 11
+baseline-2,save_v1,claude-haiku-5-5,0.92,1.00,,128626,0 unsupported: 10

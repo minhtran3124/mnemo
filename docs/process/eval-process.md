@@ -64,6 +64,29 @@ Test the runner with the API mocked: `uv run pytest tests/test_run_eval.py -q`. 
 
 Open question: whether to add a cost column. The plan lists only the columns above.
 
+## Baseline and noise
+The unchanged save prompt (`save_v1`, model `claude-haiku-5-5`) ran twice on the 15 golden pages. 12 are readable and 3 are unreadable (S-08, S-10 and S-15). Every expected answer is still a draft.
+
+| Run | Save quality | Mean tag overlap | Honesty (unreadable pages honest) | Pages with 0 unsupported statements | Tokens |
+| --- | --- | --- | --- | --- | --- |
+| baseline-1 | 0.92 (11/12) | 0.40 | 1.00 (3/3) | 11 of 12 | 124480 |
+| baseline-2 | 0.92 (11/12) | 0.33 | 1.00 (3/3) | 10 of 12 | 128626 |
+| Gap | 0.00 | 0.07 | 0.00 | 1 page (0.08) | 4146 |
+
+Noise level: 0.08 (the faithful-summary count moved by 1 page of 12; save quality and honesty did not move, mean tag overlap moved by 0.07).
+
+A later change must beat these gaps to count as an improvement.
+
+Read 3 results with the grader's reasons (S-03, S-06 and S-09, the pages the grader failed):
+- S-03 (Airtable home): failed with 2 unsupported statements in baseline-2, passed in baseline-1, and passed with 0 when graded again for this note. The grader is not stable on this page. This is the main source of the faithful-summary gap.
+- S-06 (ai_agents_az repo): failed with 1 unsupported statement in baseline-1: the summary says "A GitHub repository", and the grader said the page never says it is hosted on GitHub. The page is a repo README, so this is a grader false positive. Not fixed in this phase.
+- S-09 (wearedevelopers videos): failed with 3 unsupported statements in baseline-2 and passed in baseline-1 and when graded again. The summary is an index list; the grader's strictness varies from run to run.
+
+Limits of these numbers:
+- The expected tags, types and key facts are Claude-written drafts and have not been reviewed, so tag overlap (0.33 to 0.40) and type match say little yet.
+- S-08 (YouTube) and S-10 (Airtable developers) failed the live fetch, so they have no text and count as unreadable. The honesty score of 1.00 therefore tests only pages that never reach the model. It does not show that honest failure works on a page that was fetched and then judged unreadable.
+- The grader prompts and the model are unchanged. No prompt was changed in this phase.
+
 ## Rules
 - Do not improve prompts in phase 2. Build the sets and graders first.
 - Change one thing per run.
