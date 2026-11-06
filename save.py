@@ -164,21 +164,19 @@ def _floor_for(source: str) -> int:
     )
 
 
-def preview(url: str, text: str | None, source: str | None = None) -> dict:
+def preview(url: str, text: str | None, source: str) -> dict:
     """Return the record fields save() would store for this text, writing nothing.
 
     Runs the same floor check, Claude call (one retry) and code checks as
     save(). text=None, or text under the floor, gives the link-only fields.
     source is the fetcher result's source ("web" or "github"), which picks the
-    text floor as save() does. A GitHub URL that fell back to the web path
-    must pass "web". When None, it is guessed from the URL.
+    text floor as save() does. It is required: a URL cannot tell whether the
+    fetcher fell back to the web path, so it is never guessed from the URL.
     Permanent API errors and a missing key propagate (see _summarise).
     """
     url_clean = urlclean.clean_url(url)
     if text is None:
         return _link_only_fields(url, url_clean)
-    if source is None:
-        source = "github" if fetcher.github.parse_repo(url) is not None else "web"
     floor = _floor_for(source)
     norm = normalise_text(text)
     if not norm or len(norm) < floor:

@@ -48,7 +48,7 @@ def assert_link_only(record):
 
 
 def test_good_page_gives_ok_record_and_writes_nothing(parse_calls, data_dir):
-    record = save.preview(URL, RAW)
+    record = save.preview(URL, RAW, source="web")
     assert record["page_status"] == "ok"
     assert record["summary"]
     assert 3 <= len(record["tags"]) <= 6
@@ -58,14 +58,14 @@ def test_good_page_gives_ok_record_and_writes_nothing(parse_calls, data_dir):
 
 def test_short_text_and_none_give_link_only_without_claude(parse_calls):
     short = "x" * (config.MIN_TEXT_CHARS_HTML - 1)
-    assert_link_only(save.preview(URL, short))
-    assert_link_only(save.preview(URL, None))
+    assert_link_only(save.preview(URL, short, source="web"))
+    assert_link_only(save.preview(URL, None, source="web"))
     assert parse_calls["calls"] == []
 
 
 def test_invalid_output_twice_gives_link_only(parse_calls, data_dir):
     parse_calls["replies"] = [good(tags=[]), good(tags=[])]
-    assert_link_only(save.preview(URL, RAW))
+    assert_link_only(save.preview(URL, RAW, source="web"))
     assert len(parse_calls["calls"]) == 2
     assert list(data_dir.iterdir()) == []
 
@@ -92,3 +92,8 @@ def test_source_web_on_github_url_uses_html_floor(parse_calls):
     assert_link_only(save.preview(gh_url, between, source="web"))
     assert parse_calls["calls"] == []
     assert save.preview(gh_url, between, source="github")["page_status"] == "ok"
+
+
+def test_source_is_required_not_guessed_from_url(parse_calls):
+    with pytest.raises(TypeError):
+        save.preview("https://github.com/owner/repo", RAW)  # type: ignore[call-arg]
