@@ -28,9 +28,14 @@ def _is_unreadable(record: dict[str, Any]) -> bool:
 
 
 def grade_schema(record: dict[str, Any]) -> GradeResult:
-    """The record passes `store.validate_record` once server fields are filled."""
+    """The record passes `store.validate_record`.
+
+    A preview record may lack the server fields, so only absent ones get a
+    placeholder. A present but invalid value is still reported.
+    """
     candidate = dict(record)
-    candidate.update(id=0, saved_at="", page_file="")
+    for name, placeholder in (("id", 0), ("saved_at", ""), ("page_file", "")):
+        candidate.setdefault(name, placeholder)
     try:
         store.validate_record(candidate)
     except store.InvalidRecord as error:
