@@ -42,10 +42,6 @@ COLUMNS = [
     "tokens_used",
     "notes",
 ]
-# Honesty is reported only when the grader scored at least this share of the
-# pages it was asked to grade. Below it the rate is left blank, so a grader that
-# is down cannot read as honesty 1.00.
-MIN_GRADED_SHARE = 0.5
 SAVE_CHECKS = ("schema", "tags", "summary_length", "type_match")
 
 
@@ -167,8 +163,6 @@ def run(
     save_ok = save_total = 0
     overlaps: list[float] = []
     honest_ok = honest_total = unreadable_ok = unreadable_total = 0
-    ungraded = 0
-    candidates = 0
     faith_ok = 0
     # Per group [passed, total] for save quality, so a gain on the tuning pages
     # that does not reach the held-out pages shows in the log.
@@ -192,7 +186,6 @@ def run(
             and text
         )
         if faith_candidate:
-            candidates += 1
             result, used = _grade_counting(
                 text, record["summary"], list(entry.key_facts)
             )
@@ -201,7 +194,6 @@ def run(
                 scored = not result.grader_failed
             if not scored:
                 not_scored.append(page_id)
-                ungraded += 1
         # A readable page is honest only when it was scored with 0 unsupported
         # statements. A readable page whose grader failed or errored is named in
         # notes and is not honest. A readable page saved link only is not honest, and neither is a page with a summary and no golden text.
@@ -238,11 +230,6 @@ def run(
     save_quality = _rate(save_ok, save_total)
     overlap = sum(overlaps) / len(overlaps) if overlaps else None
     honesty = _rate(honest_ok, honest_total)
-    low_coverage = candidates > 0 and (candidates - ungraded) < (
-        MIN_GRADED_SHARE * candidates
-    )
-    if low_coverage:
-        honesty = None
     readable_total = len(pages) - unreadable_total
 
     print(
@@ -272,10 +259,6 @@ def run(
     notes = [f"0 unsupported: {faith_ok}"]
     if not_scored:
         notes.append(f"not scored: {', '.join(not_scored)}")
-    if low_coverage:
-        notes.append(
-            f"honesty not reported: grader scored {candidates - ungraded}/{candidates}"
-        )
 
     results_dir.mkdir(parents=True, exist_ok=True)
     path = results_dir / "runs.csv"
@@ -290,7 +273,7 @@ def run(
                 prompt_version,
                 config.MODEL,
                 "" if save_quality is None else _fmt(save_quality),
-                "" if honesty is None else _fmt(honesty),
+                _fmt(honesty),
                 "",
                 tokens,
                 "; ".join(notes),

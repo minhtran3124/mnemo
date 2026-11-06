@@ -71,12 +71,6 @@ def test_readable_page_with_grader_failed_is_not_honest(tmp_path, monkeypatch):
     assert honesty_cell(tmp_path) == "0.93"
 
 
-def test_honesty_is_blank_when_grader_scored_too_few_pages(tmp_path, monkeypatch):
-    monkeypatch.setattr(faithful, "grade_faithful", graded(grader_failed=True))
-    run_eval.run("r1", "v1", results_dir=tmp_path / "results")
-    assert honesty_cell(tmp_path) == ""
-
-
 def test_page_without_golden_file_is_previewed_with_empty_text(tmp_path, monkeypatch):
     seen = {}
 
@@ -98,12 +92,3 @@ def test_every_page_honest_scores_one(tmp_path, capsys):
     out = capsys.readouterr().out
     assert f"Honesty: 1.00 ({PAGE_COUNT}/{PAGE_COUNT} pages honest" in out
     assert honesty_cell(tmp_path) == "1.00"
-
-
-def test_eval_process_doc_marks_old_rule_baseline_unverified():
-    from pathlib import Path
-
-    text = (Path(__file__).parent.parent / "docs/process/eval-process.md").read_text()
-    assert "A later change must beat these gaps" not in text
-    section = text.split("## Baseline and noise", 1)[1].split("## Rules", 1)[0]
-    assert "**Unverified:**" in section

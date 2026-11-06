@@ -201,9 +201,8 @@ def test_unscored_readable_pages_are_not_scored_and_named_in_notes(
     out = capsys.readouterr().out
     assert "0/12 readable pages with 0 unsupported statements" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
-    assert row["honesty"] == ""
+    assert row["honesty"] == "0.20"
     assert row["notes"].startswith("0 unsupported: 0; not scored:")
-    assert "honesty not reported" in row["notes"]
 
 
 def test_tokens_include_billed_calls_rejected_as_invalid_output(tmp_path, monkeypatch):
