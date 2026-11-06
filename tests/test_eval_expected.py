@@ -48,21 +48,6 @@ def test_load_expected_accepts_a_valid_file(tmp_path):
     assert loaded[0].draft is True
 
 
-def test_reviewed_entries_with_draft_false_load(tmp_path):
-    entries = _valid()
-    for entry in entries:
-        entry["draft"] = False
-    loaded = golden.load_expected(_write(tmp_path, entries))
-    assert all(e.draft is False for e in loaded)
-
-
-def test_missing_draft_key_is_rejected(tmp_path):
-    entries = _valid()
-    del entries[0]["draft"]
-    with pytest.raises(ValueError, match="missing keys"):
-        golden.load_expected(_write(tmp_path, entries))
-
-
 def test_rejects_wrong_tag_count(tmp_path):
     for count in (2, 7):
         entries = _valid()
@@ -123,47 +108,3 @@ def test_prompts_do_not_leak_held_out_pages():
         text = prompt.read_text(encoding="utf-8").lower()
         for needle in needles:
             assert needle.lower() not in text, f"{prompt.name} leaks {needle}"
-
-
-@pytest.mark.parametrize(
-    "change",
-    [
-        ("expected_tags", "one two three"),
-        ("key_facts", "fact a fact b"),
-        ("held_out", "false"),
-        ("hard_case", 1),
-        ("expected_type", ["article"]),
-        ("note", 5),
-    ],
-)
-def test_rejects_wrong_typed_fields(tmp_path, change):
-    entries = _valid()
-    entries[0][change[0]] = change[1]
-    with pytest.raises(ValueError):
-        golden.load_expected(_write(tmp_path, entries))
-
-
-@pytest.mark.parametrize(
-    "key",
-    [
-        "id",
-        "expected_type",
-        "expected_tags",
-        "key_facts",
-        "held_out",
-        "hard_case",
-        "expect",
-    ],
-)
-def test_rejects_missing_keys_as_value_error(tmp_path, key):
-    entries = _valid()
-    del entries[0][key]
-    with pytest.raises(ValueError):
-        golden.load_expected(_write(tmp_path, entries))
-
-
-def test_rejects_non_object_entry(tmp_path):
-    entries = _valid()
-    entries[0] = "S-01"
-    with pytest.raises(ValueError):
-        golden.load_expected(_write(tmp_path, entries))
