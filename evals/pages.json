@@ -1,0 +1,17 @@
+[
+  {"id": "S-01", "url": "https://x.com/addyosmani/article/2117512471930167377", "expect": "ok"},
+  {"id": "S-02", "url": "https://dev.to/fisher_shenfisher_1c32/pocket-alternative-2026-the-complete-guide-after-pockets-shutdown-4mpe", "expect": "ok"},
+  {"id": "S-03", "url": "https://airtable.com", "expect": "ok"},
+  {"id": "S-04", "url": "https://huggingface.co/blog/sionic-ai/claude-code-skills-training", "expect": "ok"},
+  {"id": "S-05", "url": "https://github.com/subframe7536/maple-font", "expect": "ok"},
+  {"id": "S-06", "url": "https://github.com/gyoridavid/ai_agents_az", "expect": "ok"},
+  {"id": "S-07", "url": "https://april-zhu.com/colorfigures", "expect": "ok"},
+  {"id": "S-08", "url": "https://youtube.com/watch?v=lDrAZ1wAyVs", "expect": "ok"},
+  {"id": "S-09", "url": "https://wearedevelopers.com/videos", "expect": "ok"},
+  {"id": "S-10", "url": "https://airtable.com/developers/web/api/introduction", "expect": "ok"},
+  {"id": "S-11", "url": "https://github.com/Donchitos/Claude-Code-Game-Studios", "expect": "ok"},
+  {"id": "S-12", "url": "https://arxiv.org/html/2606.09498v1", "expect": "ok"},
+  {"id": "S-13", "url": "https://uber.com/us/en/blog/ai-code-cleanup/", "expect": "ok"},
+  {"id": "S-14", "url": "https://contextfirst.blog/superlite-hand-an-agent-a-spec/", "expect": "ok"},
+  {"id": "S-15", "url": "https://www.instagram.com/accounts/login/", "expect": "unreadable"}
+]

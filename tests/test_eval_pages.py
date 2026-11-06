@@ -16,8 +16,12 @@ GOLDEN = EVALS_DIR / "golden"
 
 def test_writes_normalised_text(tmp_path):
     pages = [{"id": "S-01", "url": "https://example.com/a", "expect": "ok"}]
-    save_pages.run(pages, fetch=lambda url: FetchOk("a   b\n c", "web"), out_dir=tmp_path)
-    assert (tmp_path / "S-01.txt").read_text(encoding="utf-8") == save.normalise_text("a   b\n c")
+    save_pages.run(
+        pages, fetch=lambda url: FetchOk("a   b\n c", "web"), out_dir=tmp_path
+    )
+    assert (tmp_path / "S-01.txt").read_text(encoding="utf-8") == save.normalise_text(
+        "a   b\n c"
+    )
     assert (tmp_path / "S-01.txt").read_text(encoding="utf-8") == "a b c"
 
 
@@ -50,7 +54,9 @@ def test_golden_files_within_limits():
     for path in GOLDEN.glob("*.txt"):
         host = urlsplit(urls[path.stem]).hostname
         floor = (
-            config.MIN_TEXT_CHARS_GITHUB if host == "github.com" else config.MIN_TEXT_CHARS_HTML
+            config.MIN_TEXT_CHARS_GITHUB
+            if host == "github.com"
+            else config.MIN_TEXT_CHARS_HTML
         )
         n = len(path.read_text(encoding="utf-8"))
         assert floor <= n <= config.MAX_PAGE_CHARS, path.name
