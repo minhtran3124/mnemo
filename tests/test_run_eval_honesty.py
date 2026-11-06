@@ -73,6 +73,12 @@ def test_readable_page_with_grader_failed_is_left_out_of_honesty(tmp_path, monke
     assert honesty_cell(tmp_path) == "1.00"
 
 
+def test_honesty_is_blank_when_grader_scored_too_few_pages(tmp_path, monkeypatch):
+    monkeypatch.setattr(faithful, "grade_faithful", graded(grader_failed=True))
+    run_eval.run("r1", "v1", results_dir=tmp_path / "results")
+    assert honesty_cell(tmp_path) == ""
+
+
 def test_page_without_golden_file_is_previewed_with_empty_text(tmp_path, monkeypatch):
     seen = {}
 
