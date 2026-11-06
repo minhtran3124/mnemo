@@ -7,6 +7,7 @@ config.get_settings() and never logged or put in an error.
 
 import logging
 import time
+from typing import NamedTuple
 
 import anthropic
 from pydantic import BaseModel, ValidationError
@@ -94,18 +95,27 @@ def ask(
     return text
 
 
-def parse[T: BaseModel](
+class Usage(NamedTuple):
+    """Token counts for one call. Tokens only, no money."""
+
+    input_tokens: int
+    output_tokens: int
+
+
+def parse_with_usage[T: BaseModel](
     messages: list[dict],
     output_format: type[T],
     system: str | None = None,
-) -> T:
-    """Send messages to Claude and return the reply as a validated output_format object.
+    model: str | None = None,
+) -> tuple[T, Usage]:
+    """Like parse(), but also return the token counts. model=None means config.MODEL.
 
-    Sends no prefill, no stop sequence and no beta header. A refusal or a reply cut
-    off at max_tokens raises InvalidOutput (a RuntimeError); callers treat that as invalid output.
+    Sends no prefill, no stop sequence, no beta header and no sampling settings. A refusal
+    or a reply cut off at max_tokens raises InvalidOutput (a RuntimeError).
     """
+    model = model or config.MODEL
     kwargs: dict = {
-        "model": config.MODEL,
+        "model": model,
         "max_tokens": config.MAX_TOKENS,
         "messages": messages,
         "output_format": output_format,
@@ -120,7 +130,7 @@ def parse[T: BaseModel](
 
     _log.info(
         "claude call model=%s input_tokens=%s output_tokens=%s latency_ms=%s",
-        config.MODEL,
+        model,
         response.usage.input_tokens,
         response.usage.output_tokens,
         latency_ms,
@@ -134,4 +144,19 @@ def parse[T: BaseModel](
         )
     if response.parsed_output is None:
         raise InvalidOutput("Claude returned no parsed output")
-    return response.parsed_output
+    usage = Usage(response.usage.input_tokens, response.usage.output_tokens)
+    return response.parsed_output, usage
+
+
+def parse[T: BaseModel](
+    messages: list[dict],
+    output_format: type[T],
+    system: str | None = None,
+) -> T:
+    """Send messages to Claude and return the reply as a validated output_format object.
+
+    Sends no prefill, no stop sequence and no beta header. A refusal or a reply cut
+    off at max_tokens raises InvalidOutput (a RuntimeError); callers treat that as invalid output.
+    """
+    parsed, _ = parse_with_usage(messages, output_format, system)
+    return parsed
