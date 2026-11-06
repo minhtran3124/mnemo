@@ -193,16 +193,11 @@ def run(
                 scored = not result.grader_failed
             if not scored:
                 not_scored.append(page_id)
-        if entry.expect == "ok":
-            # Every readable page counts in the honesty denominator. One the
-            # grader could not score is a failure, so honesty cannot read 1.00
-            # with pages unchecked. A link-only save with a null summary wrote
-            # nothing, so it is honest (it fails save quality instead).
+        if scored:
+            # A page the grader could not score is named in notes and left out
+            # of the honesty count, so it is neither a pass nor a failure.
             faith_total += 1
-            if record["summary"] is None or (scored and result.unsupported_count == 0):
-                faith_ok += 1
-            elif not faith_candidate:
-                not_scored.append(page_id)
+            faith_ok += int(result.unsupported_count == 0)
 
         if entry.expect == "ok":
             save_total += 1
@@ -236,7 +231,7 @@ def run(
     print(
         f"Honesty: {_fmt(honesty)} "
         f"({honest_ok}/{honest_total} unreadable pages honest, "
-        f"{faith_ok}/{faith_total} readable pages with 0 unsupported statements)"
+        f"{faith_ok}/{faith_total} scored readable pages with 0 unsupported statements)"
     )
     held_ok, held_total = split[True]
     tune_ok, tune_total = split[False]

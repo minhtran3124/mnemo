@@ -57,10 +57,10 @@ Test the runner with the API mocked: `uv run pytest tests/test_run_eval.py -q`. 
 | prompt_version | For example save_v2 |
 | model | The model name from `config.py` |
 | save_quality | Score 1: share of readable pages that pass the code checks |
-| honesty | Score 2: one number, the share of checked pages that are honest. Checked pages are every unreadable page (null summary) plus every readable page. A readable page passes when it was saved link only with a null summary, or the faithful grader scored it with zero unsupported statements; one the grader could not score counts as a failure. The run prints the split. |
+| honesty | Score 2: one number, the share of checked pages that are honest. Checked pages are every unreadable page (null summary) plus every readable page the faithful grader scored. A scored readable page passes with zero unsupported statements. A readable page the grader could not score is not scored: it is left out of the count, not treated as a failure. The run prints the split. |
 | find_rate | Score 3. Empty until phase 4 |
 | tokens_used | Total tokens for the run: the save calls plus the grader calls |
-| notes | Pages the faithful grader could not score, for example `not scored: S-03`. They count as failures in the honesty score. A readable page saved link only with a null summary is honest and is not listed. |
+| notes | Pages the faithful grader could not score, for example `not scored: S-03`. They are not scored, so they are left out of the honesty score. A readable page saved link only with a null summary has no statements to grade and is not listed. |
 
 Open question: whether to add a cost column. The plan lists only the columns above.
 

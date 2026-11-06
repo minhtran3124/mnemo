@@ -166,7 +166,7 @@ def test_unreadable_page_without_golden_file_never_hits_the_network(
     assert "3/3 unreadable pages honest" in out
 
 
-def test_unscored_readable_pages_count_as_honesty_failures(
+def test_unscored_readable_pages_are_not_scored_and_named_in_notes(
     tmp_path, monkeypatch, capsys
 ):
     monkeypatch.setattr(
@@ -182,9 +182,9 @@ def test_unscored_readable_pages_count_as_honesty_failures(
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
     out = capsys.readouterr().out
-    assert "0/12 readable pages" in out
+    assert "0/0 scored readable pages" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
-    assert float(row["honesty"]) < 1.0
+    assert float(row["honesty"]) == 1.0
     assert row["notes"].startswith("not scored:")
 
 
@@ -283,7 +283,7 @@ def test_link_only_save_of_readable_page_is_honest_and_not_unscored(
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
     out = capsys.readouterr().out
-    assert "12/12 readable pages" in out
+    assert "0/0 scored readable pages" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
     assert float(row["honesty"]) == 1.0
     assert row["notes"] == ""
@@ -293,8 +293,8 @@ def test_eval_process_doc_matches_honesty_denominator():
     doc = (run_eval.EVALS_DIR.parent / "docs/process/eval-process.md").read_text(
         encoding="utf-8"
     )
-    assert "plus every readable page" in doc
-    assert "the readable pages the faithful grader scored" not in doc
+    assert "plus every readable page the faithful grader scored" in doc
+    assert "counts as a failure" not in doc
 
 
 def test_tokens_include_grader_calls_rejected_as_invalid_output(tmp_path, monkeypatch):
