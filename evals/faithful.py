@@ -3,15 +3,12 @@
 Sonnet 5.5 reads the page text, the summary and the key facts. It lists the
 summary statements the page does not support and answers each key fact yes or
 no. Invalid output is retried once, then the page is marked `grader_failed` and
-not scored. A transient API error (timeout, connection, 429, 5xx) that the SDK
-already retried also marks the page `grader_failed`, so one bad call does not abort
-the run. A missing key or an auth error propagates (not a page problem).
+not scored. A missing key, an auth error or any API error propagates.
 """
 
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import anthropic
 from pydantic import BaseModel, ValidationError
 
 import client
@@ -19,15 +16,6 @@ import config
 
 PROMPT_FILE = Path(__file__).resolve().parent.parent / "prompts" / "eval_faithful.txt"
 ATTEMPTS = 2
-
-
-def _is_transient(error: Exception) -> bool:
-    """True for errors that say nothing about the page: timeout, network, 429, 5xx."""
-    if isinstance(error, anthropic.APITimeoutError | anthropic.APIConnectionError):
-        return True
-    return isinstance(error, anthropic.APIStatusError) and (
-        error.status_code == 429 or error.status_code >= 500
-    )
 
 
 class FaithfulOutput(BaseModel):
@@ -67,14 +55,8 @@ def grade_faithful(
             )
         except (client.InvalidOutput, ValidationError):
             continue
-        except anthropic.APIError as error:
-            if not _is_transient(error):
-                raise
-            break
         input_tokens += usage.input_tokens
         output_tokens += usage.output_tokens
-        if len(out.key_fact_results) != len(key_facts):
-            continue
         return FaithfulResult(
             passed=not out.unsupported,
             unsupported_count=len(out.unsupported),
