@@ -50,12 +50,12 @@ def test_load_expected_accepts_a_valid_file(tmp_path):
     assert loaded[0].draft is True
 
 
-@pytest.mark.parametrize("count", [2, 7])
-def test_rejects_wrong_tag_count(tmp_path, count):
-    entries = _valid()
-    entries[0]["expected_tags"] = [f"tag{i}" for i in range(count)]
-    with pytest.raises(ValueError):
-        golden.load_expected(_write(tmp_path, entries))
+def test_rejects_wrong_tag_count(tmp_path):
+    for count in (2, 7):
+        entries = _valid()
+        entries[0]["expected_tags"] = [f"tag{i}" for i in range(count)]
+        with pytest.raises(ValueError):
+            golden.load_expected(_write(tmp_path, entries))
 
 
 def test_rejects_type_outside_store_types(tmp_path):
@@ -65,12 +65,12 @@ def test_rejects_type_outside_store_types(tmp_path):
         golden.load_expected(_write(tmp_path, entries))
 
 
-@pytest.mark.parametrize("count", [1, 5])
-def test_rejects_wrong_key_fact_count(tmp_path, count):
-    entries = _valid()
-    entries[0]["key_facts"] = [f"fact {i}" for i in range(count)]
-    with pytest.raises(ValueError):
-        golden.load_expected(_write(tmp_path, entries))
+def test_rejects_wrong_key_fact_count(tmp_path):
+    for count in (1, 5):
+        entries = _valid()
+        entries[0]["key_facts"] = [f"fact {i}" for i in range(count)]
+        with pytest.raises(ValueError):
+            golden.load_expected(_write(tmp_path, entries))
 
 
 def test_rejects_bad_held_out_set(tmp_path):
