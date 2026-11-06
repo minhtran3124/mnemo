@@ -1,7 +1,7 @@
 """Load and check the draft expected answers in evals/expected.json.
 
 One entry per golden page. The file is a Claude-written draft until the owner
-reads each page and removes the `draft` mark.
+reads each page and sets `draft` to false. The key is required, so a typo cannot pass as reviewed.
 """
 
 # ruff: noqa: TRY004
@@ -40,6 +40,7 @@ REQUIRED = (
     "held_out",
     "hard_case",
     "expect",
+    "draft",
 )
 
 
@@ -80,7 +81,7 @@ def _check(raw: dict) -> Expected:
         hard_case=raw["hard_case"],
         expect=raw["expect"],
         note=raw.get("note", ""),
-        draft=raw.get("draft", False),
+        draft=raw["draft"],
     )
     if entry.expected_type not in store.TYPES:
         raise ValueError(f"{page_id}: type must be one of {sorted(store.TYPES)}")

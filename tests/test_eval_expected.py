@@ -48,12 +48,19 @@ def test_load_expected_accepts_a_valid_file(tmp_path):
     assert loaded[0].draft is True
 
 
-def test_reviewed_entries_without_draft_mark_load(tmp_path):
+def test_reviewed_entries_with_draft_false_load(tmp_path):
     entries = _valid()
     for entry in entries:
-        del entry["draft"]
+        entry["draft"] = False
     loaded = golden.load_expected(_write(tmp_path, entries))
     assert all(e.draft is False for e in loaded)
+
+
+def test_missing_draft_key_is_rejected(tmp_path):
+    entries = _valid()
+    del entries[0]["draft"]
+    with pytest.raises(ValueError, match="missing keys"):
+        golden.load_expected(_write(tmp_path, entries))
 
 
 def test_rejects_wrong_tag_count(tmp_path):

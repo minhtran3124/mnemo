@@ -6,4 +6,4 @@
 
 The held-out pages are S-03, S-08, S-09, S-12 and S-13. Their URLs and key facts must never appear in `prompts/`. If the leak test fails, reword the key fact in `expected.json`, never the prompt or the test.
 
-Entries marked draft are not reviewed; remove the mark after you read the page.
+Entries with `"draft": true` are not reviewed; set it to `false` after you read the page. The key is required in every entry.
