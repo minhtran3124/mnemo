@@ -73,3 +73,38 @@ def test_invalid_output_twice_gives_grader_failed(monkeypatch):
     assert result.passed is False
     assert result.unsupported_count is None
     assert len(calls) == 2
+
+
+def _status_error(cls, status):
+    import httpx2
+
+    request = httpx2.Request("POST", "https://api.anthropic.com/v1/messages")
+    return cls("boom", response=httpx2.Response(status, request=request), body=None)
+
+
+def test_transient_api_errors_give_grader_failed(monkeypatch):
+    import anthropic
+    import httpx2
+
+    request = httpx2.Request("POST", "https://api.anthropic.com/v1/messages")
+    errors = [
+        _status_error(anthropic.RateLimitError, 429),
+        _status_error(anthropic.InternalServerError, 529),
+        anthropic.APITimeoutError(request=request),
+        anthropic.APIConnectionError(request=request),
+    ]
+    for error in errors:
+        monkeypatch.setattr(client, "parse_with_usage", fake_parse([error], []))
+        result = faithful.grade_faithful(PAGE, SUMMARY, KEY_FACTS)
+        assert result.grader_failed is True
+        assert result.unsupported_count is None
+
+
+def test_auth_error_still_propagates(monkeypatch):
+    import anthropic
+    import pytest
+
+    error = _status_error(anthropic.AuthenticationError, 401)
+    monkeypatch.setattr(client, "parse_with_usage", fake_parse([error], []))
+    with pytest.raises(anthropic.AuthenticationError):
+        faithful.grade_faithful(PAGE, SUMMARY, KEY_FACTS)
