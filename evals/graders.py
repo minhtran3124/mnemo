@@ -60,6 +60,8 @@ def grade_summary_length(record: dict[str, Any]) -> GradeResult:
     summary = record.get("summary")
     if summary is None:
         return GradeResult(True, "no summary to count")
+    if not isinstance(summary, str):
+        return GradeResult(False, "summary must be a string or null")
     words = len(summary.split())
     if words > store.MAX_SUMMARY_WORDS:
         return GradeResult(

@@ -71,6 +71,12 @@ def test_summary_of_60_words_passes():
     assert graders.grade_summary_length(make_record(summary="w " * 60)).passed
 
 
+def test_non_string_summary_fails_without_raising():
+    for bad in (123, ["a", "b"], {"a": 1}):
+        result = graders.grade_summary_length(make_record(summary=bad))
+        assert not result.passed
+
+
 def test_unreadable_with_null_summary_passes_honest_failure():
     record = make_record(page_status="unreadable", summary=None, tags=[])
     result = graders.grade_honest_failure(record, make_expected(expect="unreadable"))
