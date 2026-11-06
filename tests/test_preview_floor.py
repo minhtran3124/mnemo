@@ -28,7 +28,7 @@ def test_repo_url_uses_github_floor():
 
 
 def test_github_non_repo_url_uses_html_floor():
-    record = save.preview("https://github.com/blog/post", TEXT)
+    record = save.preview("https://github.com/octo/hello/issues", TEXT)
     assert record["page_status"] == "unreadable"
     assert record["summary"] is None
 

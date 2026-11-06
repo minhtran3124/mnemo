@@ -169,15 +169,14 @@ def preview(url: str, text: str | None) -> dict:
 
     Runs the same floor check, Claude call (one retry) and code checks as
     save(). text=None, or text under the floor, gives the link-only fields.
-    The text floor follows the URL host: the GitHub floor for github.com,
-    else the HTML floor.
+    The text floor follows the fetcher: the GitHub floor for a URL that
+    fetcher.parse_repo reads as a repo, else the HTML floor.
     Permanent API errors and a missing key propagate (see _summarise).
     """
     url_clean = urlclean.clean_url(url)
     if text is None:
         return _link_only_fields(url, url_clean)
-    host = (urlsplit(url).hostname or "").lower()
-    floor = _floor_for("github" if host in ("github.com", "www.github.com") else "web")
+    floor = _floor_for("github" if fetcher.parse_repo(url) else "web")
     norm = normalise_text(text)
     if not norm or len(norm) < floor:
         return _link_only_fields(url, url_clean)
