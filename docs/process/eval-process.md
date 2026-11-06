@@ -41,19 +41,28 @@ A grader is code or a model that scores an output.
 After each run, read 3 results and the grader's reasons. If you disagree with the grader, fix the grader before you trust any score.
 
 ## Run log
-One CSV row per run, in `evals/results/`.
+One CSV row per run, in `evals/results/runs.csv`.
+
+Run it from the repo root (it calls the real API, and writes nothing to `data/`):
+
+```
+uv run python -m evals.run_eval --run-id <id> --prompt-version <name>
+```
+
+Test the runner with the API mocked: `uv run pytest tests/test_run_eval.py -q`. A permanent API error or a missing key stops the run with exit code 1 and writes no row.
 
 | Column | Meaning |
 | --- | --- |
 | run_id | A unique number or name |
 | prompt_version | For example save_v2 |
 | model | The model name from `config.py` |
-| save_quality | Score 1 |
-| honesty | Score 2 |
-| find_rate | Score 3 |
-| tokens_used | Total tokens for the run |
+| save_quality | Score 1: share of readable pages that pass the code checks |
+| honesty | Score 2: one number, the share of checked pages that are honest. Checked pages are the unreadable pages (null summary) plus the readable pages the faithful grader scored (zero unsupported statements). The run prints the split. |
+| find_rate | Score 3. Empty until phase 4 |
+| tokens_used | Total tokens for the run: the save calls plus the grader calls |
+| notes | Pages the faithful grader could not score, for example `not scored: S-03` |
 
-Add a column for notes if you want. Open question: whether to add a cost column. The plan lists only the columns above.
+Open question: whether to add a cost column. The plan lists only the columns above.
 
 ## Rules
 - Do not improve prompts in phase 2. Build the sets and graders first.
