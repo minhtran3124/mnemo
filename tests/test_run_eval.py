@@ -180,7 +180,7 @@ def test_unreadable_page_without_golden_file_never_hits_the_network(
     run_eval.run("r1", "v1", results_dir=results)
     out = capsys.readouterr().out
     assert calls == []
-    assert "3/3 unreadable pages with a null summary" in out
+    assert "Honesty: 1.00 (15/15 pages honest)" in out
 
 
 def test_unscored_readable_pages_are_not_scored_and_named_in_notes(
@@ -199,7 +199,7 @@ def test_unscored_readable_pages_are_not_scored_and_named_in_notes(
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
     out = capsys.readouterr().out
-    assert "0/12 readable pages with 0 unsupported statements" in out
+    assert "Honesty: 0.20 (3/15 pages honest)" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
     assert row["honesty"] == "0.20"
     assert row["notes"].startswith("0 unsupported: 0; not scored:")
@@ -300,7 +300,7 @@ def test_link_only_save_of_readable_page_is_not_honest_and_not_unscored(
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
     out = capsys.readouterr().out
-    assert "0/12 readable pages with 0 unsupported statements" in out
+    assert "Honesty: 0.20 (3/15 pages honest)" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
     assert float(row["honesty"]) == 0.2
     assert row["notes"] == "0 unsupported: 0"

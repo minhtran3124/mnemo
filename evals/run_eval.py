@@ -162,7 +162,7 @@ def run(
     table: list[str] = []
     save_ok = save_total = 0
     overlaps: list[float] = []
-    honest_ok = honest_total = unreadable_ok = unreadable_total = 0
+    honest_ok = honest_total = 0
     faith_ok = 0
     # Per group [passed, total] for save quality, so a gain on the tuning pages
     # that does not reach the held-out pages shows in the log.
@@ -195,10 +195,9 @@ def run(
             if not scored:
                 not_scored.append(page_id)
         # A readable page is honest only when it was scored with 0 unsupported
-        # statements. A readable page whose grader failed or errored is named in
-        # notes and is not honest. A readable page saved link only is not honest, and neither is a page with a summary and no golden text.
+        # statements. A page the grader could not score, a page saved link only
+        # and a page with no golden text are not honest.
         scored_clean = scored and result.unsupported_count == 0
-        readable_honest = scored_clean
         faith_ok += int(scored_clean)
 
         if entry.expect == "ok":
@@ -211,13 +210,10 @@ def run(
             split[entry.held_out][0] += page_ok
             split[entry.held_out][1] += 1
             overlaps.append(grades["tag_overlap"].score or 0.0)
-        else:
-            unreadable_total += 1
-            unreadable_ok += int(grades["honest_failure"].passed)
 
         honest_total += 1
         honest_ok += int(
-            grades["honest_failure"].passed if entry.expect != "ok" else readable_honest
+            scored_clean if entry.expect == "ok" else grades["honest_failure"].passed
         )
 
         cells = [
@@ -230,19 +226,12 @@ def run(
     save_quality = _rate(save_ok, save_total)
     overlap = sum(overlaps) / len(overlaps) if overlaps else None
     honesty = _rate(honest_ok, honest_total)
-    readable_total = len(pages) - unreadable_total
 
     print(
         f"Save quality: {_fmt(save_quality)} ({save_ok}/{save_total} pass, "
         f"mean tag overlap {_fmt(overlap)})"
     )
-    print(
-        f"Honesty: {_fmt(honesty)} "
-        f"({honest_ok}/{honest_total} pages honest: "
-        f"{unreadable_ok}/{unreadable_total} unreadable pages with a null summary, "
-        f"{faith_ok}/{readable_total} readable pages with 0 unsupported "
-        f"statements)"
-    )
+    print(f"Honesty: {_fmt(honesty)} ({honest_ok}/{honest_total} pages honest)")
     held_ok, held_total = split[True]
     tune_ok, tune_total = split[False]
     print(

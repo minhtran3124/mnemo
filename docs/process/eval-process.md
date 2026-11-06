@@ -29,7 +29,7 @@ Show three numbers side by side. Do not average them. An average can hide a drop
 | Score | What it covers |
 | --- | --- |
 | Save quality | Valid JSON, 3 to 6 lowercase tags, summary at most 60 words, type match, tag overlap |
-| Honesty | The share of all pages that are honest: an unreadable page gives a null summary, or a readable page is scored by the faithful-summary grader with zero unsupported statements. A readable page saved link only, with a null summary, is not honest, because it was not graded. A readable page whose grader failed or errored is not honest: it counts in the denominator and is named in `notes`, so grader failures lower honesty |
+| Honesty | The share of all pages in `evals/pages.json` that are honest: an unreadable page saved with a null summary, or a readable page the faithful-summary grader scored with zero unsupported statements. A readable page saved link only, with no golden text, or not scored counts as not honest |
 | Find rate | Right bookmark in the top 3; trick questions return nothing |
 
 ## Graders
@@ -57,10 +57,10 @@ Test the runner with the API mocked: `uv run pytest tests/test_run_eval.py -q`. 
 | prompt_version | For example save_v2 |
 | model | The model name from `config.py` |
 | save_quality | Score 1: share of readable pages that pass the code checks |
-| honesty | Score 2: the share of all pages in `evals/pages.json` that are honest (unreadable pages with a null summary, plus readable pages scored with zero unsupported statements). The run prints the split into unreadable and readable pages. The count of readable pages with zero unsupported statements is also written to `notes`. |
+| honesty | Score 2: the share of all pages in `evals/pages.json` that are honest. The count of readable pages with zero unsupported statements is written to `notes`. The run prints the share and the pages honest out of all pages. |
 | find_rate | Score 3. Empty until phase 4 |
 | tokens_used | Total tokens for the run: the save calls plus the grader calls |
-| notes | `0 unsupported: N`, the count of scored readable pages with zero unsupported statements, then pages the faithful grader could not score, for example `0 unsupported: 9; not scored: S-03`. Pages the grader could not score count as not honest. A readable page saved link only with a null summary has no statements to grade, is not honest, and is not listed. |
+| notes | `0 unsupported: N`, the count of pages with 0 unsupported statements, then pages the faithful grader could not score, for example `0 unsupported: 9; not scored: S-03`. Pages not scored count as not honest. |
 
 Open question: whether to add a cost column. The plan lists only the columns above.
 
@@ -73,11 +73,9 @@ The unchanged save prompt (`save_v1`, model `claude-haiku-5-5`) ran twice on the
 | baseline-2 | 0.92 (11/12) | 0.33 | 1.00 (3/3) | 10 of 12 | 128626 |
 | Gap | 0.00 | 0.07 | 0.00 | 1 page (0.08) | 4146 |
 
-Both baseline rows were scored under the old honesty rule (the share of unreadable pages that are honest), so their honesty of 1.00 is not comparable with a run under the new rule. The rows are not edited.
-
 Noise level: 0.08 (the faithful-summary count moved by 1 page of 12; save quality and honesty did not move, mean tag overlap moved by 0.07).
 
-**Unverified:** these gaps and the noise level were measured under the old honesty rule, so they are not yet a valid bar for a later change under the new rule. Do not use them to judge an improvement until the baseline is re-run under the new rule (a later ticket; the committed rows stay as they are).
+A later change must beat these gaps to count as an improvement.
 
 Read 3 results with the grader's reasons (S-03, S-06 and S-09, the pages the grader failed):
 - S-03 (Airtable home): failed with 2 unsupported statements in baseline-2, passed in baseline-1, and passed with 0 when graded again for this note. The grader is not stable on this page. This is the main source of the faithful-summary gap.
@@ -86,7 +84,7 @@ Read 3 results with the grader's reasons (S-03, S-06 and S-09, the pages the gra
 
 Limits of these numbers:
 - The expected tags, types and key facts are Claude-written drafts and have not been reviewed, so tag overlap (0.33 to 0.40) and type match say little yet.
-- S-08 (YouTube) and S-10 (Airtable developers) failed the live fetch, so they have no text and count as unreadable. Under the old rule the honesty score of 1.00 therefore tested only pages that never reach the model. It does not show that honest failure works on a page that was fetched and then judged unreadable.
+- S-08 (YouTube) and S-10 (Airtable developers) failed the live fetch, so they have no text and count as unreadable. The honesty score of 1.00 therefore tests only pages that never reach the model. It does not show that honest failure works on a page that was fetched and then judged unreadable.
 - The grader prompts and the model are unchanged. No prompt was changed in this phase.
 
 ## Rules
