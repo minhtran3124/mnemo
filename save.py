@@ -164,22 +164,20 @@ def _floor_for(source: str) -> int:
     return config.MIN_TEXT_CHARS_HTML
 
 
-def preview(url: str, text: str | None, source: str = "web") -> dict:
+def preview(url: str, text: str | None) -> dict:
     """Return the record fields save() would store for this text, writing nothing.
 
     Runs the same floor check, Claude call (one retry) and code checks as
     save(). text=None, or text under the floor, gives the link-only fields.
-    source is the fetcher result's source ("web" or "github"), or "pasted" for
-    text the user pasted (save(url, pasted_text=...)); it picks the text floor
-    as save() does. It defaults to "web" (the HTML floor), so preview(url, text)
-    works; a URL cannot tell whether the fetcher fell back to the web path,
-    so the source is never guessed from the URL.
+    The text floor follows the URL host: the GitHub floor for github.com,
+    else the HTML floor.
     Permanent API errors and a missing key propagate (see _summarise).
     """
     url_clean = urlclean.clean_url(url)
     if text is None:
         return _link_only_fields(url, url_clean)
-    floor = _floor_for(source)
+    host = (urlsplit(url).hostname or "").lower()
+    floor = _floor_for("github" if host in ("github.com", "www.github.com") else "web")
     norm = normalise_text(text)
     if not norm or len(norm) < floor:
         return _link_only_fields(url, url_clean)

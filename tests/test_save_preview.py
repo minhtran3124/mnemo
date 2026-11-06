@@ -48,7 +48,7 @@ def assert_link_only(record):
 
 
 def test_good_page_gives_ok_record_and_writes_nothing(parse_calls, data_dir):
-    record = save.preview(URL, RAW, source="web")
+    record = save.preview(URL, RAW)
     assert record["page_status"] == "ok"
     assert record["summary"]
     assert 3 <= len(record["tags"]) <= 6
@@ -58,14 +58,14 @@ def test_good_page_gives_ok_record_and_writes_nothing(parse_calls, data_dir):
 
 def test_short_text_and_none_give_link_only_without_claude(parse_calls):
     short = "x" * (config.MIN_TEXT_CHARS_HTML - 1)
-    assert_link_only(save.preview(URL, short, source="web"))
-    assert_link_only(save.preview(URL, None, source="web"))
+    assert_link_only(save.preview(URL, short))
+    assert_link_only(save.preview(URL, None))
     assert parse_calls["calls"] == []
 
 
 def test_invalid_output_twice_gives_link_only(parse_calls, data_dir):
     parse_calls["replies"] = [good(tags=[]), good(tags=[])]
-    assert_link_only(save.preview(URL, RAW, source="web"))
+    assert_link_only(save.preview(URL, RAW))
     assert len(parse_calls["calls"]) == 2
     assert list(data_dir.iterdir()) == []
 
@@ -83,29 +83,3 @@ def test_saved_page_text_equals_normalise_text(parse_calls, monkeypatch):
     monkeypatch.setattr(save.store, "add_bookmark", fake_add)
     save.save(URL)
     assert stored["text"] == save.normalise_text(RAW)
-
-
-def test_source_web_on_github_url_uses_html_floor(parse_calls):
-    gh_url = "https://github.com/owner/repo"
-    between = "x" * (config.MIN_TEXT_CHARS_HTML - 1)
-    assert between and len(between) >= config.MIN_TEXT_CHARS_GITHUB
-    assert_link_only(save.preview(gh_url, between, source="web"))
-    assert parse_calls["calls"] == []
-    assert save.preview(gh_url, between, source="github")["page_status"] == "ok"
-
-
-def test_two_argument_call_defaults_to_web_floor(parse_calls):
-    gh_url = "https://github.com/owner/repo"
-    between = "x" * (config.MIN_TEXT_CHARS_HTML - 1)
-    assert_link_only(save.preview(gh_url, between))
-    assert save.preview(URL, RAW)["page_status"] == "ok"
-
-
-def test_source_pasted_uses_pasted_floor_like_save(parse_calls, monkeypatch):
-    short = "x" * config.MIN_TEXT_CHARS_PASTED
-    assert len(short) < config.MIN_TEXT_CHARS_HTML
-    assert save.preview(URL, short, source="pasted")["page_status"] == "ok"
-    assert_link_only(save.preview(URL, short[:-1], source="pasted"))
-    monkeypatch.setattr(save.store, "add_bookmark", lambda fields, page_text: fields)
-    parse_calls["replies"] = [good()]
-    assert save.save(URL, pasted_text=short)["page_status"] == "ok"
