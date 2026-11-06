@@ -145,7 +145,7 @@ def test_data_dir_untouched(tmp_path, monkeypatch):
     run_eval.run("r1", "v1", results_dir=results)
     row = rows(results / "runs.csv")[1]
     assert calls
-    assert int(row[6]) == len(calls) * (100 + 20) + len(calls) * (10 + 5)
+    assert int(row[6]) == len(calls) * (100 + 20)
     assert not (tmp_path / "data").exists() or not list((tmp_path / "data").rglob("*"))
 
 
@@ -226,7 +226,7 @@ def test_tokens_include_billed_calls_rejected_as_invalid_output(tmp_path, monkey
     run_eval.run("r1", "v1", results_dir=results)
     row = rows(results / "runs.csv")[1]
     assert len(calls) % 2 == 0 and calls
-    assert int(row[6]) == len(calls) * 120 + (len(calls) // 2) * 15
+    assert int(row[6]) == len(calls) * 120
 
 
 def test_transient_grader_error_is_retried_once_then_scored(tmp_path, monkeypatch):
@@ -295,3 +295,44 @@ def test_eval_process_doc_matches_honesty_denominator():
     )
     assert "plus every readable page" in doc
     assert "the readable pages the faithful grader scored" not in doc
+
+
+def test_tokens_include_grader_calls_rejected_as_invalid_output(tmp_path, monkeypatch):
+    """A grader reply that fails validation is billed, so it counts in tokens_used."""
+    monkeypatch.undo()
+    monkeypatch.setattr(store, "DATA_DIR", tmp_path / "data")
+    monkeypatch.setattr(save, "preview", fake_preview)
+    monkeypatch.setattr(
+        fetcher, "fetch", lambda url: fetcher.FetchFail("test: no network")
+    )
+    calls = []
+
+    class Usage:
+        input_tokens = 100
+        output_tokens = 20
+
+    class Response:
+        usage = Usage()
+
+        def __init__(self, stop_reason, parsed):
+            self.stop_reason = stop_reason
+            self.parsed_output = parsed
+
+    class Messages:
+        def parse(self, **kwargs):
+            calls.append(1)
+            if len(calls) % 2 == 1:
+                return Response("max_tokens", None)
+            return Response(
+                "end_turn", faithful.FaithfulOutput(unsupported=[], key_fact_results=[])
+            )
+
+    class Sdk:
+        messages = Messages()
+
+    monkeypatch.setattr(client, "_get_client", lambda: Sdk())
+    results = tmp_path / "results"
+    run_eval.run("r1", "v1", results_dir=results)
+    row = rows(results / "runs.csv")[1]
+    assert len(calls) % 2 == 0 and calls
+    assert int(row[6]) == len(calls) * 120

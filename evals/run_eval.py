@@ -15,6 +15,7 @@ import argparse
 import csv
 import json
 import sys
+from contextlib import contextmanager
 from dataclasses import asdict
 from pathlib import Path
 
@@ -61,20 +62,40 @@ class _CountingSdk:
         self.messages = _CountingMessages(sdk.messages, total)
 
 
+@contextmanager
+def _counting_sdk():
+    """Patch client._get_client so every SDK response's usage lands in the yielded total."""
+    original = client._get_client
+    total = [0]
+    client._get_client = lambda: _CountingSdk(original(), total)
+    try:
+        yield total
+    finally:
+        client._get_client = original
+
+
 def _preview_counting(url: str, text: str | None) -> tuple[dict, int]:
     """Run save.preview and return the record and the tokens its Claude calls used.
 
     Counts at the SDK response, so a billed call that client.py then rejects
     (refusal, max_tokens, no parsed output) and save.py retries is still counted.
     """
-    original = client._get_client
-    total = [0]
-    client._get_client = lambda: _CountingSdk(original(), total)
-    try:
+    with _counting_sdk() as total:
         record = save.preview(url, text)
-    finally:
-        client._get_client = original
     return record, total[0]
+
+
+def _grade_counting(
+    text: str, summary: str, key_facts: list[str]
+) -> tuple[faithful.FaithfulResult | None, int]:
+    """Grade with retry and return the result and every token the grader calls billed.
+
+    Counts at the SDK response, so a call rejected as invalid output, or a
+    grade that ends as grader_failed, is still counted.
+    """
+    with _counting_sdk() as total:
+        result = _grade_with_retry(text, summary, key_facts)
+    return result, total[0]
 
 
 def _rate(passed: int, total: int) -> float | None:
@@ -164,9 +185,11 @@ def run(
             and text is not None
         )
         if faith_candidate:
-            result = _grade_with_retry(text, record["summary"], list(entry.key_facts))
+            result, used = _grade_counting(
+                text, record["summary"], list(entry.key_facts)
+            )
+            tokens += used
             if result is not None:
-                tokens += result.usage.input_tokens + result.usage.output_tokens
                 scored = not result.grader_failed
             if not scored:
                 not_scored.append(page_id)
