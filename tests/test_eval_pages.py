@@ -42,6 +42,21 @@ def test_failed_fetch_writes_no_file_and_continues(tmp_path, capsys):
     assert "boom" in out
 
 
+def test_unreadable_pages_are_skipped(tmp_path):
+    pages = [
+        {"id": "S-01", "url": "https://example.com/a", "expect": "unreadable"},
+        {"id": "S-02", "url": "https://example.com/b", "expect": "unreadable"},
+    ]
+
+    def fake(url):
+        return FetchOk("text here", "web") if url.endswith("/a") else FetchFail("x")
+
+    failed = save_pages.run(pages, fetch=fake, out_dir=tmp_path)
+    assert failed == []
+    assert not (tmp_path / "S-01.txt").exists()
+    assert not (tmp_path / "S-02.txt").exists()
+
+
 def test_pages_json_ids_and_urls():
     assert [p["id"] for p in PAGES] == [f"S-{n:02d}" for n in range(1, 16)]
     for p in PAGES:

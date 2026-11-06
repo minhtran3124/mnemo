@@ -20,9 +20,15 @@ def run(
     fetch: Callable[[str], fetcher.FetchResult] = fetcher.fetch,
     out_dir: Path = GOLDEN_DIR,
 ) -> list[str]:
-    """Fetch every page and write its text. Return the ids that failed."""
+    """Fetch every page expected to be readable and write its text.
+
+    Pages marked "unreadable" are skipped: they get no golden file and a
+    failed fetch is not reported for them. Return the ids that failed.
+    """
     failed: list[str] = []
     for page in pages:
+        if page["expect"] != "ok":
+            continue
         result = fetch(page["url"])
         if isinstance(result, fetcher.FetchOk):
             out_dir.mkdir(parents=True, exist_ok=True)
