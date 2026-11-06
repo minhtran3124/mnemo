@@ -5,4 +5,6 @@ Rules:
 - unsupported: list every statement in the summary that the page text does not support. Write one short line per statement, quoting or naming the statement and saying why it is not supported. If every statement is supported, return an empty list.
 - A statement is unsupported when the page text does not say it, even if it is true in the real world. Do not use outside knowledge.
 - Screenshot rule: if the page is a screenshot, the page text is the text read from the image. A claim that is not visible in the image text is unsupported.
+- The kind of page is supported by its address and layout: a repository page supports 'a repository', and a page that is a list supports 'a list' or 'an index'.
+- A claim about an item in a list is supported only when the list shows that item.
 - key_fact_results: return one true or false per key fact, in the order given. True means the summary states that fact. False means it does not. Return exactly as many answers as there are key facts.
