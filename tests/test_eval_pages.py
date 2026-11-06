@@ -42,6 +42,16 @@ def test_failed_fetch_writes_no_file_and_continues(tmp_path, capsys):
     assert "boom" in out
 
 
+def test_failed_fetch_removes_stale_golden_file(tmp_path):
+    (tmp_path / "S-01.txt").write_text("old text", encoding="utf-8")
+    pages = [{"id": "S-01", "url": "https://example.com/a", "expect": "ok"}]
+    failed = save_pages.run(
+        pages, fetch=lambda url: FetchFail("boom"), out_dir=tmp_path
+    )
+    assert failed == ["S-01"]
+    assert not (tmp_path / "S-01.txt").exists()
+
+
 def test_unreadable_pages_are_skipped(tmp_path):
     pages = [
         {"id": "S-01", "url": "https://example.com/a", "expect": "unreadable"},

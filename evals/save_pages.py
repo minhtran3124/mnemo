@@ -23,7 +23,8 @@ def run(
     """Fetch every page expected to be readable and write its text.
 
     Pages marked "unreadable" are skipped: they get no golden file and a
-    failed fetch is not reported for them. Return the ids that failed.
+    failed fetch is not reported for them. A failed fetch removes any older
+    golden file for that page so stale text is not kept. Return the ids that failed.
     """
     failed: list[str] = []
     for page in pages:
@@ -35,6 +36,7 @@ def run(
             text = save.normalise_text(result.text)
             (out_dir / f"{page['id']}.txt").write_text(text, encoding="utf-8")
         else:
+            (out_dir / f"{page['id']}.txt").unlink(missing_ok=True)
             print(f"{page['id']} {page['url']}: {result.reason}")
             failed.append(page["id"])
     return failed
