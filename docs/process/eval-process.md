@@ -15,7 +15,7 @@ A golden set is a fixed list of inputs with the answers you expect. Save the pag
 The set files are in `evals/golden/`. See [test cases](../feature-specs/test-cases/README.md) for content.
 
 ## Held-out set
-Keep 5 of the 20 save pages as a held-out set. Never use them as prompt examples. If a score rises on the other 15 but not on these 5, the gain may not be real. At least 2 of the 5 should be hard cases.
+Keep 5 of the 20 save pages as a held-out set. Never use them as prompt examples. If a score rises on the other 15 but not on these 5, the gain may not be real. At least 2 of the 5 should be hard cases. `run_eval.py` prints the save quality of the held-out pages and of the tuning pages on separate lines; compare them after each run. runs.csv keeps the pooled figure.
 
 ## Baseline twice
 Run the first version of the prompt two times. The gap between the two runs is your noise level. A later change must beat that gap, or you cannot say it helped.
@@ -41,19 +41,28 @@ A grader is code or a model that scores an output.
 After each run, read 3 results and the grader's reasons. If you disagree with the grader, fix the grader before you trust any score.
 
 ## Run log
-One CSV row per run, in `evals/results/`.
+One CSV row per run, in `evals/results/runs.csv`.
+
+Run it from the repo root (it calls the real API, and writes nothing to `data/`):
+
+```
+uv run python -m evals.run_eval --run-id <id> --prompt-version <name>
+```
+
+Test the runner with the API mocked: `uv run pytest tests/test_run_eval.py -q`. A permanent API error or a missing key stops the run with exit code 1 and writes no row.
 
 | Column | Meaning |
 | --- | --- |
 | run_id | A unique number or name |
 | prompt_version | For example save_v2 |
 | model | The model name from `config.py` |
-| save_quality | Score 1 |
-| honesty | Score 2 |
-| find_rate | Score 3 |
-| tokens_used | Total tokens for the run |
+| save_quality | Score 1: share of readable pages that pass the code checks |
+| honesty | Score 2: the honest-failure pass rate, the share of unreadable pages (null summary) that were saved honestly. The second honesty measure, the count of scored readable pages with zero unsupported statements, is written to `notes`. The run prints both. |
+| find_rate | Score 3. Empty until phase 4 |
+| tokens_used | Total tokens for the run: the save calls plus the grader calls |
+| notes | `0 unsupported: N`, the count of scored readable pages with zero unsupported statements, then pages the faithful grader could not score, for example `0 unsupported: 9; not scored: S-03`. Pages not scored are left out of both honesty measures. A readable page saved link only with a null summary has no statements to grade and is not listed. |
 
-Add a column for notes if you want. Open question: whether to add a cost column. The plan lists only the columns above.
+Open question: whether to add a cost column. The plan lists only the columns above.
 
 ## Rules
 - Do not improve prompts in phase 2. Build the sets and graders first.

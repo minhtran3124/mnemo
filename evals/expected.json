@@ -1,0 +1,280 @@
+[
+  {
+    "id": "S-01",
+    "expected_type": "article",
+    "expected_tags": [
+      "agents",
+      "critical thinking",
+      "engineering",
+      "ai",
+      "workflow"
+    ],
+    "key_facts": [
+      "I'm a big fan of these tools",
+      "you still only have one pair of eyes on the outputs",
+      "Offloading, deferral and surrender"
+    ],
+    "held_out": false,
+    "hard_case": false,
+    "expect": "ok",
+    "note": "",
+    "draft": true
+  },
+  {
+    "id": "S-02",
+    "expected_type": "article",
+    "expected_tags": [
+      "pocket",
+      "read-later",
+      "bookmarks",
+      "alternatives",
+      "mozilla"
+    ],
+    "key_facts": [
+      "Mozilla killed Pocket on July 8, 2025",
+      "I had 2,847 bookmarks in Pocket",
+      "No affiliate links."
+    ],
+    "held_out": false,
+    "hard_case": false,
+    "expect": "ok",
+    "note": "",
+    "draft": true
+  },
+  {
+    "id": "S-03",
+    "expected_type": "tool",
+    "expected_tags": [
+      "no-code",
+      "workflows",
+      "ai",
+      "database",
+      "enterprise"
+    ],
+    "key_facts": [
+      "Trusted by 500,000 leading teams",
+      "No code required.",
+      "Scale workflows to tens of thousands of users"
+    ],
+    "held_out": true,
+    "hard_case": false,
+    "expect": "ok",
+    "note": "",
+    "draft": true
+  },
+  {
+    "id": "S-04",
+    "expected_type": "article",
+    "expected_tags": [
+      "claude code",
+      "skills",
+      "ml experiments",
+      "team memory",
+      "colbert"
+    ],
+    "key_facts": [
+      "Run 1,000+ ML Experiments a Day",
+      "He tested over fifty combinations",
+      "sionic-ai/muvera-py"
+    ],
+    "held_out": false,
+    "hard_case": false,
+    "expect": "ok",
+    "note": "",
+    "draft": true
+  },
+  {
+    "id": "S-05",
+    "expected_type": "github_repo",
+    "expected_tags": [
+      "font",
+      "monospace",
+      "ligatures",
+      "nerd font",
+      "terminal"
+    ],
+    "key_facts": [
+      "Open source monospace font with round corner",
+      "This branch has been frozen as a snapshot of V7"
+    ],
+    "held_out": false,
+    "hard_case": false,
+    "expect": "ok",
+    "note": "",
+    "draft": true
+  },
+  {
+    "id": "S-06",
+    "expected_type": "github_repo",
+    "expected_tags": [
+      "n8n",
+      "ai agents",
+      "templates",
+      "automation",
+      "youtube"
+    ],
+    "key_facts": [
+      "n8n templates",
+      "Episode 4: Deep Research Agent using Google"
+    ],
+    "held_out": false,
+    "hard_case": false,
+    "expect": "ok",
+    "note": "",
+    "draft": true
+  },
+  {
+    "id": "S-07",
+    "expected_type": "tool",
+    "expected_tags": [
+      "claude code",
+      "skill",
+      "isometric",
+      "illustration",
+      "interactive"
+    ],
+    "key_facts": [
+      "Describe an everyday object.",
+      "Every figure turns all the way round"
+    ],
+    "held_out": false,
+    "hard_case": false,
+    "expect": "ok",
+    "note": "",
+    "draft": true
+  },
+  {
+    "id": "S-08",
+    "expected_type": "video_page",
+    "expected_tags": [],
+    "key_facts": [],
+    "held_out": true,
+    "hard_case": true,
+    "expect": "unreadable",
+    "note": "YouTube description only, live fetch failed; the type is ignored when unreadable.",
+    "draft": true
+  },
+  {
+    "id": "S-09",
+    "expected_type": "video_page",
+    "expected_tags": [
+      "videos",
+      "news",
+      "ai",
+      "podcast",
+      "developers"
+    ],
+    "key_facts": [
+      "Fake or News",
+      "Wordpress Dropping PHP, $10M on Tokens and Claude Finds Cures"
+    ],
+    "held_out": true,
+    "hard_case": true,
+    "expect": "ok",
+    "note": "The natural type is other (D-013), which is not built, so video_page.",
+    "draft": true
+  },
+  {
+    "id": "S-10",
+    "expected_type": "tool",
+    "expected_tags": [],
+    "key_facts": [],
+    "held_out": false,
+    "hard_case": false,
+    "expect": "unreadable",
+    "note": "The natural type is docs (an API reference), which is not built (D-013); tool is the closest allowed type. It is a best guess from the URL and is ignored when unreadable.",
+    "draft": true
+  },
+  {
+    "id": "S-11",
+    "expected_type": "github_repo",
+    "expected_tags": [
+      "claude code",
+      "game development",
+      "agents",
+      "skills",
+      "studio"
+    ],
+    "key_facts": [
+      "Turn a single Claude Code session into a full game development studio",
+      "49 agents. 74 skills."
+    ],
+    "held_out": false,
+    "hard_case": false,
+    "expect": "ok",
+    "note": "",
+    "draft": true
+  },
+  {
+    "id": "S-12",
+    "expected_type": "article",
+    "expected_tags": [
+      "llm agents",
+      "harness",
+      "self-improvement",
+      "terminal-bench",
+      "research paper"
+    ],
+    "key_facts": [
+      "Weakness Mining",
+      "from 40.5% to 61.9%",
+      "Terminal-Bench-2.0"
+    ],
+    "held_out": true,
+    "hard_case": true,
+    "expect": "ok",
+    "note": "",
+    "draft": true
+  },
+  {
+    "id": "S-13",
+    "expected_type": "article",
+    "expected_tags": [
+      "feature flags",
+      "tech debt",
+      "ai agents",
+      "uber",
+      "code cleanup"
+    ],
+    "key_facts": [
+      "we manage thousands of feature flags",
+      "autonomously deletes stale production code at scale"
+    ],
+    "held_out": true,
+    "hard_case": true,
+    "expect": "ok",
+    "note": "",
+    "draft": true
+  },
+  {
+    "id": "S-14",
+    "expected_type": "article",
+    "expected_tags": [
+      "claude code",
+      "agents",
+      "workflow",
+      "spec",
+      "automation"
+    ],
+    "key_facts": [
+      "an autonomous build workflow for Claude Code",
+      "Task 4, under review"
+    ],
+    "held_out": false,
+    "hard_case": false,
+    "expect": "ok",
+    "note": "",
+    "draft": true
+  },
+  {
+    "id": "S-15",
+    "expected_type": "tool",
+    "expected_tags": [],
+    "key_facts": [],
+    "held_out": false,
+    "hard_case": false,
+    "expect": "unreadable",
+    "note": "The type is a best guess from the URL and is ignored when unreadable.",
+    "draft": true
+  }
+]
