@@ -282,3 +282,11 @@ def test_link_only_save_of_readable_page_is_honest_and_not_unscored(
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
     assert float(row["honesty"]) == 1.0
     assert row["notes"] == ""
+
+
+def test_eval_process_doc_matches_honesty_denominator():
+    doc = (run_eval.EVALS_DIR.parent / "docs/process/eval-process.md").read_text(
+        encoding="utf-8"
+    )
+    assert "plus every readable page" in doc
+    assert "the readable pages the faithful grader scored" not in doc
