@@ -13,6 +13,7 @@ from typing import Any
 import store
 
 UNREADABLE = "unreadable"
+GUESS = "guess"
 FULL_OVERLAP = 1.0
 
 
@@ -81,8 +82,11 @@ def grade_honest_failure(
     """An unreadable page is saved as unreadable with a null summary.
 
     A readable page saved as unreadable also fails: the app gave up on a page it
-    could read.
+    could read. A reason the app wrote must be marked `guess`: a preview record
+    is always app-written, so a non-empty reason with any other source fails.
     """
+    if record.get("reason") and record.get("reason_source") != GUESS:
+        return GradeResult(False, "app-written reason is not marked guess")
     if expected.get("expect") != UNREADABLE:
         if _is_unreadable(record):
             return GradeResult(False, "readable page was saved as unreadable")

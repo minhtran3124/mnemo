@@ -105,6 +105,14 @@ def test_readable_expected_page_saved_unreadable_fails_honest_failure():
     assert not result.passed
 
 
+def test_unmarked_app_reason_fails_honest_failure():
+    record = make_record(reason="Saved for later.", reason_source="user")
+    result = graders.grade_honest_failure(record, make_expected())
+    assert not result.passed
+    marked = make_record(reason="Saved for later.", reason_source="guess")
+    assert graders.grade_honest_failure(marked, make_expected()).passed
+
+
 def test_type_match_true_and_false():
     expected = make_expected()
     assert graders.grade_type_match(make_record(), expected).passed
