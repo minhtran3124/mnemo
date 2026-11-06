@@ -182,7 +182,7 @@
     "held_out": false,
     "hard_case": false,
     "expect": "unreadable",
-    "note": "The type is a best guess from the URL and is ignored when unreadable.",
+    "note": "The natural type is docs (an API reference), which is not built (D-013); tool is the closest allowed type. It is a best guess from the URL and is ignored when unreadable.",
     "draft": true
   },
   {
