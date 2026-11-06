@@ -73,6 +73,20 @@ def test_unreadable_record_still_checks_tag_limits():
     assert not graders.grade_tags(make_record(tags=list("abcdefg"), **base)).passed
 
 
+def test_malformed_tags_fail_without_raising_for_readable_and_unreadable():
+    base = {"page_status": "unreadable", "summary": None}
+    for bad in ("python", None, 5, [1, 2, 3], [["a"]], [None]):
+        assert not graders.grade_tags(make_record(tags=bad)).passed
+        assert not graders.grade_tags(make_record(tags=bad, **base)).passed
+
+
+def test_unreadable_record_with_too_many_tags_reports_the_count():
+    base = {"page_status": "unreadable", "summary": None}
+    result = graders.grade_tags(make_record(tags=list("abcdefg"), **base))
+    assert not result.passed
+    assert "7 tags" in result.reason
+
+
 def test_summary_of_61_words_fails():
     assert not graders.grade_summary_length(make_record(summary="w " * 61)).passed
 
@@ -102,6 +116,12 @@ def test_unreadable_expected_page_with_summary_fails_honest_failure():
 def test_readable_expected_page_saved_unreadable_fails_honest_failure():
     record = make_record(page_status="unreadable", summary=None, tags=[])
     result = graders.grade_honest_failure(record, make_expected(expect="readable"))
+    assert not result.passed
+
+
+def test_unreadable_expected_page_saved_as_unreadable_with_empty_summary_fails():
+    record = make_record(page_status="unreadable", summary="", tags=[])
+    result = graders.grade_honest_failure(record, make_expected(expect="unreadable"))
     assert not result.passed
 
 
