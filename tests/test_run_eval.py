@@ -18,7 +18,7 @@ ARGS = ["--run-id", "r1", "--prompt-version", "save_v1"]
 
 
 def fake_preview(url, text):
-    if text is None:
+    if not text:
         return save._link_only_fields(url, url)
     out = save.SaveOutput(
         title="A page",
@@ -88,7 +88,7 @@ def test_honesty_column_is_failure_rate_and_unsupported_count_is_logged(
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
-    assert row["honesty"] == "1.00"
+    assert row["honesty"] == "0.20"
     assert row["notes"] == "0 unsupported: 0"
 
 
@@ -180,7 +180,7 @@ def test_unreadable_page_without_golden_file_never_hits_the_network(
     run_eval.run("r1", "v1", results_dir=results)
     out = capsys.readouterr().out
     assert calls == []
-    assert "3/3 unreadable pages honest" in out
+    assert "Honesty: 1.00 (15/15 pages honest)" in out
 
 
 def test_unscored_readable_pages_are_not_scored_and_named_in_notes(
@@ -199,9 +199,9 @@ def test_unscored_readable_pages_are_not_scored_and_named_in_notes(
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
     out = capsys.readouterr().out
-    assert "0/0 scored readable pages" in out
+    assert "Honesty: 0.20 (3/15 pages honest)" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
-    assert float(row["honesty"]) == 1.0
+    assert row["honesty"] == "0.20"
     assert row["notes"].startswith("0 unsupported: 0; not scored:")
 
 
@@ -291,7 +291,7 @@ def test_held_out_save_quality_reported_separately(tmp_path, capsys, monkeypatch
     assert "| tuning: " in out
 
 
-def test_link_only_save_of_readable_page_is_honest_and_not_unscored(
+def test_link_only_save_of_readable_page_is_not_honest_and_not_unscored(
     tmp_path, monkeypatch, capsys
 ):
     monkeypatch.setattr(
@@ -300,9 +300,9 @@ def test_link_only_save_of_readable_page_is_honest_and_not_unscored(
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
     out = capsys.readouterr().out
-    assert "0/0 scored readable pages" in out
+    assert "Honesty: 0.20 (3/15 pages honest)" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
-    assert float(row["honesty"]) == 1.0
+    assert float(row["honesty"]) == 0.2
     assert row["notes"] == "0 unsupported: 0"
 
 
@@ -310,7 +310,7 @@ def test_eval_process_doc_matches_honesty_columns():
     doc = (run_eval.EVALS_DIR.parent / "docs/process/eval-process.md").read_text(
         encoding="utf-8"
     )
-    assert "honest-failure pass rate" in doc
+    assert "share of all pages" in doc
     assert "0 unsupported: N" in doc
 
 

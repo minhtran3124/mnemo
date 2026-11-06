@@ -29,7 +29,7 @@ Show three numbers side by side. Do not average them. An average can hide a drop
 | Score | What it covers |
 | --- | --- |
 | Save quality | Valid JSON, 3 to 6 lowercase tags, summary at most 60 words, type match, tag overlap |
-| Honesty | Unreadable page gives a null summary; faithful-summary grader lists zero unsupported statements |
+| Honesty | The share of all pages in `evals/pages.json` that are honest: an unreadable page saved with a null summary, or a readable page the faithful-summary grader scored with zero unsupported statements. A readable page saved link only, with no golden text, or not scored counts as not honest |
 | Find rate | Right bookmark in the top 3; trick questions return nothing |
 
 ## Graders
@@ -57,10 +57,10 @@ Test the runner with the API mocked: `uv run pytest tests/test_run_eval.py -q`. 
 | prompt_version | For example save_v2 |
 | model | The model name from `config.py` |
 | save_quality | Score 1: share of readable pages that pass the code checks |
-| honesty | Score 2: the honest-failure pass rate, the share of unreadable pages (null summary) that were saved honestly. The second honesty measure, the count of scored readable pages with zero unsupported statements, is written to `notes`. The run prints both. |
+| honesty | Score 2: the share of all pages in `evals/pages.json` that are honest. The count of readable pages with zero unsupported statements is written to `notes`. The run prints the share and the pages honest out of all pages. |
 | find_rate | Score 3. Empty until phase 4 |
 | tokens_used | Total tokens for the run: the save calls plus the grader calls |
-| notes | `0 unsupported: N`, the count of scored readable pages with zero unsupported statements, then pages the faithful grader could not score, for example `0 unsupported: 9; not scored: S-03`. Pages not scored are left out of both honesty measures. A readable page saved link only with a null summary has no statements to grade and is not listed. |
+| notes | `0 unsupported: N`, the count of pages with 0 unsupported statements, then pages the faithful grader could not score, for example `0 unsupported: 9; not scored: S-03`. Pages not scored count as not honest. |
 
 Open question: whether to add a cost column. The plan lists only the columns above.
 

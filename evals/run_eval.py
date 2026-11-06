@@ -4,7 +4,8 @@ Run from the repo root:
     uv run python -m evals.run_eval --run-id <id> --prompt-version <name>
 
 The eval never calls the network for page text: a page with no golden file is
-scored as link only, so scores do not depend on today's web content.
+previewed with the text "" and saved link only, so scores do not depend on
+today's web content.
 Each page goes through `save.preview` (nothing is written to data/), then the
 code graders and, for readable pages, the faithful-summary grader. Three scores
 are printed side by side and never averaged. One row is appended to
@@ -162,7 +163,7 @@ def run(
     save_ok = save_total = 0
     overlaps: list[float] = []
     honest_ok = honest_total = 0
-    faith_ok = faith_total = 0
+    faith_ok = 0
     # Per group [passed, total] for save quality, so a gain on the tuning pages
     # that does not reach the held-out pages shows in the log.
     split = {True: [0, 0], False: [0, 0]}
@@ -171,7 +172,7 @@ def run(
         page_id = page["id"]
         entry = expected[page_id]
         golden_file = GOLDEN_DIR / f"{page_id}.txt"
-        text = golden_file.read_text(encoding="utf-8") if golden_file.exists() else None
+        text = golden_file.read_text(encoding="utf-8") if golden_file.exists() else ""
         record, used = _preview_counting(page["url"], text)
         tokens += used
         grades = graders.grade_record(record, asdict(entry))
@@ -182,7 +183,7 @@ def run(
             entry.expect == "ok"
             and record["page_status"] == "ok"
             and record["summary"] is not None
-            and text is not None
+            and text
         )
         if faith_candidate:
             result, used = _grade_counting(
@@ -193,11 +194,11 @@ def run(
                 scored = not result.grader_failed
             if not scored:
                 not_scored.append(page_id)
-        if scored:
-            # A page the grader could not score is named in notes and left out
-            # of the honesty count, so it is neither a pass nor a failure.
-            faith_total += 1
-            faith_ok += int(result.unsupported_count == 0)
+        # A readable page is honest only when it was scored with 0 unsupported
+        # statements. A page the grader could not score, a page saved link only
+        # and a page with no golden text are not honest.
+        scored_clean = scored and result.unsupported_count == 0
+        faith_ok += int(scored_clean)
 
         if entry.expect == "ok":
             save_total += 1
@@ -209,9 +210,11 @@ def run(
             split[entry.held_out][0] += page_ok
             split[entry.held_out][1] += 1
             overlaps.append(grades["tag_overlap"].score or 0.0)
-        else:
-            honest_total += 1
-            honest_ok += int(grades["honest_failure"].passed)
+
+        honest_total += 1
+        honest_ok += int(
+            scored_clean if entry.expect == "ok" else grades["honest_failure"].passed
+        )
 
         cells = [
             f"{name}: {'PASS' if grade.passed else 'FAIL'} ({grade.reason})"
@@ -228,11 +231,7 @@ def run(
         f"Save quality: {_fmt(save_quality)} ({save_ok}/{save_total} pass, "
         f"mean tag overlap {_fmt(overlap)})"
     )
-    print(
-        f"Honesty: {_fmt(honesty)} "
-        f"({honest_ok}/{honest_total} unreadable pages honest, "
-        f"{faith_ok}/{faith_total} scored readable pages with 0 unsupported statements)"
-    )
+    print(f"Honesty: {_fmt(honesty)} ({honest_ok}/{honest_total} pages honest)")
     held_ok, held_total = split[True]
     tune_ok, tune_total = split[False]
     print(
@@ -244,8 +243,8 @@ def run(
     print(f"Tokens used: {tokens}")
     print("\n".join(table))
 
-    # The honesty column holds the honest-failure pass rate; the count of pages
-    # with 0 unsupported statements is the second honesty measure, logged here.
+    # The honesty column holds the share of all pages that are honest; the count
+    # of readable pages with 0 unsupported statements is logged here.
     notes = [f"0 unsupported: {faith_ok}"]
     if not_scored:
         notes.append(f"not scored: {', '.join(not_scored)}")
@@ -263,7 +262,7 @@ def run(
                 prompt_version,
                 config.MODEL,
                 "" if save_quality is None else _fmt(save_quality),
-                "" if honesty is None else _fmt(honesty),
+                _fmt(honesty),
                 "",
                 tokens,
                 "; ".join(notes),
