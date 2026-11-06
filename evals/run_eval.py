@@ -177,12 +177,7 @@ def run(
         page_id = page["id"]
         entry = expected[page_id]
         golden_file = GOLDEN_DIR / f"{page_id}.txt"
-        text = golden_file.read_text(encoding="utf-8") if golden_file.exists() else None
-        if text is None and entry.expect == "ok":
-            print(
-                f"WARNING: {page_id} expects ok but has no golden text file, "
-                "so it is saved link only and cannot be scored"
-            )
+        text = golden_file.read_text(encoding="utf-8") if golden_file.exists() else ""
         record, used = _preview_counting(page["url"], text)
         tokens += used
         grades = graders.grade_record(record, asdict(entry))

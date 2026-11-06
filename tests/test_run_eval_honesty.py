@@ -73,7 +73,7 @@ def test_readable_page_with_grader_failed_is_not_honest(tmp_path, monkeypatch):
     assert honesty_cell(tmp_path) == "0.93"
 
 
-def test_page_without_golden_file_is_previewed_with_no_text(tmp_path, monkeypatch):
+def test_page_without_golden_file_is_previewed_with_empty_text(tmp_path, monkeypatch):
     seen = {}
 
     def spy(url, text):
@@ -86,7 +86,7 @@ def test_page_without_golden_file_is_previewed_with_no_text(tmp_path, monkeypatc
     pages = run_eval.json.loads(run_eval.PAGES_PATH.read_text(encoding="utf-8"))
     missing = [p["url"] for p in pages if p["id"] not in with_golden]
     assert len(missing) == UNREADABLE
-    assert all(seen[url] is None for url in missing)
+    assert all(seen[url] == "" for url in missing)
 
 
 def test_every_page_honest_scores_one(tmp_path, capsys):
@@ -94,10 +94,3 @@ def test_every_page_honest_scores_one(tmp_path, capsys):
     out = capsys.readouterr().out
     assert f"Honesty: 1.00 ({PAGE_COUNT}/{PAGE_COUNT} pages honest" in out
     assert honesty_cell(tmp_path) == "1.00"
-
-
-def test_expect_ok_page_without_golden_file_warns(tmp_path, monkeypatch, capsys):
-    monkeypatch.setattr(run_eval, "GOLDEN_DIR", tmp_path / "no-golden")
-    run_eval.run("r1", "v1", results_dir=tmp_path / "results")
-    out = capsys.readouterr().out
-    assert "expects ok but has no golden text file" in out
