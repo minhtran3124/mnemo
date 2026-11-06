@@ -222,3 +222,27 @@ def test_tokens_include_billed_calls_rejected_as_invalid_output(tmp_path, monkey
     row = rows(results / "runs.csv")[1]
     assert len(calls) % 2 == 0 and calls
     assert int(row[6]) == len(calls) * 120 + (len(calls) // 2) * 15
+
+
+def test_transient_grader_error_is_retried_once_then_scored(tmp_path, monkeypatch):
+    import anthropic
+    import httpx2 as httpx
+
+    calls = []
+
+    def flaky(text, summary, facts):
+        calls.append(1)
+        if len(calls) % 2 == 1:
+            raise anthropic.APIConnectionError(
+                request=httpx.Request("POST", "https://x.test")
+            )
+        return faithful.FaithfulResult(
+            passed=True, unsupported_count=0, usage=client.Usage(10, 5)
+        )
+
+    monkeypatch.setattr(faithful, "grade_faithful", flaky)
+    results = tmp_path / "results"
+    run_eval.run("r1", "v1", results_dir=results)
+    row = dict(zip(*rows(results / "runs.csv"), strict=True))
+    assert not row["notes"].startswith("not scored:")
+    assert len(calls) % 2 == 0 and calls

@@ -93,6 +93,25 @@ def _faithful_cell(result: faithful.FaithfulResult | None, scored: bool) -> str:
     return "pass" if result.passed else f"fail ({result.unsupported_count} unsupported)"
 
 
+def _grade_with_retry(
+    text: str, summary: str, key_facts: list[str]
+) -> faithful.FaithfulResult | None:
+    """Grade once, retry once on a transient API error, like save._summarise.
+
+    None means the grader never answered, so the page is reported as not scored.
+    Permanent errors (bad key, non-transient 4xx) propagate.
+    """
+    for attempt in range(1, save.ATTEMPTS + 1):
+        try:
+            return faithful.grade_faithful(text, summary, key_facts)
+        except anthropic.APIError as err:
+            if save.is_permanent_error(err):
+                raise
+            if attempt == save.ATTEMPTS:
+                return None
+    return None
+
+
 def run(
     run_id: str,
     prompt_version: str,
@@ -149,13 +168,7 @@ def run(
             and text is not None
         )
         if faith_candidate:
-            try:
-                result = faithful.grade_faithful(
-                    text, record["summary"], list(entry.key_facts)
-                )
-            except anthropic.APIError as err:
-                if save.is_permanent_error(err):
-                    raise
+            result = _grade_with_retry(text, record["summary"], list(entry.key_facts))
             if result is not None:
                 tokens += result.usage.input_tokens + result.usage.output_tokens
                 scored = not result.grader_failed
