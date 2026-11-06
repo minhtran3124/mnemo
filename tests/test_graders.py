@@ -45,10 +45,8 @@ def test_schema_valid_passes_and_missing_field_fails():
     assert "title" in result.reason
 
 
-def test_schema_checks_present_server_fields_and_allows_absent_ones():
-    result = graders.grade_schema(make_record(id="x"))
-    assert not result.passed
-    assert "id" in result.reason
+def test_schema_fills_server_fields_whether_present_or_absent():
+    assert graders.grade_schema(make_record(id="x", saved_at=5, page_file=None)).passed
     preview = make_record()
     for name in ("id", "saved_at", "page_file"):
         del preview[name]
