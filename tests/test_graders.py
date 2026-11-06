@@ -76,6 +76,12 @@ def test_unreadable_expected_page_with_summary_fails_honest_failure():
     assert not result.passed
 
 
+def test_readable_expected_page_saved_unreadable_fails_honest_failure():
+    record = make_record(page_status="unreadable", summary=None, tags=[])
+    result = graders.grade_honest_failure(record, make_expected(expect="readable"))
+    assert not result.passed
+
+
 def test_type_match_true_and_false():
     expected = make_expected()
     assert graders.grade_type_match(make_record(), expected).passed

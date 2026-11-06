@@ -72,8 +72,14 @@ def grade_summary_length(record: dict[str, Any]) -> GradeResult:
 def grade_honest_failure(
     record: dict[str, Any], expected: dict[str, Any]
 ) -> GradeResult:
-    """An unreadable page is saved as unreadable with a null summary."""
+    """An unreadable page is saved as unreadable with a null summary.
+
+    A readable page saved as unreadable also fails: the app gave up on a page it
+    could read.
+    """
     if expected.get("expect") != UNREADABLE:
+        if _is_unreadable(record):
+            return GradeResult(False, "readable page was saved as unreadable")
         return GradeResult(True, "page is expected to be readable")
     if record.get("page_status") != UNREADABLE:
         return GradeResult(False, "unreadable page was not marked unreadable")
