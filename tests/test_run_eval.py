@@ -303,7 +303,8 @@ def test_link_only_save_of_readable_page_is_honest_and_not_unscored(
     assert "Honesty: 1.00 (15/15 pages honest)" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
     assert float(row["honesty"]) == 1.0
-    assert row["notes"] == "0 unsupported: 0"
+    assert row["notes"].startswith("0 unsupported: 0; link only: ")
+    assert "not scored" not in row["notes"]
 
 
 def test_eval_process_doc_matches_honesty_columns():

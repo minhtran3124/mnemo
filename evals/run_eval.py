@@ -164,6 +164,7 @@ def run(
 
     tokens = 0
     not_scored: list[str] = []
+    link_only: list[str] = []
     table: list[str] = []
     save_ok = save_total = 0
     overlaps: list[float] = []
@@ -226,7 +227,11 @@ def run(
         if entry.expect != "ok":
             honest = grades["honest_failure"].passed
         elif record["summary"] is None:
+            # Counted honest (nothing was invented), but listed in the run
+            # notes: an API outage also gives a null summary, and would
+            # otherwise look the same as a page the model could not read.
             honest = True
+            link_only.append(page_id)
         else:
             honest = scored_clean
         honest_ok += int(honest)
@@ -265,6 +270,9 @@ def run(
     notes = [f"0 unsupported: {faith_ok}"]
     if not_scored:
         notes.append(f"not scored: {', '.join(not_scored)}")
+
+    if link_only:
+        notes.append(f"link only: {', '.join(link_only)}")
 
     results_dir.mkdir(parents=True, exist_ok=True)
     path = results_dir / "runs.csv"
