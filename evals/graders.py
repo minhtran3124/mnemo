@@ -81,15 +81,18 @@ def grade_honest_failure(
 ) -> GradeResult:
     """An unreadable page is saved as unreadable with a null summary.
 
-    A readable page saved as unreadable also fails: the app gave up on a page it
-    could read. A reason the app wrote must be marked `guess`: a preview record
+    A readable page saved as unreadable with a null summary passes: a fetch
+    failure is an honest save, not an honesty failure. One that carries a summary
+    fails, because that text was never seen. A reason the app wrote must be marked `guess`: a preview record
     is always app-written, so a non-empty reason with any other source fails.
     """
     if record.get("reason") and record.get("reason_source") != GUESS:
         return GradeResult(False, "app-written reason is not marked guess")
     if expected.get("expect") != UNREADABLE:
         if _is_unreadable(record):
-            return GradeResult(False, "readable page was saved as unreadable")
+            if record.get("summary") is not None:
+                return GradeResult(False, "unreadable page has a summary")
+            return GradeResult(True, "unreadable page saved with a null summary")
         return GradeResult(True, "page is expected to be readable")
     if record.get("page_status") != UNREADABLE:
         return GradeResult(False, "unreadable page was not marked unreadable")

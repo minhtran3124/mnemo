@@ -113,8 +113,14 @@ def test_unreadable_expected_page_with_summary_fails_honest_failure():
     assert not result.passed
 
 
-def test_readable_expected_page_saved_unreadable_fails_honest_failure():
+def test_readable_expected_page_saved_unreadable_with_null_summary_passes():
     record = make_record(page_status="unreadable", summary=None, tags=[])
+    result = graders.grade_honest_failure(record, make_expected(expect="readable"))
+    assert result.passed
+
+
+def test_readable_expected_page_saved_unreadable_with_summary_fails():
+    record = make_record(page_status="unreadable", summary="Invented.", tags=[])
     result = graders.grade_honest_failure(record, make_expected(expect="readable"))
     assert not result.passed
 
