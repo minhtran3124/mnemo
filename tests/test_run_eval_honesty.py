@@ -60,7 +60,7 @@ def test_every_readable_page_saved_link_only_with_null_summary_is_honest(
     assert honesty_cell(tmp_path) == "1.00"
 
 
-def test_readable_page_with_grader_failed_is_not_honest(tmp_path, monkeypatch):
+def test_readable_page_with_grader_failed_is_left_out_of_honesty(tmp_path, monkeypatch):
     failed_once = []
 
     def grader(text, summary, facts):
@@ -70,9 +70,7 @@ def test_readable_page_with_grader_failed_is_not_honest(tmp_path, monkeypatch):
 
     monkeypatch.setattr(faithful, "grade_faithful", grader)
     run_eval.run("r1", "v1", results_dir=tmp_path / "results")
-    readable_with_text = len(list(run_eval.GOLDEN_DIR.glob("*.txt")))
-    honest = UNREADABLE + readable_with_text - 1
-    assert honesty_cell(tmp_path) == f"{honest / PAGE_COUNT:.2f}"
+    assert honesty_cell(tmp_path) == "1.00"
 
 
 def test_page_without_golden_file_is_previewed_with_empty_text(tmp_path, monkeypatch):

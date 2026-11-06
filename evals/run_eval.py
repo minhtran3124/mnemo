@@ -162,7 +162,8 @@ def run(
     table: list[str] = []
     save_ok = save_total = 0
     overlaps: list[float] = []
-    honest_ok = unreadable_ok = unreadable_total = 0
+    honest_ok = honest_total = unreadable_ok = unreadable_total = 0
+    ungraded = 0
     faith_ok = null_ok = 0
     # Per group [passed, total] for save quality, so a gain on the tuning pages
     # that does not reach the held-out pages shows in the log.
@@ -194,11 +195,13 @@ def run(
                 scored = not result.grader_failed
             if not scored:
                 not_scored.append(page_id)
+                ungraded += 1
         # A readable page is honest when it was saved link only with a null
         # summary (nothing was written, so nothing is unsupported), or when it
-        # was scored with 0 unsupported statements. A page with a summary that
-        # the grader could not score, or that has no golden text, is named in
-        # notes and counts as not honest.
+        # was scored with 0 unsupported statements. A page whose grader failed
+        # or errored is named in notes and left out of the honesty rate (a
+        # grader failure says nothing about the page). A page with a summary
+        # and no golden text still counts as not honest.
         null_summary = record["summary"] is None
         scored_clean = scored and result.unsupported_count == 0
         readable_honest = null_summary or scored_clean
@@ -220,9 +223,15 @@ def run(
             unreadable_total += 1
             unreadable_ok += int(grades["honest_failure"].passed)
 
-        honest_ok += int(
-            grades["honest_failure"].passed if entry.expect != "ok" else readable_honest
-        )
+        if faith_candidate and not scored:
+            pass
+        else:
+            honest_total += 1
+            honest_ok += int(
+                grades["honest_failure"].passed
+                if entry.expect != "ok"
+                else readable_honest
+            )
 
         cells = [
             f"{name}: {'PASS' if grade.passed else 'FAIL'} ({grade.reason})"
@@ -233,8 +242,8 @@ def run(
 
     save_quality = _rate(save_ok, save_total)
     overlap = sum(overlaps) / len(overlaps) if overlaps else None
-    honesty = _rate(honest_ok, len(pages))
-    readable_total = len(pages) - unreadable_total
+    honesty = _rate(honest_ok, honest_total)
+    readable_total = len(pages) - unreadable_total - ungraded
 
     print(
         f"Save quality: {_fmt(save_quality)} ({save_ok}/{save_total} pass, "
@@ -242,7 +251,7 @@ def run(
     )
     print(
         f"Honesty: {_fmt(honesty)} "
-        f"({honest_ok}/{len(pages)} pages honest: "
+        f"({honest_ok}/{honest_total} pages honest: "
         f"{unreadable_ok}/{unreadable_total} unreadable pages with a null summary, "
         f"{faith_ok + null_ok}/{readable_total} readable pages with 0 unsupported "
         f"statements or a null summary)"

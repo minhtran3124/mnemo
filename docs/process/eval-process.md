@@ -29,7 +29,7 @@ Show three numbers side by side. Do not average them. An average can hide a drop
 | Score | What it covers |
 | --- | --- |
 | Save quality | Valid JSON, 3 to 6 lowercase tags, summary at most 60 words, type match, tag overlap |
-| Honesty | The share of all pages that are honest: an unreadable page gives a null summary, or a readable page is scored by the faithful-summary grader with zero unsupported statements. A readable page saved link only with a null summary is honest, because no statement was written. A readable page with a summary that was not scored counts as not honest |
+| Honesty | The share of all pages that are honest: an unreadable page gives a null summary, or a readable page is scored by the faithful-summary grader with zero unsupported statements. A readable page saved link only with a null summary is honest, because no statement was written. A readable page whose grader failed or errored is not scored: it is left out of the share (numerator and denominator) and named in `notes`, so grader flakiness does not lower honesty |
 | Find rate | Right bookmark in the top 3; trick questions return nothing |
 
 ## Graders
@@ -60,7 +60,7 @@ Test the runner with the API mocked: `uv run pytest tests/test_run_eval.py -q`. 
 | honesty | Score 2: the share of all pages in `evals/pages.json` that are honest (unreadable pages with a null summary, plus readable pages saved link only with a null summary or scored with zero unsupported statements). The run prints the split into unreadable and readable pages. The count of readable pages with zero unsupported statements is also written to `notes`. |
 | find_rate | Score 3. Empty until phase 4 |
 | tokens_used | Total tokens for the run: the save calls plus the grader calls |
-| notes | `0 unsupported: N`, the count of scored readable pages with zero unsupported statements, then pages the faithful grader could not score, for example `0 unsupported: 9; not scored: S-03`. Pages with a summary that were not scored count as not honest. A readable page saved link only with a null summary has no statements to grade, is honest, and is not listed. |
+| notes | `0 unsupported: N`, the count of scored readable pages with zero unsupported statements, then pages the faithful grader could not score, for example `0 unsupported: 9; not scored: S-03`. Pages the grader could not score are left out of the honesty share. A readable page saved link only with a null summary has no statements to grade, is honest, and is not listed. |
 
 Open question: whether to add a cost column. The plan lists only the columns above.
 

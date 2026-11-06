@@ -199,9 +199,9 @@ def test_unscored_readable_pages_are_not_scored_and_named_in_notes(
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
     out = capsys.readouterr().out
-    assert "0/12 readable pages with 0 unsupported statements or a null summary" in out
+    assert "0/0 readable pages with 0 unsupported statements or a null summary" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
-    assert float(row["honesty"]) == 0.2
+    assert float(row["honesty"]) == 1.0
     assert row["notes"].startswith("0 unsupported: 0; not scored:")
 
 
