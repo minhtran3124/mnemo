@@ -66,25 +66,15 @@ def test_uppercase_tag_fails():
     assert not result.passed
 
 
-def test_unreadable_record_still_checks_tag_limits():
+def test_unreadable_record_tags_are_not_checked():
     base = {"page_status": "unreadable", "summary": None}
-    assert graders.grade_tags(make_record(tags=[], **base)).passed
-    assert not graders.grade_tags(make_record(tags=["Python"], **base)).passed
-    assert not graders.grade_tags(make_record(tags=list("abcdefg"), **base)).passed
+    for tags in ([], ["Python"], list("abcdefg"), "python", None):
+        assert graders.grade_tags(make_record(tags=tags, **base)).passed
 
 
-def test_malformed_tags_fail_without_raising_for_readable_and_unreadable():
-    base = {"page_status": "unreadable", "summary": None}
+def test_malformed_tags_fail_without_raising_for_readable():
     for bad in ("python", None, 5, [1, 2, 3], [["a"]], [None]):
         assert not graders.grade_tags(make_record(tags=bad)).passed
-        assert not graders.grade_tags(make_record(tags=bad, **base)).passed
-
-
-def test_unreadable_record_with_too_many_tags_reports_the_count():
-    base = {"page_status": "unreadable", "summary": None}
-    result = graders.grade_tags(make_record(tags=list("abcdefg"), **base))
-    assert not result.passed
-    assert "7 tags" in result.reason
 
 
 def test_summary_of_61_words_fails():

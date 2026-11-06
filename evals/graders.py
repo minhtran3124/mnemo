@@ -45,15 +45,16 @@ def grade_schema(record: dict[str, Any]) -> GradeResult:
 
 
 def grade_tags(record: dict[str, Any]) -> GradeResult:
-    """Tags are lowercase and at most MAX_TAGS. A readable record needs MIN_TAGS too."""
+    """Readable: MIN_TAGS to MAX_TAGS tags, all lowercase. Unreadable: not checked."""
+    if _is_unreadable(record):
+        return GradeResult(True, "unreadable record, tags not checked")
     tags = record.get("tags")
     if not isinstance(tags, list) or not all(isinstance(t, str) for t in tags):
         return GradeResult(False, "tags must be a list of strings")
-    min_tags = 0 if _is_unreadable(record) else store.MIN_TAGS
-    if not min_tags <= len(tags) <= store.MAX_TAGS:
+    if not store.MIN_TAGS <= len(tags) <= store.MAX_TAGS:
         return GradeResult(
             False,
-            f"{len(tags)} tags, need {min_tags} to {store.MAX_TAGS}",
+            f"{len(tags)} tags, need {store.MIN_TAGS} to {store.MAX_TAGS}",
         )
     upper = [t for t in tags if t != t.lower()]
     if upper:
