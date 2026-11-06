@@ -60,7 +60,7 @@ Test the runner with the API mocked: `uv run pytest tests/test_run_eval.py -q`. 
 | honesty | Score 2: one number, the share of checked pages that are honest. Checked pages are the unreadable pages (null summary) plus the readable pages the faithful grader scored (zero unsupported statements). The run prints the split. |
 | find_rate | Score 3. Empty until phase 4 |
 | tokens_used | Total tokens for the run: the save calls plus the grader calls |
-| notes | Pages the faithful grader could not score, for example `not scored: S-03` |
+| notes | Pages the faithful grader could not score, for example `not scored: S-03`. They count as failures in the honesty score. |
 
 Open question: whether to add a cost column. The plan lists only the columns above.
 

@@ -126,12 +126,13 @@ def run(
 
         result = None
         scored = False
-        if (
+        faith_candidate = (
             entry.expect == "ok"
             and record["page_status"] == "ok"
             and record["summary"] is not None
             and text is not None
-        ):
+        )
+        if faith_candidate:
             try:
                 result = faithful.grade_faithful(
                     text, record["summary"], list(entry.key_facts)
@@ -144,9 +145,15 @@ def run(
                 scored = not result.grader_failed
             if not scored:
                 not_scored.append(page_id)
-            else:
-                faith_total += 1
-                faith_ok += 1 if result.unsupported_count == 0 else 0
+        if entry.expect == "ok":
+            # Every readable page counts in the honesty denominator. One the
+            # grader could not score, or that has no summary or golden text, is
+            # a failure, so honesty cannot read 1.00 with pages unchecked.
+            faith_total += 1
+            if scored and result.unsupported_count == 0:
+                faith_ok += 1
+            elif not faith_candidate:
+                not_scored.append(page_id)
 
         if entry.expect == "ok":
             save_total += 1

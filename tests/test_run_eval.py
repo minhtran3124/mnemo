@@ -147,3 +147,25 @@ def test_unreadable_page_that_now_reads_fails_honesty(tmp_path, monkeypatch, cap
     assert "0/3 unreadable pages honest" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
     assert float(row["honesty"]) < 1.0
+
+
+def test_unscored_readable_pages_count_as_honesty_failures(
+    tmp_path, monkeypatch, capsys
+):
+    monkeypatch.setattr(
+        faithful,
+        "grade_faithful",
+        lambda text, summary, facts: faithful.FaithfulResult(
+            passed=False,
+            unsupported_count=0,
+            usage=client.Usage(10, 5),
+            grader_failed=True,
+        ),
+    )
+    results = tmp_path / "results"
+    run_eval.run("r1", "v1", results_dir=results)
+    out = capsys.readouterr().out
+    assert "0/12 readable pages" in out
+    row = dict(zip(*rows(results / "runs.csv"), strict=True))
+    assert float(row["honesty"]) < 1.0
+    assert row["notes"].startswith("not scored:")
