@@ -8,7 +8,9 @@ PAGE_KIND_RULE = (
     "The kind of page is supported by its address and layout: a repository page "
     "supports 'a repository', and a page that is a list supports 'a list' or 'an index'."
 )
-LIST_ITEM_RULE = "A claim about an item in a list is supported only when the list shows that item."
+LIST_ITEM_RULE = (
+    "A claim about an item in a list is supported only when the list shows that item."
+)
 
 
 def test_prompt_has_page_kind_rule():
