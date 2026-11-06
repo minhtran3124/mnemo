@@ -52,6 +52,20 @@ def test_failed_fetch_removes_stale_golden_file(tmp_path):
     assert not (tmp_path / "S-01.txt").exists()
 
 
+def test_main_exits_non_zero_when_a_page_fails(monkeypatch, tmp_path):
+    pages = [{"id": "S-01", "url": "https://example.com/a", "expect": "ok"}]
+    (tmp_path / "pages.json").write_text(json.dumps(pages), encoding="utf-8")
+    monkeypatch.setattr(save_pages, "PAGES_FILE", tmp_path / "pages.json")
+    monkeypatch.setattr(save_pages, "run", lambda p: ["S-01"])
+    assert save_pages.main() == 1
+
+
+def test_main_returns_zero_when_all_pages_save(monkeypatch, tmp_path):
+    monkeypatch.setattr(save_pages, "PAGES_FILE", tmp_path / "pages.json")
+    (tmp_path / "pages.json").write_text("[]", encoding="utf-8")
+    assert save_pages.main() == 0
+
+
 def test_unreadable_pages_are_skipped(tmp_path):
     pages = [
         {"id": "S-01", "url": "https://example.com/a", "expect": "unreadable"},

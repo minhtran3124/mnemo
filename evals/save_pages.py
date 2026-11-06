@@ -4,6 +4,7 @@ Run once from the repo root: uv run python -m evals.save_pages
 """
 
 import json
+import sys
 from collections.abc import Callable
 from pathlib import Path
 
@@ -42,11 +43,13 @@ def run(
     return failed
 
 
-def main() -> None:
+def main() -> int:
+    """Save every golden page. Return 1 if any page failed, else 0."""
     pages = json.loads(PAGES_FILE.read_text(encoding="utf-8"))
     failed = run(pages)
     print(f"failed: {', '.join(failed) if failed else 'none'}")
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
