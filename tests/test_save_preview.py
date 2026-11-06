@@ -94,9 +94,11 @@ def test_source_web_on_github_url_uses_html_floor(parse_calls):
     assert save.preview(gh_url, between, source="github")["page_status"] == "ok"
 
 
-def test_source_is_required_not_guessed_from_url(parse_calls):
-    with pytest.raises(TypeError):
-        save.preview("https://github.com/owner/repo", RAW)  # type: ignore[call-arg]
+def test_two_argument_call_defaults_to_web_floor(parse_calls):
+    gh_url = "https://github.com/owner/repo"
+    between = "x" * (config.MIN_TEXT_CHARS_HTML - 1)
+    assert_link_only(save.preview(gh_url, between))
+    assert save.preview(URL, RAW)["page_status"] == "ok"
 
 
 def test_source_pasted_uses_pasted_floor_like_save(parse_calls, monkeypatch):

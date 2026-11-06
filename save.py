@@ -164,15 +164,16 @@ def _floor_for(source: str) -> int:
     return config.MIN_TEXT_CHARS_HTML
 
 
-def preview(url: str, text: str | None, source: str) -> dict:
+def preview(url: str, text: str | None, source: str = "web") -> dict:
     """Return the record fields save() would store for this text, writing nothing.
 
     Runs the same floor check, Claude call (one retry) and code checks as
     save(). text=None, or text under the floor, gives the link-only fields.
     source is the fetcher result's source ("web" or "github"), or "pasted" for
     text the user pasted (save(url, pasted_text=...)); it picks the text floor
-    as save() does. It is required: a URL cannot tell whether the
-    fetcher fell back to the web path, so it is never guessed from the URL.
+    as save() does. It defaults to "web" (the HTML floor), so preview(url, text)
+    works; a URL cannot tell whether the fetcher fell back to the web path,
+    so the source is never guessed from the URL.
     Permanent API errors and a missing key propagate (see _summarise).
     """
     url_clean = urlclean.clean_url(url)
