@@ -199,10 +199,9 @@ def run(
                 scored = not result.grader_failed
             if not scored:
                 not_scored.append(page_id)
-        # A readable page that got a summary is honest only when it was scored
-        # with 0 unsupported statements, so a page the grader could not score is
-        # not honest. A page saved link only has a null summary, so nothing was
-        # invented: it is honest here (its save failure shows in save quality).
+        # A readable page is honest only when it was scored with 0 unsupported
+        # statements. A page the grader could not score, a page saved link only
+        # and a page with no golden text are not honest.
         scored_clean = scored and result.unsupported_count == 0
         faith_ok += int(scored_clean)
 
@@ -218,13 +217,9 @@ def run(
             overlaps.append(grades["tag_overlap"].score or 0.0)
 
         honest_total += 1
-        if entry.expect != "ok":
-            honest = grades["honest_failure"].passed
-        elif record["summary"] is None:
-            honest = True
-        else:
-            honest = scored_clean
-        honest_ok += int(honest)
+        honest_ok += int(
+            scored_clean if entry.expect == "ok" else grades["honest_failure"].passed
+        )
 
         cells = [
             f"{name}: {'PASS' if grade.passed else 'FAIL'} ({grade.reason})"
