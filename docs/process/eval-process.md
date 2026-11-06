@@ -36,6 +36,7 @@ Show three numbers side by side. Do not average them. An average can hide a drop
 A grader is code or a model that scores an output.
 - Code graders are exact: schema, tag rules, summary length, null summary on failure, type match, tag overlap, every cited bookmark number exists.
 - A model grader reads the page text and the summary, lists each statement the page does not support, and says yes or no for each key fact. The model grader can be capricious (lesson 13). The yes or no design is a plan choice, not a course rule.
+- A key-fact list with a different length from the key facts is invalid output: the grader is retried once, then the page is marked `grader_failed` and not scored.
 
 ## Human check
 After each run, read 3 results and the grader's reasons. If you disagree with the grader, fix the grader before you trust any score.
