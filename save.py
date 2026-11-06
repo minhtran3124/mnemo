@@ -156,21 +156,30 @@ def _link_only(url: str, url_clean: str) -> dict:
     return store.add_bookmark(_link_only_fields(url, url_clean), page_text=None)
 
 
-def preview(url: str, text: str | None) -> dict:
+def _floor_for(source: str) -> int:
+    return (
+        config.MIN_TEXT_CHARS_GITHUB
+        if source == "github"
+        else config.MIN_TEXT_CHARS_HTML
+    )
+
+
+def preview(url: str, text: str | None, source: str | None = None) -> dict:
     """Return the record fields save() would store for this text, writing nothing.
 
     Runs the same floor check, Claude call (one retry) and code checks as
     save(). text=None, or text under the floor, gives the link-only fields.
+    source is the fetcher result's source ("web" or "github"), which picks the
+    text floor as save() does. A GitHub URL that fell back to the web path
+    must pass "web". When None, it is guessed from the URL.
     Permanent API errors and a missing key propagate (see _summarise).
     """
     url_clean = urlclean.clean_url(url)
     if text is None:
         return _link_only_fields(url, url_clean)
-    floor = (
-        config.MIN_TEXT_CHARS_GITHUB
-        if fetcher.github.parse_repo(url) is not None
-        else config.MIN_TEXT_CHARS_HTML
-    )
+    if source is None:
+        source = "github" if fetcher.github.parse_repo(url) is not None else "web"
+    floor = _floor_for(source)
     norm = normalise_text(text)
     if not norm or len(norm) < floor:
         return _link_only_fields(url, url_clean)
@@ -200,11 +209,7 @@ def save(url: str, pasted_text: str | None = None) -> dict:
         if isinstance(result, fetcher.FetchFail):
             return _link_only(url, url_clean)
         raw = result.text
-        floor = (
-            config.MIN_TEXT_CHARS_GITHUB
-            if result.source == "github"
-            else config.MIN_TEXT_CHARS_HTML
-        )
+        floor = _floor_for(result.source)
 
     text = normalise_text(raw)
     if not text or len(text) < floor:

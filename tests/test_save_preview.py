@@ -83,3 +83,12 @@ def test_saved_page_text_equals_normalise_text(parse_calls, monkeypatch):
     monkeypatch.setattr(save.store, "add_bookmark", fake_add)
     save.save(URL)
     assert stored["text"] == save.normalise_text(RAW)
+
+
+def test_source_web_on_github_url_uses_html_floor(parse_calls):
+    gh_url = "https://github.com/owner/repo"
+    between = "x" * (config.MIN_TEXT_CHARS_HTML - 1)
+    assert between and len(between) >= config.MIN_TEXT_CHARS_GITHUB
+    assert_link_only(save.preview(gh_url, between, source="web"))
+    assert parse_calls["calls"] == []
+    assert save.preview(gh_url, between, source="github")["page_status"] == "ok"
