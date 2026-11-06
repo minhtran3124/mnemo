@@ -6,6 +6,7 @@ no. Invalid output is retried once, then the page is marked `grader_failed` and
 not scored. A missing key, an auth error or any API error propagates.
 """
 
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -16,6 +17,7 @@ import config
 
 PROMPT_FILE = Path(__file__).resolve().parent.parent / "prompts" / "eval_faithful.txt"
 ATTEMPTS = 2
+_TAG = re.compile(r"<(\s*/?\s*(?:page|summary|key_facts)\s*)>", re.IGNORECASE)
 
 
 class FaithfulOutput(BaseModel):
@@ -35,10 +37,20 @@ class FaithfulResult:
     grader_failed: bool = False
 
 
+def _escape(text: str) -> str:
+    """A literal wrapper tag in the text must not close or open the wrapper."""
+    return _TAG.sub(r"&lt;\1>", text)
+
+
 def _message(page_text: str, summary: str, key_facts: list[str]) -> str:
-    page = " ".join(page_text.split())[: config.MAX_PAGE_CHARS]
-    facts = "\n".join(f"{i}. {fact}" for i, fact in enumerate(key_facts, start=1))
-    return f"<page>{page}</page>\n<summary>{summary}</summary>\n<key_facts>\n{facts}\n</key_facts>"
+    page = _escape(" ".join(page_text.split())[: config.MAX_PAGE_CHARS])
+    facts = "\n".join(
+        f"{i}. {_escape(fact)}" for i, fact in enumerate(key_facts, start=1)
+    )
+    return (
+        f"<page>{page}</page>\n<summary>{_escape(summary)}</summary>\n"
+        f"<key_facts>\n{facts}\n</key_facts>"
+    )
 
 
 def grade_faithful(
@@ -57,6 +69,8 @@ def grade_faithful(
             continue
         input_tokens += usage.input_tokens
         output_tokens += usage.output_tokens
+        if len(out.key_fact_results) != len(key_facts):
+            continue
         return FaithfulResult(
             passed=not out.unsupported,
             unsupported_count=len(out.unsupported),
