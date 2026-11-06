@@ -103,16 +103,20 @@ def grade_type_match(record: dict[str, Any], expected: dict[str, Any]) -> GradeR
 
 
 def grade_tag_overlap(record: dict[str, Any], expected: dict[str, Any]) -> GradeResult:
-    """Score is the share of expected tags found in the record tags (0 to 1)."""
+    """Score is the share of expected tags found in the record tags (0 to 1).
+
+    Case is ignored. With no expected tags there is nothing to score, so the
+    result passes with a null score instead of a vacuous 1.0.
+    """
     raw_wanted = expected.get("expected_tags") or []
     raw_found = record.get("tags") or []
     for tags in (raw_wanted, raw_found):
         if not isinstance(tags, list) or not all(isinstance(t, str) for t in tags):
             return GradeResult(False, "tags must be a list of strings", 0.0)
-    wanted = set(raw_wanted)
+    wanted = {t.lower() for t in raw_wanted}
     if not wanted:
-        return GradeResult(True, "no expected tags", FULL_OVERLAP)
-    found = wanted & set(raw_found)
+        return GradeResult(True, "no expected tags to score")
+    found = wanted & {t.lower() for t in raw_found}
     score = len(found) / len(wanted)
     return GradeResult(
         score == FULL_OVERLAP, f"{len(found)} of {len(wanted)} expected tags", score

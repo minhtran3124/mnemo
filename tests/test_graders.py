@@ -119,6 +119,22 @@ def test_tag_overlap_is_two_thirds():
     assert not result.passed
 
 
+def test_tag_overlap_ignores_case():
+    record = make_record(tags=["Python", "TESTING", "tools"])
+    result = graders.grade_tag_overlap(record, make_expected())
+    assert result.score == 1.0
+    assert result.passed
+
+
+def test_tag_overlap_with_no_expected_tags_has_no_score():
+    for wanted in ([], None):
+        result = graders.grade_tag_overlap(
+            make_record(), make_expected(expected_tags=wanted)
+        )
+        assert result.passed
+        assert result.score is None
+
+
 def test_tag_overlap_fails_on_malformed_tags_without_raising():
     for bad in ("python", [["python"]], [{"a": 1}], 5):
         result = graders.grade_tag_overlap(make_record(tags=bad), make_expected())
