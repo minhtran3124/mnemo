@@ -97,3 +97,13 @@ def test_source_web_on_github_url_uses_html_floor(parse_calls):
 def test_source_is_required_not_guessed_from_url(parse_calls):
     with pytest.raises(TypeError):
         save.preview("https://github.com/owner/repo", RAW)  # type: ignore[call-arg]
+
+
+def test_source_pasted_uses_pasted_floor_like_save(parse_calls, monkeypatch):
+    short = "x" * config.MIN_TEXT_CHARS_PASTED
+    assert len(short) < config.MIN_TEXT_CHARS_HTML
+    assert save.preview(URL, short, source="pasted")["page_status"] == "ok"
+    assert_link_only(save.preview(URL, short[:-1], source="pasted"))
+    monkeypatch.setattr(save.store, "add_bookmark", lambda fields, page_text: fields)
+    parse_calls["replies"] = [good()]
+    assert save.save(URL, pasted_text=short)["page_status"] == "ok"

@@ -157,11 +157,11 @@ def _link_only(url: str, url_clean: str) -> dict:
 
 
 def _floor_for(source: str) -> int:
-    return (
-        config.MIN_TEXT_CHARS_GITHUB
-        if source == "github"
-        else config.MIN_TEXT_CHARS_HTML
-    )
+    if source == "pasted":
+        return config.MIN_TEXT_CHARS_PASTED
+    if source == "github":
+        return config.MIN_TEXT_CHARS_GITHUB
+    return config.MIN_TEXT_CHARS_HTML
 
 
 def preview(url: str, text: str | None, source: str) -> dict:
@@ -169,8 +169,9 @@ def preview(url: str, text: str | None, source: str) -> dict:
 
     Runs the same floor check, Claude call (one retry) and code checks as
     save(). text=None, or text under the floor, gives the link-only fields.
-    source is the fetcher result's source ("web" or "github"), which picks the
-    text floor as save() does. It is required: a URL cannot tell whether the
+    source is the fetcher result's source ("web" or "github"), or "pasted" for
+    text the user pasted (save(url, pasted_text=...)); it picks the text floor
+    as save() does. It is required: a URL cannot tell whether the
     fetcher fell back to the web path, so it is never guessed from the URL.
     Permanent API errors and a missing key propagate (see _summarise).
     """
@@ -201,7 +202,7 @@ def save(url: str, pasted_text: str | None = None) -> dict:
 
     if pasted_text is not None:
         raw = pasted_text
-        floor = config.MIN_TEXT_CHARS_PASTED
+        floor = _floor_for("pasted")
     else:
         result = fetcher.fetch(url)
         if isinstance(result, fetcher.FetchFail):
