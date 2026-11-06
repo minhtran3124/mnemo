@@ -116,3 +116,47 @@ def test_prompts_do_not_leak_held_out_pages():
         text = prompt.read_text(encoding="utf-8").lower()
         for needle in needles:
             assert needle.lower() not in text, f"{prompt.name} leaks {needle}"
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        ("expected_tags", "one two three"),
+        ("key_facts", "fact a fact b"),
+        ("held_out", "false"),
+        ("hard_case", 1),
+        ("expected_type", ["article"]),
+        ("note", 5),
+    ],
+)
+def test_rejects_wrong_typed_fields(tmp_path, change):
+    entries = _valid()
+    entries[0][change[0]] = change[1]
+    with pytest.raises(ValueError):
+        golden.load_expected(_write(tmp_path, entries))
+
+
+@pytest.mark.parametrize(
+    "key",
+    [
+        "id",
+        "expected_type",
+        "expected_tags",
+        "key_facts",
+        "held_out",
+        "hard_case",
+        "expect",
+    ],
+)
+def test_rejects_missing_keys_as_value_error(tmp_path, key):
+    entries = _valid()
+    del entries[0][key]
+    with pytest.raises(ValueError):
+        golden.load_expected(_write(tmp_path, entries))
+
+
+def test_rejects_non_object_entry(tmp_path):
+    entries = _valid()
+    entries[0] = "S-01"
+    with pytest.raises(ValueError):
+        golden.load_expected(_write(tmp_path, entries))
