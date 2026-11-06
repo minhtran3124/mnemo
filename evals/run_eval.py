@@ -222,7 +222,7 @@ def run(
 
     save_quality = _rate(save_ok, save_total)
     overlap = sum(overlaps) / len(overlaps) if overlaps else None
-    honesty = _rate(honest_ok + faith_ok, honest_total + faith_total)
+    honesty = _rate(honest_ok, honest_total)
 
     print(
         f"Save quality: {_fmt(save_quality)} ({save_ok}/{save_total} pass, "
@@ -244,6 +244,12 @@ def run(
     print(f"Tokens used: {tokens}")
     print("\n".join(table))
 
+    # The honesty column holds the honest-failure pass rate; the count of pages
+    # with 0 unsupported statements is the second honesty measure, logged here.
+    notes = [f"0 unsupported: {faith_ok}"]
+    if not_scored:
+        notes.append(f"not scored: {', '.join(not_scored)}")
+
     results_dir.mkdir(parents=True, exist_ok=True)
     path = results_dir / "runs.csv"
     new_file = not path.exists() or path.stat().st_size == 0
@@ -260,7 +266,7 @@ def run(
                 "" if honesty is None else _fmt(honesty),
                 "",
                 tokens,
-                f"not scored: {', '.join(not_scored)}" if not_scored else "",
+                "; ".join(notes),
             ]
         )
     return 0

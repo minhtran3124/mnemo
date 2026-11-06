@@ -75,6 +75,23 @@ def test_run_appends_one_row_with_eight_columns(tmp_path):
     assert row["prompt_version"] == "v1"
 
 
+def test_honesty_column_is_failure_rate_and_unsupported_count_is_logged(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(
+        faithful,
+        "grade_faithful",
+        lambda text, summary, facts: faithful.FaithfulResult(
+            passed=False, unsupported_count=2, usage=client.Usage(10, 5)
+        ),
+    )
+    results = tmp_path / "results"
+    run_eval.run("r1", "v1", results_dir=results)
+    row = dict(zip(*rows(results / "runs.csv"), strict=True))
+    assert row["honesty"] == "1.00"
+    assert row["notes"] == "0 unsupported: 0"
+
+
 def test_second_run_appends_and_keeps_first(tmp_path):
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
@@ -185,7 +202,7 @@ def test_unscored_readable_pages_are_not_scored_and_named_in_notes(
     assert "0/0 scored readable pages" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
     assert float(row["honesty"]) == 1.0
-    assert row["notes"].startswith("not scored:")
+    assert row["notes"].startswith("0 unsupported: 0; not scored:")
 
 
 def test_tokens_include_billed_calls_rejected_as_invalid_output(tmp_path, monkeypatch):
@@ -249,7 +266,7 @@ def test_transient_grader_error_is_retried_once_then_scored(tmp_path, monkeypatc
     results = tmp_path / "results"
     run_eval.run("r1", "v1", results_dir=results)
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
-    assert not row["notes"].startswith("not scored:")
+    assert "not scored" not in row["notes"]
     assert len(calls) % 2 == 0 and calls
 
 
@@ -286,15 +303,15 @@ def test_link_only_save_of_readable_page_is_honest_and_not_unscored(
     assert "0/0 scored readable pages" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
     assert float(row["honesty"]) == 1.0
-    assert row["notes"] == ""
+    assert row["notes"] == "0 unsupported: 0"
 
 
-def test_eval_process_doc_matches_honesty_denominator():
+def test_eval_process_doc_matches_honesty_columns():
     doc = (run_eval.EVALS_DIR.parent / "docs/process/eval-process.md").read_text(
         encoding="utf-8"
     )
-    assert "plus every readable page the faithful grader scored" in doc
-    assert "counts as a failure" not in doc
+    assert "honest-failure pass rate" in doc
+    assert "0 unsupported: N" in doc
 
 
 def test_tokens_include_grader_calls_rejected_as_invalid_output(tmp_path, monkeypatch):
