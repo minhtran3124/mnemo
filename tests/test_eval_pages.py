@@ -66,7 +66,7 @@ def test_main_returns_zero_when_all_pages_save(monkeypatch, tmp_path):
     assert save_pages.main() == 0
 
 
-def test_unreadable_pages_are_skipped(tmp_path):
+def test_unreadable_pages_get_no_file_and_do_not_fail(tmp_path):
     pages = [
         {"id": "S-01", "url": "https://example.com/a", "expect": "unreadable"},
         {"id": "S-02", "url": "https://example.com/b", "expect": "unreadable"},
@@ -108,3 +108,21 @@ def test_expect_ok_has_file_and_s15_has_none():
     s15 = next(p for p in PAGES if p["id"] == "S-15")
     assert s15["expect"] == "unreadable"
     assert not (GOLDEN / "S-15.txt").exists()
+
+
+def test_unreadable_pages_are_fetched_and_reported(tmp_path, capsys):
+    pages = [
+        {"id": "S-01", "url": "https://example.com/a", "expect": "unreadable"},
+        {"id": "S-02", "url": "https://example.com/b", "expect": "unreadable"},
+    ]
+    seen = []
+
+    def fake(url):
+        seen.append(url)
+        return FetchOk("text here", "web") if url.endswith("/a") else FetchFail("nope")
+
+    assert save_pages.run(pages, fetch=fake, out_dir=tmp_path) == []
+    assert seen == ["https://example.com/a", "https://example.com/b"]
+    out = capsys.readouterr().out
+    assert "S-01" in out and "now readable" in out
+    assert "S-02" in out and "nope" in out

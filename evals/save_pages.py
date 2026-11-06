@@ -21,25 +21,29 @@ def run(
     fetch: Callable[[str], fetcher.FetchResult] = fetcher.fetch,
     out_dir: Path = GOLDEN_DIR,
 ) -> list[str]:
-    """Fetch every page expected to be readable and write its text.
+    """Fetch every page and write the text of those expected to be readable.
 
-    Pages marked "unreadable" are skipped: they get no golden file and a
-    failed fetch is not reported for them. A failed fetch removes any older
-    golden file for that page so stale text is not kept. Return the ids that failed.
+    Pages marked "unreadable" are fetched too but get no golden file. A failed
+    fetch prints its reason; for an expect-ok page it also removes any older
+    golden file and counts as failed. A readable page marked "unreadable" is
+    reported so the entry can be flipped. Return the ids that failed.
     """
     failed: list[str] = []
     for page in pages:
-        if page["expect"] != "ok":
-            continue
+        expect_ok = page["expect"] == "ok"
         result = fetch(page["url"])
         if isinstance(result, fetcher.FetchOk):
-            out_dir.mkdir(parents=True, exist_ok=True)
-            text = save.normalise_text(result.text)
-            (out_dir / f"{page['id']}.txt").write_text(text, encoding="utf-8")
+            if expect_ok:
+                out_dir.mkdir(parents=True, exist_ok=True)
+                text = save.normalise_text(result.text)
+                (out_dir / f"{page['id']}.txt").write_text(text, encoding="utf-8")
+            else:
+                print(f"{page['id']} {page['url']}: now readable, expect is unreadable")
         else:
-            (out_dir / f"{page['id']}.txt").unlink(missing_ok=True)
             print(f"{page['id']} {page['url']}: {result.reason}")
-            failed.append(page["id"])
+            if expect_ok:
+                (out_dir / f"{page['id']}.txt").unlink(missing_ok=True)
+                failed.append(page["id"])
     return failed
 
 
