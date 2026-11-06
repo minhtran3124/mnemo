@@ -142,6 +142,9 @@ def run(
     overlaps: list[float] = []
     honest_ok = honest_total = 0
     faith_ok = faith_total = 0
+    # Per group [passed, total] for save quality, so a gain on the tuning pages
+    # that does not reach the held-out pages shows in the log.
+    split = {True: [0, 0], False: [0, 0]}
 
     for page in pages:
         page_id = page["id"]
@@ -186,10 +189,13 @@ def run(
 
         if entry.expect == "ok":
             save_total += 1
-            save_ok += int(
+            page_ok = int(
                 record["page_status"] == "ok"
                 and all(grades[name].passed for name in SAVE_CHECKS)
             )
+            save_ok += page_ok
+            split[entry.held_out][0] += page_ok
+            split[entry.held_out][1] += 1
             overlaps.append(grades["tag_overlap"].score or 0.0)
         else:
             honest_total += 1
@@ -214,6 +220,13 @@ def run(
         f"Honesty: {_fmt(honesty)} "
         f"({honest_ok}/{honest_total} unreadable pages honest, "
         f"{faith_ok}/{faith_total} readable pages with 0 unsupported statements)"
+    )
+    held_ok, held_total = split[True]
+    tune_ok, tune_total = split[False]
+    print(
+        f"Save quality held-out: {_fmt(_rate(held_ok, held_total))} "
+        f"({held_ok}/{held_total} pass) | "
+        f"tuning: {_fmt(_rate(tune_ok, tune_total))} ({tune_ok}/{tune_total} pass)"
     )
     print("Find rate: - (available from phase 4)")
     print(f"Tokens used: {tokens}")

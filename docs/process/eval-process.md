@@ -15,7 +15,7 @@ A golden set is a fixed list of inputs with the answers you expect. Save the pag
 The set files are in `evals/golden/`. See [test cases](../feature-specs/test-cases/README.md) for content.
 
 ## Held-out set
-Keep 5 of the 20 save pages as a held-out set. Never use them as prompt examples. If a score rises on the other 15 but not on these 5, the gain may not be real. At least 2 of the 5 should be hard cases.
+Keep 5 of the 20 save pages as a held-out set. Never use them as prompt examples. If a score rises on the other 15 but not on these 5, the gain may not be real. At least 2 of the 5 should be hard cases. `run_eval.py` prints the save quality of the held-out pages and of the tuning pages on separate lines; compare them after each run. runs.csv keeps the pooled figure.
 
 ## Baseline twice
 Run the first version of the prompt two times. The gap between the two runs is your noise level. A later change must beat that gap, or you cannot say it helped.

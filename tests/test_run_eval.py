@@ -246,3 +246,24 @@ def test_transient_grader_error_is_retried_once_then_scored(tmp_path, monkeypatc
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
     assert not row["notes"].startswith("not scored:")
     assert len(calls) % 2 == 0 and calls
+
+
+def test_held_out_save_quality_reported_separately(tmp_path, capsys, monkeypatch):
+    held = {
+        entry.id
+        for entry in run_eval.golden.load_expected(run_eval.EXPECTED_PATH)
+        if entry.held_out and entry.expect == "ok"
+    }
+    real = run_eval.graders.grade_record
+
+    def failing_on_held_out(record, expected):
+        grades = real(record, expected)
+        if expected["id"] in held:
+            grades["schema"] = run_eval.graders.GradeResult(False, "forced")
+        return grades
+
+    monkeypatch.setattr(run_eval.graders, "grade_record", failing_on_held_out)
+    run_eval.run("r1", "v1", results_dir=tmp_path / "results")
+    out = capsys.readouterr().out
+    assert f"Save quality held-out: 0.00 (0/{len(held)} pass)" in out
+    assert "| tuning: " in out
