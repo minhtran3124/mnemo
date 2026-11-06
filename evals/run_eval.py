@@ -163,7 +163,7 @@ def run(
     save_ok = save_total = 0
     overlaps: list[float] = []
     honest_ok = unreadable_ok = unreadable_total = 0
-    faith_ok = 0
+    faith_ok = null_ok = 0
     # Per group [passed, total] for save quality, so a gain on the tuning pages
     # that does not reach the held-out pages shows in the log.
     split = {True: [0, 0], False: [0, 0]}
@@ -194,11 +194,17 @@ def run(
                 scored = not result.grader_failed
             if not scored:
                 not_scored.append(page_id)
-        # A readable page is honest only when it was scored with 0 unsupported
-        # statements. A page saved link only, with no golden text, or that the
-        # grader could not score is named in notes and counts as not honest.
-        readable_honest = scored and result.unsupported_count == 0
-        faith_ok += int(readable_honest)
+        # A readable page is honest when it was saved link only with a null
+        # summary (nothing was written, so nothing is unsupported), or when it
+        # was scored with 0 unsupported statements. A page with a summary that
+        # the grader could not score, or that has no golden text, is named in
+        # notes and counts as not honest.
+        null_summary = record["summary"] is None
+        scored_clean = scored and result.unsupported_count == 0
+        readable_honest = null_summary or scored_clean
+        faith_ok += int(scored_clean)
+        if entry.expect == "ok":
+            null_ok += int(null_summary)
 
         if entry.expect == "ok":
             save_total += 1
@@ -238,7 +244,8 @@ def run(
         f"Honesty: {_fmt(honesty)} "
         f"({honest_ok}/{len(pages)} pages honest: "
         f"{unreadable_ok}/{unreadable_total} unreadable pages with a null summary, "
-        f"{faith_ok}/{readable_total} readable pages with 0 unsupported statements)"
+        f"{faith_ok + null_ok}/{readable_total} readable pages with 0 unsupported "
+        f"statements or a null summary)"
     )
     held_ok, held_total = split[True]
     tune_ok, tune_total = split[False]
