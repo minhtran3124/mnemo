@@ -36,6 +36,7 @@ Out: the MCP interface ([mcp-server.md](mcp-server.md)).
 | `POST /api/bookmarks/:id/paste` | Fill in an unreadable bookmark from pasted text. The same bookmark is updated (id, `saved_at`, `opened_count`, folder and a user-written reason are kept); `page_status` becomes `ok`. The Claude call runs outside the server lock, the store write inside it | `text` | Updated record. Unknown id gives 404 `bookmark_not_found`; a bookmark that is not unreadable gives 409 `already_read`; text under the pasted-text floor gives 400 `text_too_short`; invalid output after one retry gives 502 `summary_failed` and nothing changes. Auth and config errors propagate as in a normal save |
 | `POST /api/bookmarks/:id/undo` | Undo the last filing or Move: restore `prev_folder` and clear it (phase 3) | none | Updated record. An unknown id gives 404 `bookmark_not_found`; nothing to undo gives 409 `nothing_to_undo` |
 | `DELETE /api/bookmarks/:id` | Delete the bookmark and its saved page text | none | `{"deleted": id}` with 200. Unknown id gives 404 `bookmark_not_found` |
+| `POST /api/import/preview` | Count the links in a browser export or pasted text and estimate the cost before any import. No page is fetched and no Claude call is made (IM-04) | `file` (browser export HTML) or `text` (pasted text); `file` wins when both are present | `{"found": N, "new": N, "already_saved": N, "slack": N, "estimate": 0.03, "message": "5 links found."}`. Links already saved are counted in `already_saved`, not `new`; `slack` counts found Slack archive links. No link gives `found` = 0 and message `"No links found."` |
 | `POST /api/import` | Start or continue an import | File or pasted text; `stage` (estimate, run) | Count, cost estimate, batch result |
 | `POST /api/share` | Save from the iPhone Shortcut | `url`, token | Same card data as chat |
 | `GET /api/folders` | List folders with counts | none | List of folders |
@@ -53,15 +54,23 @@ Open question: the upload endpoint for PDFs and screenshots.
 
 `uv run python -m mnemo.api.server` starts the server on `127.0.0.1` (`HOST` in `mnemo/api/server.py`). It never binds to another address.
 
-## POST /api/chat in phase 1
+## POST /api/chat
 
 - Request: `message` (required) and optional `pasted_text`. `pasted_text` applies only to the first link in the same message.
 - A blank or whitespace-only `message` returns 400 with code `empty_message`.
 - A message with one or more distinct links saves each in order (links with the same `url_clean` are saved once) and returns `{"kind": "cards", "cards": [record, ...]}`. If a link fails to store (a `StoreError` or `OSError`) after another saved, the response is still 200 with the saved cards plus `"failed": [link, ...]`, so a retry does not save them twice. If no link saved, the response is the usual 500. Missing key, auth and other permanent errors (the policy in `save.is_permanent_error`: a missing key and any non-transient 4xx from Claude) are never put in `failed`, for any link and in any order: they return the usual JSON 500, even after another link saved. Only storage errors and, after a card saved, other unexpected errors go in `failed`.
-- A message with no link returns `{"kind": "text", "text": "I can only save links for now. Asking comes later."}`. Nothing is sent to Claude.
+- A message with no link that is not `note <id> <text>` goes to `ask.run_ask`. The reply is `{"kind": "answer", "text": "<the model text>", "bookmarks": [{"id": N, "title": "...", "type": "...", "reason": "...", "reason_source": "user" | "guess"}, ...]}` with at most 3 bookmarks. A guessed reason carries `reason_source` = `guess` so the page can mark it. When the list is empty, `text` is `"nothing found"` and `bookmarks` is empty. A Claude error returns the usual JSON 500.
 - Both sides of the exchange are appended to the chat history (see D-029 for the history shape and D-033 for a planned change to `note` with a link).
 
 Page routes (HTML, not API): `GET /` chat, `GET /bookmarks` bookmark page, `GET /settings` settings (D-034).
+
+## POST /api/import/preview
+
+- Request: `file` (the browser export HTML) or `text` (pasted text). `file` wins when both are present; neither gives the no-links result. A Pydantic JSON body.
+- The route runs the link finder from `mnemo/chat/importer.py`, then asks `store.find_by_url_clean` whether each link is already saved. It makes no fetch and no Claude call.
+- Response fields: `found` (every link found), `new` (links not already saved), `already_saved` (links with a matching `url_clean`), `slack` (found links that are Slack archive links, saved or not), `estimate` (a number in US dollars) and `message`.
+- `estimate = round(new × IMPORT_TOKENS_PER_LINK × IMPORT_PRICE_PER_MILLION_TOKENS / 1_000_000, 6)`. Both constants live in `mnemo/core/config.py`. Unverified: the per-link token figure and the current Claude API prices; check both against the official pricing page.
+- No links found returns `found` = 0, `estimate` = 0.0 and the message `"No links found."`; otherwise the message is `"N links found."`.
 
 ## Error format (proposed)
 

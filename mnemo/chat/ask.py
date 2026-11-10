@@ -16,8 +16,9 @@ from mnemo.core import client, config
 
 ASK_SYSTEM = (
     "Answer the user's question from the saved bookmarks. Use the tools to look "
-    "them up. Use at most 3 bookmarks in one answer and name their numbers. If "
-    'nothing fits, say "nothing found". Never invent a bookmark.'
+    "them up. Use at most 3 bookmarks in one answer. Name each bookmark you use "
+    'as #<number>, for example #3. If nothing fits, say "nothing found". Never '
+    "invent a bookmark."
 )
 
 

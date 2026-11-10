@@ -49,6 +49,13 @@ Out: the better search of phase 5 (see [search-no-embeddings.md](search-no-embed
 
 The loop stops after `config.ASK_MAX_ROUNDS` (6) rounds and returns an error result instead of looping forever. It returns an `AskResult` with the final text, every tool call it made, and an optional error code. Each Claude call logs its token counts like the other calls.
 
+### Route in the chat
+
+`POST /api/chat` sends a message with no link (and not a `note <id> <text>` command) to `ask.run_ask`. The reply is `{"kind": "answer", "text": ..., "bookmarks": [...]}`.
+
+Claude is asked to name each bookmark as `#<id>`. The server reads those numbers, fetches the stored records and keeps at most `config.ASK_ANSWER_LIMIT` (3). Each result has `id`, `title`, `type`, `reason` and `reason_source`, so the page can mark a guessed reason. When no bookmark survives, the text is "nothing found" and the list is empty. The question and the answer are saved to chat history, with the bookmark ids on the app message. A Claude error returns the usual JSON 500.
+
+
 
 
 Tools return clear errors. When a tool fails, the loop sends the error back with `is_error` set, so Claude can react.

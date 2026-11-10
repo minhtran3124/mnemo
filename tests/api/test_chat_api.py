@@ -2,11 +2,11 @@ import pytest
 from fastapi.testclient import TestClient
 
 from mnemo import fetcher
+from mnemo.chat import ask
 from mnemo.core import store
 from mnemo.save import pipeline as save
 
 FAKE_KEY = "sk-ant-fake-key-for-tests"
-LINKS_ONLY = "I can only save links for now. Asking comes later."
 LONG = "word " * 100
 
 
@@ -29,6 +29,18 @@ def api(monkeypatch, tmp_path):
     from mnemo.api import server
 
     return TestClient(server.app)
+
+
+@pytest.fixture
+def ask_calls(monkeypatch):
+    calls = []
+
+    def fake(question):
+        calls.append(question)
+        return ask.AskResult(text="nothing found")
+
+    monkeypatch.setattr(ask, "run_ask", fake)
+    return calls
 
 
 @pytest.fixture
@@ -70,18 +82,24 @@ def test_link_message_returns_a_card(api, fetch_calls, parse_calls):
     assert fetch_calls == ["https://example.com/a"]
 
 
-def test_message_without_a_link_gets_the_links_only_text(api):
+def test_message_without_a_link_goes_to_ask(api, ask_calls):
     response = api.post("/api/chat", json={"message": "what is a bookmark?"})
 
     assert response.status_code == 200
-    assert response.json() == {"kind": "text", "text": LINKS_ONLY}
+    assert response.json() == {
+        "kind": "answer",
+        "text": "nothing found",
+        "bookmarks": [],
+    }
+    assert ask_calls == ["what is a bookmark?"]
 
 
-def test_message_without_a_link_calls_neither_claude_nor_the_fetcher(
-    api, fetch_calls, parse_calls
+def test_message_without_a_link_does_not_save_or_fetch(
+    api, ask_calls, fetch_calls, parse_calls
 ):
     api.post("/api/chat", json={"message": "hello there"})
 
+    assert ask_calls == ["hello there"]
     assert parse_calls == []
     assert fetch_calls == []
     assert store.list_bookmarks() == []
