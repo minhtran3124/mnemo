@@ -31,10 +31,10 @@ Pick one choice and write it down first.
 - [ ] The agent stops at its step limit.
 
 ## Risks
-A wrong fix hurts your list. See [risk review](../../research/risk-review.md).
+A wrong fix hurts your list. See [risk review](../research/risk-review.md).
 
 ## If time runs short
 Cut it first (first in cut order).
 
 ## Links to specs
-[page reading](../../feature-specs/page-reading.md) · [digest and roast](../../feature-specs/digest-and-roast.md) · [roadmap](../roadmap.md)
+[page reading](../feature-specs/page-reading.md) · [digest and roast](../feature-specs/digest-and-roast.md) · [roadmap](../product/roadmap.md)

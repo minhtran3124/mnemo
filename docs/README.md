@@ -26,20 +26,25 @@ Four pages draw these docs as pictures. They are snapshots of `main` at commit `
 
 The design mockup (V3, light and dark) is linked from [frontend UI](feature-specs/frontend-ui.md). Its source is saved in [design/v3-mockup](design/v3-mockup/README.md), and [UI reference](feature-specs/ui-reference.md) says how the build must follow it.
 
-Building these pages found conflicts between docs. They are not fixed yet: JSON output method (classification vs tech stack), Render disk (storage vs tech stack), two writers (storage vs D-022), empty `folder` (data model vs folders), what is logged (data model vs folders), duplicate check in import (import vs phase 5), private mode details. Open question: fix them in a separate PR.
+Building these pages found conflicts between docs. They are listed under [Open question: conflicts between docs](#open-question-conflicts-between-docs).
 
 ## Folder map
 
-| Folder | What is inside |
+Each folder answers one question. A new doc goes in the folder whose question it answers.
+
+| Folder | Purpose (one line) |
 | --- | --- |
-| [`product/`](product/) | PRD, roadmap, phases overview. [`product/plans/`](product/plans/) has one plan per phase (0 to 10, A, B, C). |
-| [`feature-specs/`](feature-specs/) | One spec per feature area: data model, chat, page reading, filing, folders, views, search, import, API, privacy, storage. [`test-cases/`](testing/golden-sets/) has the golden sets and hard cases. |
-| [`manual-testing/`](testing/) | Test strategy, smoke checklist, the two-week user test, phone and Shortcut test, [phase 1 links check](testing/phase1-links-check.md). |
-| [`process/`](process/) | How we work: agreements, definition of done, eval process, secrets, session log, decision log. |
-| [`reference/`](reference/) | Glossary, course map, competitors, API notes to verify, sample links. |
-| [`research/`](research/) | Open questions, local vs online, naming, hosting check, embeddings alternatives. |
-| [`reviews/`](research/) | Risk review, design review of the five mockups, pre-start checklist. |
-| [`solutions/`](solutions/) | Short notes on problems we already solved on paper: honest failure, URL cleaning, Slack pages, big PDFs, safe auto-filing. |
+| [`product/`](product/) | What we build and why: PRD, roadmap, phases overview, tech stack. |
+| [`plans/`](plans/) | What we do next: one plan per phase (0 to 10, A, B, C). |
+| [`feature-specs/`](feature-specs/) | What each feature must do: one spec per feature area. |
+| [`testing/`](testing/) | How we check the app: test strategy, manual checks, eval process. [`golden-sets/`](testing/golden-sets/) has the golden sets and hard cases. |
+| [`process/`](process/) | How we work and the running record: agreements, definition of done, secrets, pre-start checklist, decision log, session log. |
+| [`reference/`](reference/) | Facts to look up: glossary, API notes, sample links, competitors, course map. |
+| [`research/`](research/) | Investigations and reviews that end in a finding, a decision or an open question: open questions, hosting, naming, risk review, design review. |
+| [`solutions/`](solutions/) | How we handle one hard case: honest failure, URL cleaning, Slack pages, big PDFs, safe auto-filing. |
+| [`design/`](design/) | Source files of the UI mockup ([V3](design/v3-mockup/README.md)). |
+
+Where does a new doc go? A requirement goes in `feature-specs/`. A way to check it goes in `testing/`. A choice with reasons goes in `process/decision-log.md`. A fact you looked up goes in `reference/`. A question you answered by investigating goes in `research/`.
 
 ## IDs used in all docs
 
@@ -52,6 +57,10 @@ Building these pages found conflicts between docs. They are not fixed yet: JSON 
 - Plain English. No calendar dates. Phases and sessions only.
 - Anything not checked is marked **Unverified** or **Open question**. Do not treat it as fact.
 - If a doc and the code disagree, fix the doc in the same session.
+
+## Open question: conflicts between docs
+
+Building these pages found conflicts between docs. They are not fixed yet: JSON output method (classification vs tech stack), Render disk (storage vs tech stack), two writers (storage vs D-022), empty `folder` (data model vs folders), what is logged (data model vs folders), duplicate check in import (import vs phase 5), private mode details. **Open question**: fix them in a separate PR. Not resolved here.
 
 ## Known gaps
 

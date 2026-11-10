@@ -32,10 +32,10 @@ Phase 4 done. `open <id>` logging works. A list with some never-opened bookmarks
 - [ ] Thinking is kept or dropped based on the eval.
 
 ## Risks
-Roast invents a number; caching does not help. See [risk review](../../research/risk-review.md).
+Roast invents a number; caching does not help. See [risk review](../research/risk-review.md).
 
 ## If time runs short
 Cut caching and thinking (third in cut order). Keep digest and roast.
 
 ## Links to specs
-[digest and roast](../../feature-specs/digest-and-roast.md) · [duplicates](../../feature-specs/duplicates.md) · [storage](../../feature-specs/storage.md) · [eval process](../../testing/eval-process.md)
+[digest and roast](../feature-specs/digest-and-roast.md) · [duplicates](../feature-specs/duplicates.md) · [storage](../feature-specs/storage.md) · [eval process](../testing/eval-process.md)

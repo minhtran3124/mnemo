@@ -10,7 +10,7 @@ The eval harness reports an honesty score that can fail, and the faithful-summar
 Trust a change in the three scores.
 
 ## Inputs
-Phase 2 merged (PR #95, baseline PR #96). See the "Baseline and noise" section of [eval process](../../testing/eval-process.md).
+Phase 2 merged (PR #95, baseline PR #96). See the "Baseline and noise" section of [eval process](../testing/eval-process.md).
 
 ## Tasks
 Each task is one change with its own check, so each can become one ticket.
@@ -23,7 +23,7 @@ Each task is one change with its own check, so each can become one ticket.
 
 ## Not tickets (owner does these)
 - Read the 15 draft answers in `evals/expected.json` and set `draft` to `false`.
-- Send the full addresses of the six missing golden pages (rows 5, 6, 12, 13, 15 and 18 of [sample links](../../reference/sample-links.md)). A ticket can be written when they are known.
+- Send the full addresses of the six missing golden pages (rows 5, 6, 12, 13, 15 and 18 of [sample links](../reference/sample-links.md)). A ticket can be written when they are known.
 
 ## Done when
 - [ ] A run with a broken save prompt gives an honesty score below 1.00.
@@ -33,7 +33,7 @@ Each task is one change with its own check, so each can become one ticket.
 - [ ] S-03, S-06 and S-09 are graded the same in two runs.
 
 ## Risks
-The grader is a model, so Task 5 can reduce noise but not remove it. See [eval process](../../testing/eval-process.md).
+The grader is a model, so Task 5 can reduce noise but not remove it. See [eval process](../testing/eval-process.md).
 
 ## Links to specs
-[eval process](../../testing/eval-process.md) · [save golden set](../../testing/golden-sets/save-golden-set.md) · [phase 2 plan](phase-2-eval-harness.md)
+[eval process](../testing/eval-process.md) · [save golden set](../testing/golden-sets/save-golden-set.md) · [phase 2 plan](phase-2-eval-harness.md)

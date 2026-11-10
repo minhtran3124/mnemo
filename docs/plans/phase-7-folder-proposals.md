@@ -32,10 +32,10 @@ Phase 3 (filing and Route set) done. Enough saved bookmarks to need folders (an 
 - [ ] Undo still works.
 
 ## Risks
-An agent or tool changes your data. Proposals only. See [risk review](../../research/risk-review.md).
+An agent or tool changes your data. Proposals only. See [risk review](../research/risk-review.md).
 
 ## If time runs short
 Cut the router and parallel parts (fourth in cut order). Keep the `folders` tool.
 
 ## Links to specs
-[folders](../../feature-specs/folders.md) · [classification and filing](../../feature-specs/classification-and-filing.md) · [route set](../../testing/golden-sets/route-set.md) · [safe auto-filing](../../solutions/safe-auto-filing.md)
+[folders](../feature-specs/folders.md) · [classification and filing](../feature-specs/classification-and-filing.md) · [route set](../testing/golden-sets/route-set.md) · [safe auto-filing](../solutions/safe-auto-filing.md)

@@ -23,7 +23,7 @@ def client(monkeypatch, tmp_path):
     return TestClient(server.app)
 
 
-# A tiny fake DOM and a stubbed fetch. It loads web/js/chat.js, optionally
+# A tiny fake DOM and a stubbed fetch. It loads mnemo/api/web/js/chat.js, optionally
 # types text into the first Paste box and presses its Save button, then prints
 # what the page drew and every fetch it made.
 NODE_HARNESS = r"""

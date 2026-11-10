@@ -42,7 +42,7 @@ Each retry and each link-only fallback is logged once with the exception class a
 - Tested by the most important code check: an unreadable page gives a null summary.
 
 ## Where used
-F-01, F-02, F-04. See [page reading](../feature-specs/page-reading.md) and [phase 1 plan](../product/plans/phase-1-chat-and-bookmark-pages.md).
+F-01, F-02, F-04. See [page reading](../feature-specs/page-reading.md) and [phase 1 plan](../plans/phase-1-chat-and-bookmark-pages.md).
 
 ## Tests
 | Test | Expected |

@@ -48,7 +48,7 @@ for _folder in ("css", "js", "fonts"):
 
 
 def render_page(name: str) -> str:
-    """Read a page from web/ and put the shared header where it says <!--HEADER-->."""
+    """Read a page from mnemo/api/web/ and put the shared header where it says <!--HEADER-->."""
     header = (WEB_DIR / "partials" / "header.html").read_text(encoding="utf-8")
     page = (WEB_DIR / name).read_text(encoding="utf-8")
     return page.replace("<!--HEADER-->", header)

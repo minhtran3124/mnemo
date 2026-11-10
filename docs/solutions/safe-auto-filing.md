@@ -28,7 +28,7 @@ Open question: the `folder` field is null until accepted or filed (data model). 
 - Filing accuracy is measured on the Route set (15 links) in the eval.
 
 ## Where used
-F-03, F-13. See [classification and filing](../feature-specs/classification-and-filing.md) and [phase 3 plan](../product/plans/phase-3-trust-and-filing.md).
+F-03, F-13. See [classification and filing](../feature-specs/classification-and-filing.md) and [phase 3 plan](../plans/phase-3-trust-and-filing.md).
 
 ## Tests
 | Test | Expected |

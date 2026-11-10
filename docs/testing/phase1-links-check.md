@@ -1,7 +1,7 @@
 # Phase 1 links check
 Status: Draft v0.1 · Owner: KhoiTran · Phase: 1
 
-The 5 links in "Phase 1 test set" of [sample links](../reference/sample-links.md) were pasted into the running app (`uv run python server.py`, bound to 127.0.0.1, run on 2026-11-05). The chat route `POST /api/chat` was called with the same body the page sends. Each saved title, type, tags and summary was read against the page text the app stored in `data/pages/<id>.txt`. A row is `ok` only when the summary holds no invented fact. For the unreadable case, `ok` means saved as link only with a null summary, then filled in through `POST /api/bookmarks/{id}/paste` with the same bookmark id.
+The 5 links in "Phase 1 test set" of [sample links](../reference/sample-links.md) were pasted into the running app (`uv run python -m mnemo.api.server`, bound to 127.0.0.1, run on 2026-11-05). The chat route `POST /api/chat` was called with the same body the page sends. Each saved title, type, tags and summary was read against the page text the app stored in `data/pages/<id>.txt`. A row is `ok` only when the summary holds no invented fact. For the unreadable case, `ok` means saved as link only with a null summary, then filled in through `POST /api/bookmarks/{id}/paste` with the same bookmark id.
 
 ## Results
 

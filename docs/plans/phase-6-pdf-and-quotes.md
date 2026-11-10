@@ -13,13 +13,13 @@ Get quotes, and save PDFs.
 2 sessions. Lessons 41, 42.
 
 ## Inputs
-Phase 4 done. One small PDF and the 580-page book from the [hard cases](../../testing/golden-sets/hard-cases.md).
+Phase 4 done. One small PDF and the 580-page book from the [hard cases](../testing/golden-sets/hard-cases.md).
 
 ## Tasks
 1. Check the current PDF page and size limits in lesson 41 and the official docs. They are Unverified; do not trust the numbers in this plan.
 2. Add a size check in code before the API call (page count and file size).
 3. Send a small PDF as a document block. Save it as type `pdf`.
-4. For a big PDF, send only the first pages and the table of contents. The card must say "summary from the first pages only". See [big PDFs](../../solutions/big-pdfs.md).
+4. For a big PDF, send only the first pages and the table of contents. The card must say "summary from the first pages only". See [big PDFs](../solutions/big-pdfs.md).
 5. Turn on citations in answers.
 6. Add a code check: every quoted sentence exists in the saved page text (`data/pages/<id>.txt`).
 7. Test with a quote that does not exist; the check must fail it.
@@ -31,10 +31,10 @@ Phase 4 done. One small PDF and the 580-page book from the [hard cases](../../te
 - [ ] A made-up quote is rejected.
 
 ## Risks
-Limits unknown; first pages of a book hold little content (cover layout, copyright). See [risk review](../../research/risk-review.md).
+Limits unknown; first pages of a book hold little content (cover layout, copyright). See [risk review](../research/risk-review.md).
 
 ## If time runs short
 Cut quotes, keep PDF. This phase is fifth in the cut order.
 
 ## Links to specs
-[PDF and screenshots](../../feature-specs/pdf-and-screenshots.md) · [ask and answers](../../feature-specs/ask-and-answers.md) · [page reading](../../feature-specs/page-reading.md) · [hard cases](../../testing/golden-sets/hard-cases.md)
+[PDF and screenshots](../feature-specs/pdf-and-screenshots.md) · [ask and answers](../feature-specs/ask-and-answers.md) · [page reading](../feature-specs/page-reading.md) · [hard cases](../testing/golden-sets/hard-cases.md)

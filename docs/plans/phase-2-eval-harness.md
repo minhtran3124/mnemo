@@ -13,7 +13,7 @@ See whether a change helps.
 3 sessions. Lessons 9-14.
 
 ## Inputs
-Phase 1 done. 20 links chosen (include the PDF, Slack link, YouTube video, failed fetch, repeat link, index page; at least 2 of the 5 hidden links are hard cases). See [save golden set](../../testing/golden-sets/save-golden-set.md).
+Phase 1 done. 20 links chosen (include the PDF, Slack link, YouTube video, failed fetch, repeat link, index page; at least 2 of the 5 hidden links are hard cases). See [save golden set](../testing/golden-sets/save-golden-set.md).
 
 ## Tasks
 1. Save the text of 20 pages to `evals/golden/`, so each run uses the same input.
@@ -25,7 +25,7 @@ Phase 1 done. 20 links chosen (include the PDF, Slack link, YouTube video, faile
 7. Show three scores side by side. Do not merge them into one average.
 8. Run the baseline twice. The gap is your noise level.
 9. Read 3 results and the grader's reasons. Fix the grader first if you disagree.
-10. Write down what you changed in the [session log](../../process/session-log-template.md). Do not improve any prompt in this phase.
+10. Write down what you changed in the [session log](../process/session-log-template.md). Do not improve any prompt in this phase.
 
 ## Done when
 - [ ] One command scores the 20 pages and prints three numbers.
@@ -35,10 +35,10 @@ Phase 1 done. 20 links chosen (include the PDF, Slack link, YouTube video, faile
 - [ ] The CSV has one row per run.
 
 ## Risks
-The eval is subjective and the grader is a model. See [eval process](../../testing/eval-process.md).
+The eval is subjective and the grader is a model. See [eval process](../testing/eval-process.md).
 
 ## If time runs short
 Keep the code checks and the faithful-summary grader. Cut tag overlap.
 
 ## Links to specs
-[save golden set](../../testing/golden-sets/save-golden-set.md) · [hard cases](../../testing/golden-sets/hard-cases.md) · [test cases README](../../testing/golden-sets/README.md) · [test strategy](../../testing/test-strategy.md)
+[save golden set](../testing/golden-sets/save-golden-set.md) · [hard cases](../testing/golden-sets/hard-cases.md) · [test cases README](../testing/golden-sets/README.md) · [test strategy](../testing/test-strategy.md)

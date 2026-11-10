@@ -41,7 +41,7 @@ This file lists everything you need before phase 0. Tick each box. Nothing here 
 ## Docs read
 - [ ] [Working agreements](../process/working-agreements.md)
 - [ ] [Definition of done](../process/definition-of-done.md)
-- [ ] [Phase 0 plan](../product/plans/phase-0-setup.md)
+- [ ] [Phase 0 plan](../plans/phase-0-setup.md)
 - [ ] [Decision log](../process/decision-log.md)
 - [ ] [Open questions](../research/open-questions.md)
 

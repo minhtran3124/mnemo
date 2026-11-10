@@ -29,7 +29,7 @@ These come from NF-05 in the [frontend UI spec](../feature-specs/frontend-ui.md)
 | 4 | Look at page source and network tab | No API key anywhere (NF-01) |
 | 5 | Try to open a data address directly | Not served without login |
 
-See [privacy and security](../feature-specs/privacy-and-security.md) and [phase A plan](../product/plans/phase-a-online-host.md).
+See [privacy and security](../feature-specs/privacy-and-security.md) and [phase A plan](../plans/phase-a-online-host.md).
 
 ## Shortcut early test (phase B)
 Do this with one link before you rely on it.
@@ -42,7 +42,7 @@ Do this with one link before you rely on it.
 7. Share a link with `utm_*` in it. Check that the saved link is clean.
 8. Share while the server is off. Note what the phone shows.
 
-Steps and rules are in [share shortcut spec](../feature-specs/share-shortcut.md) and [phase B plan](../product/plans/phase-b-iphone-shortcut.md).
+Steps and rules are in [share shortcut spec](../feature-specs/share-shortcut.md) and [phase B plan](../plans/phase-b-iphone-shortcut.md).
 
 ## Fallback
 If the Shortcut fails, open the chat page in Safari and paste the link. This is the planned fallback. Do not build a native iPhone app (decision D-008).

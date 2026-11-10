@@ -107,4 +107,4 @@ Each version changes one thing from the version before it. The run id and the ve
 - Change one thing per run.
 - Log every run, including bad ones.
 
-Related: [definition of done](../process/definition-of-done.md), [phase 2 plan](../product/plans/phase-2-eval-harness.md).
+Related: [definition of done](../process/definition-of-done.md), [phase 2 plan](../plans/phase-2-eval-harness.md).

@@ -9,7 +9,7 @@ from pathlib import Path
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Haiku 5.5 for save.py (D-022). Name checked on the official models page.
+# Haiku 5.5 for mnemo/save/pipeline.py (D-022). Name checked on the official models page.
 MODEL = "claude-haiku-5-5"
 
 # Sonnet 5.5 grades summaries in the eval harness. The grader is stronger than
@@ -62,7 +62,7 @@ FETCH_MAX_URL_CHARS = 2048
 FETCH_DNS_TIMEOUT = 5.0
 
 # Minimum text after whitespace is collapsed (PR-04). The fetcher only exposes
-# these; save.py decides when text is too short.
+# these; mnemo/save/pipeline.py decides when text is too short.
 MIN_TEXT_CHARS_HTML = 300
 MIN_TEXT_CHARS_GITHUB = 40
 # Pasted text skips the fetch but uses the same low floor, so a one-character

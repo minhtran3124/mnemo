@@ -28,7 +28,7 @@ Open question: how many first pages to send, and how to find the table of conten
 - Size check in code is exact and cheap.
 
 ## Where used
-F-10 (PDF part), F-08. See [PDF and screenshots](../feature-specs/pdf-and-screenshots.md) and [phase 6 plan](../product/plans/phase-6-pdf-and-quotes.md).
+F-10 (PDF part), F-08. See [PDF and screenshots](../feature-specs/pdf-and-screenshots.md) and [phase 6 plan](../plans/phase-6-pdf-and-quotes.md).
 
 ## Tests
 | Test | Expected |
