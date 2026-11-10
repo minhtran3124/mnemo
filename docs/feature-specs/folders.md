@@ -31,7 +31,7 @@ Out: how Claude is prompted (see [classification-and-filing.md](classification-a
 
 ### Starter folders
 
-You write 5 or 6 starter folders yourself, in `config.py`. Examples only, not a decision: Dev tools, Articles to read, AI and agents, Work, Fun, Unsorted. Your final list: Open question.
+The five starter folders live in `config.STARTER_FOLDERS`: Work, Learning, Reference, Personal, Ideas. `config.UNSORTED` is `Unsorted`. Code accepts only these names, with exact letter case (`config.is_allowed_folder`). `Unsorted` is stored as a null folder.
 
 ### Why Unsorted
 
@@ -43,7 +43,7 @@ Move shows the list of existing folders. You pick one. The change is saved at on
 
 ### Undo
 
-Undo puts the bookmark back to the folder it had before the last filing or Move. Open question: how many steps back Undo can go. Start with one step.
+Undo puts the bookmark back to the folder it had before the last filing or Move. The record keeps that folder in `prev_folder`; a null `prev_folder` means there is nothing to undo. When the previous folder was `Unsorted`, `prev_folder` holds the string `Unsorted`, so a Move from Unsorted can still be undone. Undo goes back one step only.
 
 ### Folder proposals (phase 7)
 
@@ -59,7 +59,7 @@ Undo puts the bookmark back to the folder it had before the last filing or Move.
 | Claude returns a folder that does not exist | Rejected. Filed in `Unsorted`. Counted in the log. |
 | You rename or delete a folder that holds bookmarks | Open question. Safe default: move them to `Unsorted`. |
 | Two folders fit | Claude picks the best one or `Unsorted`. |
-| Private link (proposed F-19) | Open question: filed to `Unsorted` since no API call is made. |
+| Private link (F-19) | Filed to `Unsorted`, because a private save makes no Claude call and Claude is the only step that picks a folder. |
 
 ## Acceptance criteria
 
@@ -77,6 +77,4 @@ Undo puts the bookmark back to the folder it had before the last filing or Move.
 
 ## Open questions
 
-- Your 5 or 6 starter folders.
-- Undo depth.
 - What happens to bookmarks when a folder is deleted.

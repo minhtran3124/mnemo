@@ -37,6 +37,7 @@ class SaveOutput(BaseModel):
     summary: str
     tags: list[str]
     reason: str
+    folder: str = config.UNSORTED
 
 
 # Keep the Literal in step with store.TYPES (checked at import).
@@ -85,6 +86,20 @@ def _check(out: SaveOutput) -> SaveOutput | None:
     return out.model_copy(update={"tags": tags})
 
 
+def resolve_folder(name: str) -> tuple[str | None, str | None]:
+    """Return (stored folder, rejected name).
+
+    A starter folder is stored as its name; Unsorted is stored as null. Any
+    other name is rejected by code and the bookmark goes to Unsorted, so the
+    rejected name is returned for the log (FO-03, D-005).
+    """
+    if name == config.UNSORTED:
+        return None, None
+    if config.is_allowed_folder(name):
+        return name, None
+    return None, name
+
+
 def _summarise(text: str) -> SaveOutput | None:
     """Ask Claude, with one retry. None means link only.
 
@@ -119,7 +134,7 @@ def _summarise(text: str) -> SaveOutput | None:
     return None
 
 
-def _link_only_fields(url: str, url_clean: str) -> dict:
+def _link_only_fields(url: str, url_clean: str, private: bool = False) -> dict:
     host = urlsplit(url).hostname or url
     return {
         "url": url,
@@ -132,11 +147,15 @@ def _link_only_fields(url: str, url_clean: str) -> dict:
         "reason": "",
         "reason_source": "guess",
         "folder": None,
+        "prev_folder": None,
+        "private": private,
         "opened_count": 0,
     }
 
 
-def _ok_fields(url: str, url_clean: str, out: SaveOutput) -> dict:
+def _ok_fields(
+    url: str, url_clean: str, out: SaveOutput, folder: str | None = None
+) -> dict:
     return {
         "url": url,
         "url_clean": url_clean,
@@ -147,13 +166,17 @@ def _ok_fields(url: str, url_clean: str, out: SaveOutput) -> dict:
         "tags": out.tags,
         "reason": out.reason.strip(),
         "reason_source": "guess",
-        "folder": None,
+        "folder": folder,
+        "prev_folder": config.UNSORTED if folder is not None else None,
+        "private": False,
         "opened_count": 0,
     }
 
 
-def _link_only(url: str, url_clean: str) -> dict:
-    return store.add_bookmark(_link_only_fields(url, url_clean), page_text=None)
+def _link_only(url: str, url_clean: str, private: bool = False) -> dict:
+    return store.add_bookmark(
+        _link_only_fields(url, url_clean, private), page_text=None
+    )
 
 
 def _floor_for(source: str) -> int:
@@ -164,7 +187,9 @@ def _floor_for(source: str) -> int:
     return config.MIN_TEXT_CHARS_HTML
 
 
-def preview(url: str, text: str | None) -> dict:
+def preview(
+    url: str, text: str | None, folder_choice: list[str | None] | None = None
+) -> dict:
     """Return the record fields save() would store for this text, writing nothing.
 
     Runs the same floor check, Claude call (one retry) and code checks as
@@ -172,22 +197,38 @@ def preview(url: str, text: str | None) -> dict:
     The text floor follows the fetcher: the GitHub floor for a URL that
     fetcher.parse_repo reads as a repo, else the HTML floor.
     Permanent API errors and a missing key propagate (see _summarise).
+
+    `folder_choice` is an optional one-item sink for the eval: it receives the
+    folder name the model returned, before code resolves or rejects it, so a
+    made-up name can be scored as a miss.
     """
     url_clean = urlclean.clean_url(url)
     if text is None:
+        if folder_choice is not None:
+            folder_choice.append(None)
         return _link_only_fields(url, url_clean)
     floor = _floor_for("github" if fetcher.parse_repo(url) else "web")
     norm = normalise_text(text)
     if not norm or len(norm) < floor:
+        if folder_choice is not None:
+            folder_choice.append(None)
         return _link_only_fields(url, url_clean)
     out = _summarise(norm)
     if out is None:
+        if folder_choice is not None:
+            folder_choice.append(None)
         return _link_only_fields(url, url_clean)
-    return _ok_fields(url, url_clean, out)
+    if folder_choice is not None:
+        folder_choice.append(out.folder)
+    folder, _ = resolve_folder(out.folder)
+    return _ok_fields(url, url_clean, out, folder)
 
 
-def save(url: str, pasted_text: str | None = None) -> dict:
+def save(url: str, pasted_text: str | None = None, private: bool = False) -> dict:
     """Save a bookmark and return the stored record.
+
+    A private link is saved as link only before any fetch or Claude call, so
+    nothing about its page leaves the machine (F-19, D-017).
 
     pasted_text skips the fetcher and must reach MIN_TEXT_CHARS_PASTED (a
     one-character paste must not produce an invented summary). Without it, the
@@ -197,6 +238,8 @@ def save(url: str, pasted_text: str | None = None) -> dict:
     key propagate (see _summarise).
     """
     url_clean = urlclean.clean_url(url)
+    if private:
+        return _link_only(url, url_clean, private=True)
 
     if pasted_text is not None:
         raw = pasted_text
@@ -216,7 +259,18 @@ def save(url: str, pasted_text: str | None = None) -> dict:
     if out is None:
         return _link_only(url, url_clean)
 
-    return store.add_bookmark(_ok_fields(url, url_clean, out), page_text=text)
+    folder, rejected = resolve_folder(out.folder)
+    record = store.add_bookmark(_ok_fields(url, url_clean, out, folder), page_text=text)
+    if rejected is not None:
+        store.log_event(
+            {
+                "event": "folder_rejected",
+                "id": record["id"],
+                "url_clean": url_clean,
+                "folder": rejected,
+            }
+        )
+    return record
 
 
 class FillInError(Exception):

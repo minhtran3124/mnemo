@@ -53,7 +53,7 @@ This file explains the words used in the Mnemo docs in plain English.
 | Router | A step that picks which pipeline to use, for example by link type. |
 | Unsorted | The folder that always exists. Unsure links go there (D-005). |
 | Move / Undo | Buttons on every filed card that change or reverse the folder. |
-| Private mode | Proposed (F-19): a private link is saved as link only and nothing is sent to the API. |
+| Private mode | A link marked `private` is saved as link only and nothing is sent to the API (F-19, D-017). |
 | `store.py` | The one file through which all bookmark reading and writing goes (NF-03). |
 | `.env` | A local file that holds secrets. Never committed. |
 | `127.0.0.1` | Your own computer's address. A server bound to it cannot be reached from other devices. |

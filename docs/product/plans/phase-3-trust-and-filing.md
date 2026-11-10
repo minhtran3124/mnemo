@@ -4,7 +4,7 @@ Status: Draft v0.1 · Owner: KhoiTran · Phase: 3
 Improve the cards with the eval, add safe auto-filing, Compact view and private mode.
 
 ## Goal
-F-01 (reason test), F-03 (filing with Move and Undo), F-05 (Compact), F-19 (private mode, proposed).
+F-01 (reason test), F-03 (filing with Move and Undo), F-05 (Compact), F-19 (private mode).
 
 ## You can now
 Trust the cards and the filing.
@@ -26,7 +26,7 @@ Phase 2 done with a baseline. You wrote 5-6 starter folders (open question; "Uns
 8. Add the Move and Undo actions: `PATCH /api/bookmarks/:id` (Move to an existing folder, unknown folder gives 400) and `POST /api/bookmarks/:id/undo` ([server API](../../feature-specs/server-api.md)). Add Move to every row on the bookmark page (BP-05). Decide where the previous folder is kept for Undo, in the record or in the log (open question in [storage](../../feature-specs/storage.md)).
 9. Score the folder choice on the Route set.
 10. Add the Compact view (F-05). Keep Grid and List working.
-11. Add private mode F-19: a link marked private is saved as link only and nothing is sent to the API. Add the proposed field `private`.
+11. Add private mode F-19: a link marked private is saved as link only and nothing is sent to the API. Add the `private` field.
 12. Make `reason_source` visible: "guess" label on guessed reasons.
 13. Reason test: save only real links for one week. Count how often you type a reason. This is decision point 1.
 14. Try 10 real saves. Check each folder choice, and use Move and Undo on them.

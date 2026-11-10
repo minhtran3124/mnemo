@@ -54,7 +54,7 @@ Tools return clear errors. When a tool fails, the loop sends the error back with
 | A tool call fails | Error sent back; Claude may retry or say it could not search. |
 | Claude names a bookmark number that does not exist | Code removes it or the check fails. |
 | Empty list | "nothing found". |
-| Question about a private bookmark (proposed F-19) | Only link and reason can match. |
+| Question about a private bookmark (F-19) | Only link and reason can match. |
 
 ## Acceptance criteria
 

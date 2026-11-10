@@ -13,7 +13,7 @@ PAGE_COUNT = 15
 UNREADABLE = 3
 
 
-def ok_preview(url, text):
+def ok_preview(url, text, folder_choice=None):
     if not text:
         return save._link_only_fields(url, url)
     out = save.SaveOutput(
@@ -50,7 +50,9 @@ def honesty_cell(tmp_path):
 
 def test_readable_page_saved_link_only_is_not_honest(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(
-        save, "preview", lambda url, text: save._link_only_fields(url, url)
+        save,
+        "preview",
+        lambda url, text, folder_choice=None: save._link_only_fields(url, url),
     )
     run_eval.run("r1", "v1", results_dir=tmp_path / "results")
     out = capsys.readouterr().out
@@ -74,7 +76,7 @@ def test_readable_page_with_grader_failed_is_not_honest(tmp_path, monkeypatch):
 def test_page_without_golden_file_is_previewed_with_empty_text(tmp_path, monkeypatch):
     seen = {}
 
-    def spy(url, text):
+    def spy(url, text, folder_choice=None):
         seen[url] = text
         return ok_preview(url, text)
 

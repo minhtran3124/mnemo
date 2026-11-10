@@ -10,36 +10,36 @@ Score the type choice and the folder choice. Supports F-03 and F-13. Rules: [REA
 
 ## Format
 
-Links come from [sample-links.md](../../reference/sample-links.md). The type column comes from the plan's type list ([data-model.md](../data-model.md)). The folder column stays blank until the owner picks her starter folders (open question in [folders.md](../folders.md)).
+Links come from [sample-links.md](../../reference/sample-links.md); the last row is the phase 1 login page that tests an unreadable page. Each row also has a page in the Save set, so the eval uses the saved page text and does not fetch today's web. The starter folders are Work, Learning, Reference, Personal and Ideas; `Unsorted` means "not sure". Every expected folder below is a **draft** until the owner reads the page, like `evals/expected.json`.
 
-| id | link (from sample-links.md) | expected type | expected folder |
-| --- | --- | --- | --- |
-| R-01 |  |  |  |
-| R-02 |  |  |  |
-| R-03 |  |  |  |
-| R-04 |  |  |  |
-| R-05 |  |  |  |
-| R-06 |  |  |  |
-| R-07 |  |  |  |
-| R-08 |  |  |  |
-| R-09 |  |  |  |
-| R-10 |  |  |  |
-| R-11 |  |  |  |
-| R-12 |  |  |  |
-| R-13 |  |  |  |
-| R-14 |  |  |  |
-| R-15 |  |  |  |
+| id | save page | sample link | expected type | expected folder | draft |
+| --- | --- | --- | --- | --- | --- |
+| R-01 | S-01 | #1, X post by Addy Osmani | article | Learning | yes |
+| R-02 | S-02 | #2, Pocket alternatives guide | article | Learning | yes |
+| R-03 | S-03 | #3, Airtable home | tool | Work | yes |
+| R-04 | S-04 | #4, Hugging Face skills article | article | Learning | yes |
+| R-05 | S-05 | #7, maple-font repo | github_repo | Reference | yes |
+| R-06 | S-06 | #8, ai_agents_az repo | github_repo | Learning | yes |
+| R-07 | S-07 | #9, colorfigures tool page | tool | Ideas | yes |
+| R-08 | S-08 | #10, YouTube video | video_page | Unsorted | yes |
+| R-09 | S-09 | #14, WeAreDevelopers videos index | video_page | Unsorted | yes |
+| R-10 | S-10 | #16, Airtable API introduction | tool | Unsorted | yes |
+| R-11 | S-11 | #17, Claude Code Game Studios repo | github_repo | Learning | yes |
+| R-12 | S-12 | #19, arXiv paper | article | Learning | yes |
+| R-13 | S-13 | #20, Uber AI code cleanup | article | Learning | yes |
+| R-14 | S-14 | #21, agent spec article | article | Ideas | yes |
+| R-15 | S-15 | phase 1 login page (unreadable) | tool | Unsorted | yes |
 
 ## Scoring
 
 | Check | Type | Rule |
 | --- | --- | --- |
 | Type match | Code | Equals the expected type. |
-| Folder match | Code | Equals the expected folder. |
-| Folder exists | Code | The returned folder is in the folder list or `Unsorted`. |
+| Folder match | Code | Equals the expected folder. `Unsorted` is stored as a null folder. |
+| Folder exists | Code | The returned folder is a starter folder or `Unsorted`. |
 | Unsure goes to Unsorted | Review | For a link with no clear folder, `Unsorted` is a correct answer. Mark such rows with `Unsorted` as expected. |
 
-Count wrong-folder cases and `Unsorted` cases separately. A wrong folder is worse than `Unsorted`, because it hides a bookmark.
+Count wrong-folder cases and `Unsorted` cases separately. A wrong folder is worse than `Unsorted`, because it hides a bookmark. A made-up folder name is rejected by code and counts as a miss in the folder score.
 
 ## Acceptance criteria
 
@@ -51,6 +51,5 @@ Count wrong-folder cases and `Unsorted` cases separately. A wrong folder is wors
 
 ## Open questions
 
-- The starter folders.
-- Which 15 links.
 - Whether a `docs` or `other` expected type is used (D-013 is proposed).
+- Whether the owner accepts each draft type and folder.

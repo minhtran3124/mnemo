@@ -23,14 +23,15 @@ Run the first version of the prompt two times. The gap between the two runs is y
 ## Noise rule
 Keep a change only if the score rises by more than the noise. If it does not, undo the change.
 
-## Three separate scores
-Show three numbers side by side. Do not average them. An average can hide a drop in honesty.
+## Four separate scores
+Show four numbers side by side. Do not average them. An average can hide a drop in honesty.
 
 | Score | What it covers |
 | --- | --- |
 | Save quality | Valid JSON, 3 to 6 lowercase tags, summary at most 60 words, type match, tag overlap |
 | Honesty | The share of all pages in `evals/pages.json` that are honest: an unreadable page saved with a null summary, or a readable page the faithful-summary grader scored with zero unsupported statements. A readable page saved link only, with no golden text, or not scored counts as not honest |
 | Find rate | Right bookmark in the top 3; trick questions return nothing |
+| Folder choice | The share of the 15 Route rows where the folder Claude chose equals the expected folder in `evals/expected.json`. `Unsorted` is stored as a null folder, so null matches `Unsorted`. A made-up name is rejected by code, but the eval sees the raw model answer, so it counts as a miss. Never merge this score with the other three |
 
 ## Graders
 A grader is code or a model that scores an output.

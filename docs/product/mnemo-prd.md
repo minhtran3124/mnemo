@@ -61,7 +61,7 @@ These jobs are guesses. Edit them if they are wrong.
 | F-16 | Ubuntu .deb window | Could | C | .deb installs and opens the chat page |
 | F-17 | Use from Claude Code (MCP) | Could | 9 | Inspector tests pass; Claude Code finds a bookmark |
 | F-18 | Dead-link doctor | Could | 10 | Proposals only; you approve |
-| F-19 | Private mode (proposed) | Should | 3 | A private link is saved as link only; nothing goes to the API |
+| F-19 | Private mode | Should | 3 | A private link is saved as link only; nothing goes to the API |
 | F-20 | Quality eval harness | Must | 2 | One command prints three scores |
 
 ## 6. Non-functional requirements

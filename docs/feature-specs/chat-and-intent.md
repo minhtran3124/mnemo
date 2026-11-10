@@ -20,8 +20,8 @@ Out: how Claude classifies (see [classification-and-filing.md](classification-an
 | ID | Requirement |
 | --- | --- |
 | CI-01 | Plain code decides if a message is a link or a question. Claude does not decide (D-004). |
-| CI-02 | The rule uses a URL regex (a pattern that finds web addresses). A message with a web address is a save. Otherwise, a message that matches `note <id> <text>` edits the reason of that bookmark. Anything else is a question. |
-| CI-03 | A saved link shows a card: title, type, 3 tags, summary, "Filed in". From phase 3 the card also has the buttons Move and Undo. Phase 1 has no folders, so "Filed in" is always Unsorted and there are no buttons. |
+| CI-02 | The rule uses a URL regex (a pattern that finds web addresses). A message with a web address is a save; the `private` prefix makes it a private save. Otherwise, a message that matches `note <id> <text>` edits the reason of that bookmark. Anything else is a question. |
+| CI-03 | A saved link shows a card: title, type, 3 tags, summary, "Filed in: <folder>". The card also has the buttons Move and Undo (phase 3). |
 | CI-04 | An unreadable page shows a "Page not read" card with a Paste text field (F-02). |
 | CI-05 | The reason is optional and one line. If skipped, the app guesses and marks it "guess". |
 | CI-06 | A question returns up to 3 bookmarks (see [ask-and-answers.md](ask-and-answers.md)). |
@@ -33,6 +33,7 @@ Out: how Claude classifies (see [classification-and-filing.md](classification-an
 - Saving needs no choices. You paste a link and get a card.
 - You can write the link and a reason in the same message, for example a link followed by "for login test cases". The reason is the text that is not the link. Not built yet: in phase 1 the text around a link is ignored and Claude's guess is kept. Use `note <id> <text>` to set a reason.
 - From phase 3, Move and Undo stay visible on every card (D-005). See [folders.md](folders.md).
+- Private mode (F-19): write `private <link>`. Plain code reads the prefix; the link is saved as link only, with no fetch, no page text and no Claude call. `private` with no link is a question.
 - The paste-text path: when a page cannot be read, you paste the page text. The app then runs the normal save on that text. Pasted text under 40 characters is saved as link only with no summary. It is the same path used for Slack messages: you paste the message text and the app finds the links in it (see [import.md](import.md)).
 - The app never writes a summary of text it did not see (NF-04).
 
@@ -59,6 +60,8 @@ Final wording: Open question.
 | Text with no link that is meant as a note | Treated as a question. The only note path is `note <id> <text>`, which edits the reason of an existing bookmark. `note` alone or `note <id>` with no text replies "What should the reason say? Write note <id> <text>." and `note abc ...` is a question. |
 | Empty message | The server returns 400 with code `empty_message`. Nothing is saved. |
 | Text with no link, in phase 1 | The app replies "I can only save links for now. Asking comes later." Nothing is sent to Claude. From phase 4 it is a question. |
+| `private https://example.com/a` | Saves one bookmark with `private` = true, `page_status` = unreadable and a null summary. No fetch and no Claude call. |
+| `private` (no link) | Treated as a question: "I can only save links for now. Asking comes later." Nothing is saved. |
 | `note 42 for login tests` | Sets the reason of bookmark 42 to "for login tests" and marks it as the user's own. Reply: "Reason updated." |
 | `note 3 see https://example.com/a` (a note that contains a link) | A message with a link is a save, even when it starts with `note`. The link is saved, the text around it is ignored (as for any link), and the reason of bookmark 3 does not change. A message is a note only when it has no link. |
 | `note 999 text` (no such bookmark) | "I do not have a bookmark with that number." Nothing changes. |

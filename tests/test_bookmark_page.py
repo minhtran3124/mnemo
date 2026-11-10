@@ -33,7 +33,7 @@ def seed(**overrides):
     return store.add_bookmark(record, page_text="page body")
 
 
-def test_page_is_served_and_empty_page_has_no_folder_banner_or_move(client):
+def test_page_is_served_and_a_row_has_filed_in_and_move(client):
     empty = client.get("/bookmarks")
 
     assert empty.status_code == 200
@@ -46,8 +46,8 @@ def test_page_is_served_and_empty_page_has_no_folder_banner_or_move(client):
     seed()
     text = client.get("/bookmarks").text
 
-    assert 'id="bm-folder"' in text
-    assert "Move" not in text
+    assert "Filed in:" in text
+    assert "Move" in text
     assert "Needs a look" not in text
 
 
@@ -129,7 +129,7 @@ const button = {
   getAttribute: (n) => (n === "data-confirm" ? "Sure?" : "/x"),
   closest: () => row,
 };
-const row = { closest: () => null, remove() {} };
+const row = { closest: () => null, remove() {}, querySelector: () => null };
 global.window = { confirm: () => true };
 global.fetch = () => Promise.resolve({ ok: true });
 global.document = {
@@ -146,7 +146,7 @@ global.document = {
 };
 eval(fs.readFileSync(process.argv[2], "utf8"));
 process.on("unhandledRejection", () => {});
-handler({ target: { closest: (sel) => (sel.startsWith("button") ? button : null) } });
+handler({ target: { closest: (sel) => (sel.includes("data-delete-url") ? button : null) } });
 setTimeout(() => {
   console.log(JSON.stringify({ status: status.textContent, removed, emptyHidden: empty.hidden }));
 }, 20);
@@ -176,9 +176,9 @@ def run_script_after_delete(tmp_path, mode):
     return json.loads(result.stdout.strip().splitlines()[-1])
 
 
-def test_script_clears_folder_after_last_delete_and_hides_false_errors(tmp_path):
+def test_script_clears_banner_after_last_delete_and_hides_false_errors(tmp_path):
     last = run_script_after_delete(tmp_path, "last")
-    assert last["removed"] == ["bm-banner", "bm-folder"]
+    assert last["removed"] == ["bm-banner"]
     assert last["emptyHidden"] is False
     assert last["status"] == ""
 

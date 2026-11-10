@@ -62,7 +62,7 @@ def test_report_row_shows_facts_stated_over_key_facts(tmp_path, monkeypatch, cap
     monkeypatch.setattr(
         save,
         "preview",
-        lambda url, text: (
+        lambda url, text, folder_choice=None: (
             save._ok_fields(url, url, ok) if text else save._link_only_fields(url, url)
         ),
     )

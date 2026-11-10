@@ -17,6 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+import config
 import intent
 import save
 import store
@@ -78,13 +79,23 @@ TYPE_LABELS = {
 }
 
 
-# Phase 1 has no folder picker, so the page names the one folder every bookmark
-# is in. A null folder in the data means Unsorted (docs/feature-specs/storage.md).
-UNSORTED_FOLDER = "Unsorted"
-
-
 def _esc(value: object) -> str:
     return html.escape(str(value), quote=True)
+
+
+def _folder_name(item: dict) -> str:
+    """The folder to show. A null folder is Unsorted."""
+    return item.get("folder") or config.UNSORTED
+
+
+def _folder_options(selected: str) -> str:
+    names = (*config.STARTER_FOLDERS, config.UNSORTED)
+    return "".join(
+        f'<option value="{_esc(name)}"'
+        + (" selected" if name == selected else "")
+        + f">{_esc(name)}</option>"
+        for name in names
+    )
 
 
 def _bookmark_row(item: dict) -> str:
@@ -92,6 +103,7 @@ def _bookmark_row(item: dict) -> str:
     host = urlparse(item["url"]).hostname or ""
     unreadable = item.get("page_status") == "unreadable"
     bid = int(item["id"])
+    folder = _folder_name(item)
     parts = [
         f'<li class="bm-row" data-id="{bid}"'
         + (' data-unreadable="true"' if unreadable else "")
@@ -107,6 +119,7 @@ def _bookmark_row(item: dict) -> str:
             f"<span>{_esc(host)}</span> "
             f"<span>{_esc(str(item.get('saved_at') or '')[:10])}</span></p>"
         ),
+        f'<p class="bm-filed">Filed in: <strong>{_esc(folder)}</strong></p>',
     ]
     if unreadable:
         parts.append('<p><span class="badge badge-warn">page not read</span></p>')
@@ -122,10 +135,24 @@ def _bookmark_row(item: dict) -> str:
         tags = "".join(f"<li>{_esc(tag)}</li>" for tag in raw_tags)
         parts.append(f'<ul class="bm-tags" aria-label="Tags">{tags}</ul>')
     parts.append("</div>")
+    undo = ""
+    if item.get("prev_folder") is not None:
+        undo = (
+            f'<button type="button" class="bm-undo" '
+            f'data-undo-url="/api/bookmarks/{bid}/undo">Undo</button>'
+        )
     parts.append(
+        '<div class="bm-actions">'
+        f'<label class="visually-hidden" for="bm-move-{bid}">Move to folder</label>'
+        f'<select class="bm-move-select" id="bm-move-{bid}">'
+        f"{_folder_options(folder)}</select>"
+        f'<button type="button" class="bm-move" '
+        f'data-move-url="/api/bookmarks/{bid}">Move</button>'
+        f"{undo}"
         f'<button type="button" class="bm-delete" '
         f'data-delete-url="/api/bookmarks/{bid}" '
         f'data-confirm="{_esc(f"Delete {title}? This cannot be undone.")}">Delete</button>'
+        "</div>"
     )
     parts.append("</li>")
     return "".join(parts)
@@ -141,9 +168,7 @@ def _empty_message(hidden: bool) -> str:
 def _bookmark_groups(items: list[dict]) -> str:
     if not items:
         return _empty_message(hidden=False)
-    sections = [
-        f'<p class="bm-folder" id="bm-folder">Folder: <strong>{UNSORTED_FOLDER}</strong></p>'
-    ]
+    sections: list[str] = []
     known = set(TYPE_ORDER)
     # A record with a type outside TYPE_ORDER (hand-edited data) must still show.
     groups = [(kind, TYPE_LABELS[kind], kind) for kind in TYPE_ORDER]
@@ -294,8 +319,9 @@ def paste_bookmark(bookmark_id: int, body: PasteBody) -> dict | JSONResponse:
         return error_response(status[err.code], err.code, str(err))
 
 
-class ReasonBody(BaseModel):
+class PatchBody(BaseModel):
     reason: str | None = None
+    folder: str | None = None
 
 
 def _set_reason(bookmark_id: int, text: str) -> dict | None:
@@ -308,8 +334,32 @@ def _set_reason(bookmark_id: int, text: str) -> dict | None:
         )
 
 
+def _move_bookmark(bookmark_id: int, folder: str) -> dict | None:
+    """Move one bookmark and keep its old folder for one Undo.
+
+    Return None when the bookmark does not exist. The caller checks the folder
+    name first, so an unknown folder never reaches this function.
+    """
+    with _write_lock:
+        item = store.get_bookmark(bookmark_id)
+        if item is None:
+            return None
+        previous = item["folder"] if item["folder"] is not None else config.UNSORTED
+        new_folder = None if folder == config.UNSORTED else folder
+        return store.update_bookmark(
+            bookmark_id, {"folder": new_folder, "prev_folder": previous}
+        )
+
+
 @app.patch("/api/bookmarks/{bookmark_id}", response_model=None)
-def patch_bookmark(bookmark_id: int, body: ReasonBody) -> dict | JSONResponse:
+def patch_bookmark(bookmark_id: int, body: PatchBody) -> dict | JSONResponse:
+    if body.folder is not None:
+        if not config.is_allowed_folder(body.folder):
+            return error_response(400, "folder_not_found", "Folder does not exist.")
+        updated = _move_bookmark(bookmark_id, body.folder)
+        if updated is None:
+            return _not_found(bookmark_id)
+        return updated
     text = (body.reason or "").strip()
     if not text:
         return error_response(400, "empty_reason", "The reason is empty.")
@@ -317,6 +367,21 @@ def patch_bookmark(bookmark_id: int, body: ReasonBody) -> dict | JSONResponse:
     if updated is None:
         return _not_found(bookmark_id)
     return updated
+
+
+@app.post("/api/bookmarks/{bookmark_id}/undo", response_model=None)
+def undo_bookmark(bookmark_id: int) -> dict | JSONResponse:
+    with _write_lock:
+        item = store.get_bookmark(bookmark_id)
+        if item is None:
+            return _not_found(bookmark_id)
+        previous = item["prev_folder"]
+        if previous is None:
+            return error_response(409, "nothing_to_undo", "There is nothing to undo.")
+        folder = None if previous == config.UNSORTED else previous
+        return store.update_bookmark(
+            bookmark_id, {"folder": folder, "prev_folder": None}
+        )
 
 
 class ChatBody(BaseModel):
@@ -353,6 +418,7 @@ def chat(body: ChatBody) -> dict | JSONResponse:
     failed = []
     last_error = None
     seen = set()
+    private = intent.is_private(body.message)
     for index, link in enumerate(links):
         key = urlclean.clean_url(link)
         if key in seen:
@@ -362,7 +428,7 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         pasted = body.pasted_text if index == 0 else None
         try:
             with _write_lock:
-                cards.append(save.save(link, pasted_text=pasted))
+                cards.append(save.save(link, pasted_text=pasted, private=private))
         except Exception as exc:
             # Auth and config errors (save.is_permanent_error) always propagate
             # to the global handler, a JSON 500, whatever the link order. With

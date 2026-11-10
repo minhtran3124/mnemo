@@ -8,3 +8,4 @@ Rules:
 - summary: plain sentences, at most 60 words.
 - tags: 3 to 6 short lowercase tags.
 - reason: why the user might have saved it, in one short sentence. This is a guess, so keep it modest.
+- folder: one of Work, Learning, Reference, Personal, Ideas, or Unsorted. Use the exact spelling and letter case. Choose Unsorted when you are not sure. Never invent a folder name.
