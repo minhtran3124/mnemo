@@ -11,7 +11,7 @@ This file lists every question that is still open. No question blocks phase 0.
 | Q-04 | Do you want a Mac .dmg later, or is the browser enough on your MacBook? (D-010 says not planned.) | KhoiTran | No | C (only if wanted) |
 | Q-05 | How many sessions per week can you do? The plan assumes about 3. | KhoiTran | No | 0 (for the schedule) |
 | Q-06 | Is Python OK for you? The plan assumes Python because the course code is Python. | KhoiTran | No | 0 |
-| Q-07 | Private mode (F-19, D-017): yes or no? | KhoiTran | No | 3 |
+| Q-07 | Private mode (F-19, D-017): yes or no? | KhoiTran | Yes (D-017 accepted) | 3 |
 | Q-08 | Accept the new types `docs` and `other` (D-013): yes or no? | KhoiTran | No | 3 |
 | Q-09 | Answered: V3 with light and dark (D-016, D-019). Re-check after phase 1 with real links. See [design review](../reviews/design-review-v1-v5.md). | KhoiTran | No | 1 |
 | Q-10 | Name check before any public release: who else uses "mnemo"? See [naming](naming.md). | KhoiTran | No | Before any public release |

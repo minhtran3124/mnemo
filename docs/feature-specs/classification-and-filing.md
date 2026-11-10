@@ -62,7 +62,7 @@ Claude picks from the folders that exist, or `Unsorted`. If unsure, it must choo
 | Tag count is 2 or 7 | Reject. Retry once. |
 | Summary is 61 words | Reject. Retry once. |
 | Unreadable page | No Claude call for a summary. `summary` = `null`. |
-| Private link (F-19, proposed) | No Claude call at all. |
+| Private link (F-19) | No Claude call at all. |
 
 ## Acceptance criteria
 

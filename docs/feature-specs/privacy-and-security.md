@@ -64,7 +64,7 @@ Unverified: Anthropic's data retention policy for the API. Read it before saving
 | 2 | The local server is not reachable from another device on the network. |
 | 3 | The online server refuses calls without login or token. |
 | 4 | Page source of the web pages contains no key. |
-| 5 | A private link produces no API call (log check; proposed). |
+| 5 | A private link produces no API call (log check). |
 
 ## Tests
 

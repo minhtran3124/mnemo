@@ -42,7 +42,7 @@ Roast: You saved 14 articles about caching and opened none.
 - Open question: who triggers the digest (a button or a schedule).
 - Caching: read `cache_creation_input_tokens` and `cache_read_input_tokens`. Unverified: minimum length for caching. Keep it only if numbers show a gain.
 - Opened items are logged so the measure "share of read-next items opened" can be computed ([data-model.md](data-model.md)).
-- Private bookmarks (proposed F-19): kept out of the roast text. Open question.
+- Private bookmarks (F-19): kept out of the roast text. Open question.
 
 ## Edge cases
 

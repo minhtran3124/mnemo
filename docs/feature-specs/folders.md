@@ -59,7 +59,7 @@ Undo puts the bookmark back to the folder it had before the last filing or Move.
 | Claude returns a folder that does not exist | Rejected. Filed in `Unsorted`. Counted in the log. |
 | You rename or delete a folder that holds bookmarks | Open question. Safe default: move them to `Unsorted`. |
 | Two folders fit | Claude picks the best one or `Unsorted`. |
-| Private link (proposed F-19) | Open question: filed to `Unsorted` since no API call is made. |
+| Private link (F-19) | Filed to `Unsorted`, because a private save makes no Claude call and Claude is the only step that picks a folder. |
 
 ## Acceptance criteria
 
