@@ -32,10 +32,10 @@ Phase 4 done (tools and `mnemo/core/store.py`).
 - [ ] Wrong inputs give clear errors.
 
 ## Risks
-Exposing data to another tool; see [privacy and security](../../feature-specs/privacy-and-security.md).
+Exposing data to another tool; see [privacy and security](../feature-specs/privacy-and-security.md).
 
 ## If time runs short
 Cut the whole phase (second in cut order); read the lessons only.
 
 ## Links to specs
-[MCP server](../../feature-specs/mcp-server.md) · [storage](../../feature-specs/storage.md) · [server API](../../feature-specs/server-api.md)
+[MCP server](../feature-specs/mcp-server.md) · [storage](../feature-specs/storage.md) · [server API](../feature-specs/server-api.md)

@@ -16,7 +16,7 @@ This file says how the built pages must follow the V3 mockup, and lists where th
 
 | Screen | Board | In phase 1 |
 | --- | --- | --- |
-| Chat, laptop | `V3LightChat` | Built at `/` (web/index.html), without the parts listed under "Not built yet". Compared with the board in a browser on 2026-11-05 at 1280px, light and dark; the differences left are under "Accepted differences" |
+| Chat, laptop | `V3LightChat` | Built at `/` (mnemo/api/web/index.html), without the parts listed under "Not built yet". Compared with the board in a browser on 2026-11-05 at 1280px, light and dark; the differences left are under "Accepted differences" |
 | Bookmark page, laptop | `V3LightBookmarks` | Yes, Ledger and Cards views. Both compared with the board in a browser on 2026-11-05 |
 | Chat, phone | `V3LightPhoneChat` | Built with the same page (margin column becomes a "Filed in" line under the text). Compared at 390px, light and dark, on 2026-11-05. NF-05 measured at 390px, light: pass ([check](../testing/phase1-nf05-check.md)) |
 | Bookmarks, phone | `V3LightPhoneList` | Yes |

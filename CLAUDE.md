@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Mnemo is a personal AI bookmark app. Stack: Python 3.12 managed with uv, plain JSON and text files under `data/`, all storage through `mnemo/core/store.py`. Start at `docs/README.md`, then the current phase plan in `docs/product/plans/`. After a fresh clone run `npm install && npm run design:install` (UI design tooling, see `README.md`), then `git config core.hooksPath .githooks` to turn on the secrets pre-commit hook.
+Mnemo is a personal AI bookmark app. Stack: Python 3.12 managed with uv, plain JSON and text files under `data/`, all storage through `mnemo/core/store.py`. Start at `docs/README.md`, then the current phase plan in `docs/plans/`. After a fresh clone run `npm install && npm run design:install` (UI design tooling, see `README.md`), then `git config core.hooksPath .githooks` to turn on the secrets pre-commit hook.
 
 ## Commands
 

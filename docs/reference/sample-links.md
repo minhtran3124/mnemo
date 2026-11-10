@@ -39,7 +39,7 @@ This file lists the real links you sent while we made the plan, what a fetch too
 
 ## Phase 1 test set
 
-The 5 links for the [phase 1 plan](../product/plans/phase-1-chat-and-bookmark-pages.md). All have a full address and fit the existing types (no `docs` or `other` needed). Row 1 is a public login page, because the X post (#1 above) turned out to be readable by Mnemo's own fetcher.
+The 5 links for the [phase 1 plan](../plans/phase-1-chat-and-bookmark-pages.md). All have a full address and fit the existing types (no `docs` or `other` needed). Row 1 is a public login page, because the X post (#1 above) turned out to be readable by Mnemo's own fetcher.
 
 | # | Link row | Why it is in the set |
 | --- | --- | --- |

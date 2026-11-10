@@ -30,10 +30,10 @@ Phase A done (an online chat page to open). An Ubuntu machine.
 - [ ] Uninstall works.
 
 ## Risks
-Outside the course; low value. See [risk review](../../research/risk-review.md).
+Outside the course; low value. See [risk review](../research/risk-review.md).
 
 ## If time runs short
 Cut the whole phase first (D-009).
 
 ## Links to specs
-[server API](../../feature-specs/server-api.md) · [privacy and security](../../feature-specs/privacy-and-security.md) · [roadmap](../roadmap.md)
+[server API](../feature-specs/server-api.md) · [privacy and security](../feature-specs/privacy-and-security.md) · [roadmap](../product/roadmap.md)

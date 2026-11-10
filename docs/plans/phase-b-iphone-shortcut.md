@@ -26,13 +26,13 @@ Phase A done (server online with login). Test early with one link, because it is
 ## Done when
 - [ ] In Safari you tap Share, choose the shortcut, and the card appears in the chat.
 - [ ] A bad token is rejected.
-- [ ] The fallback steps are written in [phone and shortcut test](../../testing/phone-and-shortcut-test.md).
+- [ ] The fallback steps are written in [phone and shortcut test](../testing/phone-and-shortcut-test.md).
 
 ## Risks
-Shortcut may fail; token stored on the phone. See [risk review](../../research/risk-review.md).
+Shortcut may fail; token stored on the phone. See [risk review](../research/risk-review.md).
 
 ## If time runs short
 Use the fallback. Decide after the 2-week test; phase B can be cut if the web page is enough.
 
 ## Links to specs
-[share shortcut](../../feature-specs/share-shortcut.md) · [server API](../../feature-specs/server-api.md) · [privacy and security](../../feature-specs/privacy-and-security.md)
+[share shortcut](../feature-specs/share-shortcut.md) · [server API](../feature-specs/server-api.md) · [privacy and security](../feature-specs/privacy-and-security.md)

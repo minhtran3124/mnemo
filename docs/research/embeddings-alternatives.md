@@ -35,4 +35,4 @@ The plan says an embeddings provider can be added later. It names none. Open que
 ## Course note
 Read lessons 34 to 36 so you understand the idea. See the [course map](../reference/course-map.md).
 
-Related: [search spec](../feature-specs/search-no-embeddings.md), [phase 5 plan](../product/plans/phase-5-search-without-embeddings.md).
+Related: [search spec](../feature-specs/search-no-embeddings.md), [phase 5 plan](../plans/phase-5-search-without-embeddings.md).

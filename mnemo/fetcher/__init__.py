@@ -11,7 +11,7 @@ def fetch(url: str) -> FetchResult:
     """Return FetchOk(text, source) or FetchFail(reason). Does not raise for expected failures.
 
     The text is not cut to MAX_PAGE_CHARS and not checked against the minimum
-    length here: save.py does both.
+    length here: mnemo/save/pipeline.py does both.
     """
     repo = parse_repo(url)
     if repo:

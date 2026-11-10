@@ -31,4 +31,4 @@ The plan says: replace the inside of `mnemo/core/store.py` with a database, and 
 
 Alternative hosts are not studied here. Open question: whether to compare other hosts if Render's price is too high.
 
-Related: [phase A plan](../product/plans/phase-a-online-host.md), [local vs online](local-vs-online.md), [storage spec](../feature-specs/storage.md).
+Related: [phase A plan](../plans/phase-a-online-host.md), [local vs online](local-vs-online.md), [storage spec](../feature-specs/storage.md).

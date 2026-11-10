@@ -84,13 +84,13 @@ Stop the server with Ctrl+C.
 mnemo/
   core/      config, Claude client, store (the only code that touches data/), URL cleaning
   chat/      intent, ask loop and tools, link import
-  save/      the save pipeline and its versioned prompts (prompts/)
+  save/      the save pipeline and its versioned prompts (save/prompts/)
   fetcher/   page fetch and the GitHub API
-  api/       FastAPI server and the web pages (web/, no build)
+  api/       FastAPI server and the web pages (api/web/, no build)
 evals/       golden sets, graders, eval prompts, results CSV
 scripts/     one-off checks (memory check)
 tests/       pytest, in folders that mirror mnemo/
-docs/        specs, plans, decisions
+docs/        specs, plans, testing, decisions
 data/        your bookmarks (gitignored)
 ```
 
