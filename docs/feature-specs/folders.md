@@ -31,7 +31,7 @@ Out: how Claude is prompted (see [classification-and-filing.md](classification-a
 
 ### Starter folders
 
-You write 5 or 6 starter folders yourself, in `config.py`. Examples only, not a decision: Dev tools, Articles to read, AI and agents, Work, Fun, Unsorted. Your final list: Open question.
+The five starter folders live in `config.STARTER_FOLDERS`: Work, Learning, Reference, Personal, Ideas. `config.UNSORTED` is `Unsorted`. Code accepts only these names, with exact letter case (`config.is_allowed_folder`). `Unsorted` is stored as a null folder.
 
 ### Why Unsorted
 
@@ -77,6 +77,5 @@ Undo puts the bookmark back to the folder it had before the last filing or Move.
 
 ## Open questions
 
-- Your 5 or 6 starter folders.
 - Undo depth.
 - What happens to bookmarks when a folder is deleted.

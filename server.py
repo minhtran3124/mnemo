@@ -17,6 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+import config
 import intent
 import save
 import store
@@ -78,11 +79,6 @@ TYPE_LABELS = {
 }
 
 
-# Phase 1 has no folder picker, so the page names the one folder every bookmark
-# is in. A null folder in the data means Unsorted (docs/feature-specs/storage.md).
-UNSORTED_FOLDER = "Unsorted"
-
-
 def _esc(value: object) -> str:
     return html.escape(str(value), quote=True)
 
@@ -142,7 +138,7 @@ def _bookmark_groups(items: list[dict]) -> str:
     if not items:
         return _empty_message(hidden=False)
     sections = [
-        f'<p class="bm-folder" id="bm-folder">Folder: <strong>{UNSORTED_FOLDER}</strong></p>'
+        f'<p class="bm-folder" id="bm-folder">Folder: <strong>{config.UNSORTED}</strong></p>'
     ]
     known = set(TYPE_ORDER)
     # A record with a type outside TYPE_ORDER (hand-edited data) must still show.

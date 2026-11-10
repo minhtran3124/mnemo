@@ -26,6 +26,16 @@ MAX_TOKENS = 1024
 # cheap (NF-02).
 MAX_PAGE_CHARS = 20_000
 
+# The only folders a bookmark may be filed in (D-005, FO-01 to FO-04).
+# Unsorted is the null folder: it always exists and cannot be deleted.
+STARTER_FOLDERS = ("Work", "Learning", "Reference", "Personal", "Ideas")
+UNSORTED = "Unsorted"
+
+
+def is_allowed_folder(name: object) -> bool:
+    """True for one starter folder or Unsorted, with exact letter case."""
+    return isinstance(name, str) and (name in STARTER_FOLDERS or name == UNSORTED)
+
 # Fetch limits (page-reading.md, "Fetch limits"). Starting values, tune in phase 1.
 FETCH_CONNECT_TIMEOUT = 5.0
 FETCH_READ_TIMEOUT = 10.0
