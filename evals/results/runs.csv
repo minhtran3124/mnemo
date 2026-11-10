@@ -1,3 +1,7 @@
 run_id,prompt_version,model,save_quality,honesty,find_rate,folder_score,tokens_used,notes
 baseline-1,save_v1,claude-haiku-5-5,0.92,1.00,,,124480,0 unsupported: 11
 baseline-2,save_v1,claude-haiku-5-5,0.92,1.00,,,128626,0 unsupported: 10
+phase3-v2,save_v2,claude-haiku-5-5,0.50,0.47,,0.40,134575,0 unsupported: 4
+phase3-v3,save_v3,claude-haiku-5-5,0.58,0.60,,0.27,141693,0 unsupported: 6
+phase3-v4,save_v4,claude-haiku-5-5,0.42,0.40,,0.33,137991,0 unsupported: 3
+phase3-v5,save_v5,claude-haiku-5-5,0.92,0.93,,0.73,143109,0 unsupported: 11

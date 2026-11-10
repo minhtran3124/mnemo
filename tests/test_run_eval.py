@@ -17,7 +17,7 @@ PAGES = json.loads(run_eval.PAGES_PATH.read_text(encoding="utf-8"))
 ARGS = ["--run-id", "r1", "--prompt-version", "save_v1"]
 
 
-def fake_preview(url, text, folder_choice=None):
+def fake_preview(url, text, folder_choice=None, prompt_version=None):
     if not text:
         return save._link_only_fields(url, url)
     out = save.SaveOutput(
@@ -53,7 +53,7 @@ def rows(path):
 
 
 def test_prints_four_separate_scores_and_no_average(tmp_path, capsys):
-    assert run_eval.run("r1", "v1", results_dir=tmp_path / "results") == 0
+    assert run_eval.run("r1", "save_v1", results_dir=tmp_path / "results") == 0
     out = capsys.readouterr().out
     assert "Save quality: " in out
     assert "mean tag overlap" in out
@@ -64,7 +64,7 @@ def test_prints_four_separate_scores_and_no_average(tmp_path, capsys):
 
 def test_run_appends_one_row_with_nine_columns(tmp_path):
     results = tmp_path / "results"
-    run_eval.run("r1", "v1", results_dir=results)
+    run_eval.run("r1", "save_v1", results_dir=results)
     table = rows(results / "runs.csv")
     assert table[0] == run_eval.COLUMNS
     assert len(table) == 2
@@ -73,7 +73,7 @@ def test_run_appends_one_row_with_nine_columns(tmp_path):
     assert row["find_rate"] == ""
     assert row["model"] == config.MODEL
     assert row["run_id"] == "r1"
-    assert row["prompt_version"] == "v1"
+    assert row["prompt_version"] == "save_v1"
 
 
 def test_honesty_column_is_failure_rate_and_unsupported_count_is_logged(
@@ -87,7 +87,7 @@ def test_honesty_column_is_failure_rate_and_unsupported_count_is_logged(
         ),
     )
     results = tmp_path / "results"
-    run_eval.run("r1", "v1", results_dir=results)
+    run_eval.run("r1", "save_v1", results_dir=results)
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
     assert row["honesty"] == "0.20"
     assert row["notes"] == "0 unsupported: 0"
@@ -95,9 +95,9 @@ def test_honesty_column_is_failure_rate_and_unsupported_count_is_logged(
 
 def test_second_run_appends_and_keeps_first(tmp_path):
     results = tmp_path / "results"
-    run_eval.run("r1", "v1", results_dir=results)
+    run_eval.run("r1", "save_v1", results_dir=results)
     first = rows(results / "runs.csv")[1]
-    run_eval.run("r2", "v1", results_dir=results)
+    run_eval.run("r2", "save_v1", results_dir=results)
     table = rows(results / "runs.csv")
     assert table.count(run_eval.COLUMNS) == 1
     assert len(table) == 3
@@ -112,7 +112,7 @@ def test_draft_warning_printed(tmp_path, capsys):
     entries[0]["draft"] = True
     copy = tmp_path / "expected.json"
     copy.write_text(json.dumps(entries), encoding="utf-8")
-    run_eval.run("r1", "v1", results_dir=tmp_path / "results", expected_path=copy)
+    run_eval.run("r1", "save_v1", results_dir=tmp_path / "results", expected_path=copy)
     warnings = [
         line for line in capsys.readouterr().out.splitlines() if "WARNING" in line
     ]
@@ -122,7 +122,7 @@ def test_draft_warning_printed(tmp_path, capsys):
 
 
 def test_permanent_error_stops_run_and_writes_no_row(tmp_path, monkeypatch, capsys):
-    def boom(url, text, folder_choice=None):
+    def boom(url, text, folder_choice=None, prompt_version=None):
         raise client.MissingKey("no key")
 
     monkeypatch.setattr(save, "preview", boom)
@@ -160,7 +160,7 @@ def test_data_dir_untouched(tmp_path, monkeypatch):
     monkeypatch.setattr(save, "preview", REAL_PREVIEW)
     monkeypatch.setattr(client, "_get_client", lambda: Sdk())
     results = tmp_path / "results"
-    run_eval.run("r1", "v1", results_dir=results)
+    run_eval.run("r1", "save_v1", results_dir=results)
     row = rows(results / "runs.csv")[1]
     assert calls
     assert int(row[7]) == len(calls) * (100 + 20)
@@ -178,7 +178,7 @@ def test_unreadable_page_without_golden_file_never_hits_the_network(
 
     monkeypatch.setattr(fetcher, "fetch", live_fetch)
     results = tmp_path / "results"
-    run_eval.run("r1", "v1", results_dir=results)
+    run_eval.run("r1", "save_v1", results_dir=results)
     out = capsys.readouterr().out
     assert calls == []
     assert "Honesty: 1.00 (15/15 pages honest)" in out
@@ -198,7 +198,7 @@ def test_unscored_readable_pages_are_not_scored_and_named_in_notes(
         ),
     )
     results = tmp_path / "results"
-    run_eval.run("r1", "v1", results_dir=results)
+    run_eval.run("r1", "save_v1", results_dir=results)
     out = capsys.readouterr().out
     assert "Honesty: 0.20 (3/15 pages honest)" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
@@ -241,7 +241,7 @@ def test_tokens_include_billed_calls_rejected_as_invalid_output(tmp_path, monkey
     monkeypatch.setattr(save, "preview", REAL_PREVIEW)
     monkeypatch.setattr(client, "_get_client", lambda: Sdk())
     results = tmp_path / "results"
-    run_eval.run("r1", "v1", results_dir=results)
+    run_eval.run("r1", "save_v1", results_dir=results)
     row = rows(results / "runs.csv")[1]
     assert len(calls) % 2 == 0 and calls
     assert int(row[7]) == len(calls) * 120
@@ -265,7 +265,7 @@ def test_transient_grader_error_is_retried_once_then_scored(tmp_path, monkeypatc
 
     monkeypatch.setattr(faithful, "grade_faithful", flaky)
     results = tmp_path / "results"
-    run_eval.run("r1", "v1", results_dir=results)
+    run_eval.run("r1", "save_v1", results_dir=results)
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
     assert "not scored" not in row["notes"]
     assert len(calls) % 2 == 0 and calls
@@ -286,7 +286,7 @@ def test_held_out_save_quality_reported_separately(tmp_path, capsys, monkeypatch
         return grades
 
     monkeypatch.setattr(run_eval.graders, "grade_record", failing_on_held_out)
-    run_eval.run("r1", "v1", results_dir=tmp_path / "results")
+    run_eval.run("r1", "save_v1", results_dir=tmp_path / "results")
     out = capsys.readouterr().out
     assert f"Save quality held-out: 0.00 (0/{len(held)} pass)" in out
     assert "| tuning: " in out
@@ -298,10 +298,12 @@ def test_link_only_save_of_readable_page_is_not_honest_and_not_unscored(
     monkeypatch.setattr(
         save,
         "preview",
-        lambda url, text, folder_choice=None: save._link_only_fields(url, url),
+        lambda url, text, folder_choice=None, prompt_version=None: (
+            save._link_only_fields(url, url)
+        ),
     )
     results = tmp_path / "results"
-    run_eval.run("r1", "v1", results_dir=results)
+    run_eval.run("r1", "save_v1", results_dir=results)
     out = capsys.readouterr().out
     assert "Honesty: 0.20 (3/15 pages honest)" in out
     row = dict(zip(*rows(results / "runs.csv"), strict=True))
@@ -355,7 +357,7 @@ def test_tokens_include_grader_calls_rejected_as_invalid_output(tmp_path, monkey
 
     monkeypatch.setattr(client, "_get_client", lambda: Sdk())
     results = tmp_path / "results"
-    run_eval.run("r1", "v1", results_dir=results)
+    run_eval.run("r1", "save_v1", results_dir=results)
     row = rows(results / "runs.csv")[1]
     assert len(calls) % 2 == 0 and calls
     assert int(row[7]) == len(calls) * 120

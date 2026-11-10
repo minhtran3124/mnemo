@@ -78,7 +78,10 @@ def _counting_sdk():
 
 
 def _preview_counting(
-    url: str, text: str | None, folder_trace: list[str | None] | None = None
+    url: str,
+    text: str | None,
+    folder_trace: list[str | None] | None = None,
+    prompt_version: str | None = None,
 ) -> tuple[dict, int]:
     """Run save.preview and return the record and the tokens its Claude calls used.
 
@@ -86,7 +89,9 @@ def _preview_counting(
     (refusal, max_tokens, no parsed output) and save.py retries is still counted.
     """
     with _counting_sdk() as total:
-        record = save.preview(url, text, folder_choice=folder_trace)
+        record = save.preview(
+            url, text, folder_choice=folder_trace, prompt_version=prompt_version
+        )
     return record, total[0]
 
 
@@ -192,6 +197,11 @@ def run(
     if set(expected) != {page["id"] for page in pages}:
         raise ValueError("ids in pages.json and expected.json do not match")
 
+    prompt = save.prompt_file(prompt_version)
+    if not prompt.exists():
+        raise ValueError(f"no prompt file for version {prompt_version}: {prompt.name}")
+    print(f"Prompt: {prompt_version} ({prompt.name})")
+
     drafts = [entry.id for entry in entries if entry.draft]
     if drafts:
         print(
@@ -217,7 +227,9 @@ def run(
         golden_file = GOLDEN_DIR / f"{page_id}.txt"
         text = golden_file.read_text(encoding="utf-8") if golden_file.exists() else ""
         folder_trace: list[str | None] = []
-        record, used = _preview_counting(page["url"], text, folder_trace)
+        record, used = _preview_counting(
+            page["url"], text, folder_trace, prompt_version
+        )
         tokens += used
         grades = graders.grade_record(record, asdict(entry))
         chosen_folder = folder_trace[0] if folder_trace else record.get("folder")

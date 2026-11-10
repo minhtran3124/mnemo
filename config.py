@@ -37,6 +37,11 @@ def is_allowed_folder(name: object) -> bool:
     return isinstance(name, str) and (name in STARTER_FOLDERS or name == UNSORTED)
 
 
+# The save prompt version used by default (phase 3). The eval overrides it per
+# run with `--prompt-version`. Keep this on the best compared version.
+SAVE_PROMPT_VERSION = "save_v5"
+
+
 # Fetch limits (page-reading.md, "Fetch limits"). Starting values, tune in phase 1.
 FETCH_CONNECT_TIMEOUT = 5.0
 FETCH_READ_TIMEOUT = 10.0
