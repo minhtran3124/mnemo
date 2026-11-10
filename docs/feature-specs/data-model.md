@@ -110,10 +110,12 @@ The chat history is kept so the chat page shows the earlier messages and cards a
 
 The plan names: saves, opens and digests. Each line has `event` and `time` (ISO date and time, set by the server). The other fields below are the starting set for phase 1; later phases may add more.
 
+Written today by the code: `folder_rejected` and `open`. The others are specified but not written yet (**Unverified** against later phases).
+
 | Event | When | Other fields |
 | --- | --- | --- |
-| `fetch` | One fetch attempt for a page (so a retry can be checked in the log) | `url_clean`, `attempt` (1 or 2), `outcome` (`ok`, `timeout`, `error`, `too_short`, `blocked`), `ms` |
-| `save` | A bookmark is saved. | `id`, `url_clean`, `page_status`, `typed_only_link` (true if the message was only the link), `tokens_in`, `tokens_out` |
+| `fetch` (not written yet) | One fetch attempt for a page (so a retry can be checked in the log) | `url_clean`, `attempt` (1 or 2), `outcome` (`ok`, `timeout`, `error`, `too_short`, `blocked`), `ms` |
+| `save` (not written yet) | A bookmark is saved. | `id`, `url_clean`, `page_status`, `typed_only_link` (true if the message was only the link), `tokens_in`, `tokens_out` |
 | `folder_rejected` | Claude named a folder that does not exist, so code filed the bookmark in `Unsorted` | `id`, `url_clean`, `folder` (the rejected name) |
 | `open` | A link is opened from the app. | `id` |
 | `digest` | A weekly digest is made (phase 8). | Open question |

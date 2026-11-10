@@ -24,7 +24,7 @@ Phase 4 done and the 2-week test result. The ask eval from phase 4 as baseline. 
 6. Send the top 20 to Claude; it picks the best 3 and says why.
 7. Eval: compare BM25 alone, BM25 with RRF, and Claude picking. Record find rate and cost.
 8. Optional test: all summaries in one prompt with a cache breakpoint. Read cache fields. Keep it only if numbers gain.
-9. Duplicate check on save: same cleaned URL is "saved already"; a candidate Claude calls the same page is "saved something similar". See [duplicates](../feature-specs/duplicates.md).
+9. Duplicate check on a normal save (import already skips exact repeats in phase 4): same cleaned URL is "saved already"; a candidate Claude calls the same page is "saved something similar". See [duplicates](../feature-specs/duplicates.md).
 10. Test 5 planted duplicates, including the Brotli near-duplicate pair and the `fbclid` repeat.
 
 ## Done when

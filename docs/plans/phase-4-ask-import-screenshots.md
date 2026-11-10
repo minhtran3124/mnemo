@@ -26,7 +26,7 @@ Phase 3 done. 15 questions you wrote plus 3 trick questions: [ask golden set](..
 8. Screenshots: add an image block to the save flow. Card says "based on the visible text only"; link is empty with an optional field; ignore clutter.
 9. Import page: read the browser bookmarks file. Show link count and a cost estimate first.
 10. Import: accept pasted text (Slack, notes, messages) and find links in it. Slack links themselves cannot be read; the chat accepts pasted message text. See [Slack and login pages](../solutions/slack-and-login-pages.md).
-11. Import in batches of about 20 so you can stop. Mark imported records `source: import` (proposed field).
+11. Import in batches of about 20 so you can stop. Mark imported records `source: import` (proposed field). Skip links already saved, matched on `url_clean` by code, and show a count (IM-07).
 12. Import test: 40 old links; expect some unreadable pages.
 13. Start the 2-week test: [two-week user test](../testing/two-week-user-test.md). This is decision point 2.
 

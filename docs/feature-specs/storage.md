@@ -57,14 +57,14 @@ Errors: `InvalidRecord` (a `ValueError`) for a bad record, `NotFound` for an unk
 
 ### Database swap
 
-Phase A: you plan to use Render. Unverified: Render price and whether its disk keeps files between deploys. Check before phase A ([hosting-check.md](../research/hosting-check.md)). If the disk is not persistent, replace the inside of `mnemo/core/store.py` with a database and change nothing else. The budget in the plan is about $10 per month for hosting and the API together (unverified prices).
+Phase A: you plan to use Render. Checked on the [Render disks page](https://render.com/docs/disks): a disk keeps files across deploys and restarts, but only under its mount path, only on a paid service, and for one instance. Unverified: the price (the page lists none). See [hosting-check.md](../research/hosting-check.md). If the disk ever stops fitting, replace the inside of `mnemo/core/store.py` with a database and change nothing else. The budget in the plan is about $10 per month for hosting and the API together (unverified prices).
 
 ## Edge cases
 
 | Case | Behavior |
 | --- | --- |
 | Crash during a write | Old file is still whole (atomic write). |
-| Two writes at once | Open question: a lock, or one worker only. |
+| Two writes at once | One process-local write lock in the web server (D-035). The web server is the only writer; the MCP server calls its HTTP API (D-022). |
 | Missing page file | `read_page` returns nothing; the record stays. |
 | Bad line in `chat.jsonl` or `log.jsonl` | `mnemo/core/store.py` raises `StoreError`. There is no crash recovery for a half-written line. Chat lines are never deleted, so the next chat `id` is the highest `id` in the file plus 1. |
 | Corrupt `bookmarks.json` | `mnemo/core/store.py` raises `StoreError` with a clear message and never overwrites the file; restore from backup. |
@@ -85,6 +85,6 @@ Unit tests per function. A shared test set can run against both file and databas
 
 ## Open questions
 
-- Render disk behavior and price.
+- Render disk price.
 - Backup method.
-- Lock for two writers.
+- A cross-process lock in `mnemo/core/store.py`: needed only if a second process ever writes files directly.

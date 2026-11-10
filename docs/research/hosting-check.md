@@ -1,17 +1,17 @@
 # Hosting Check
 Status: Draft v0.1 · Owner: KhoiTran · Phase: A
 
-This file lists what to verify about Render before phase A. Render is the host you plan to use (D-007). Nothing in it is verified. The plan says it did not check Render's price or storage rules.
+This file lists what to verify about Render before phase A. Render is the host you plan to use (D-007). Only rows 2 and 3 are partly answered (see the Answer column); the rest is not verified.
 
-Unverified: Render price and disk persistence.
+Unverified: Render price. Disk persistence is checked (row 2).
 
 ## Questions
 
 | # | Question | Why it matters | Answer | Source and session checked |
 | --- | --- | --- | --- | --- |
 | 1 | What is the price of the smallest plan that runs a Python server all day? | Budget is about $10 per month for hosting and API together | | |
-| 2 | Does the disk keep files between deploys and restarts? | Bookmarks are plain files in `data/` | | |
-| 3 | Is a persistent disk a paid extra, and what does it cost? | May break the budget | | |
+| 2 | Does the disk keep files between deploys and restarts? | Bookmarks are plain files in `data/` | Yes, but only under the mount path. One instance only; no zero-downtime deploys. | [Render disks](https://render.com/docs/disks), read for the conflict fix |
+| 3 | Is a persistent disk a paid extra, and what does it cost? | May break the budget | A disk attaches to a paid service. **Unverified:** the price; the page lists none. | [Render disks](https://render.com/docs/disks), read for the conflict fix |
 | 4 | Does the server sleep when idle? How long does the first request take after sleep? | The Shortcut and the phone page need a quick answer | | |
 | 5 | How do you set environment variables so `.env` is not needed on the host? | The key must not be in git | | |
 | 6 | Can you cap spending on the host? | NF-02 needs cost limits | | |
