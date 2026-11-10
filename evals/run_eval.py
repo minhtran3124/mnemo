@@ -22,10 +22,9 @@ from pathlib import Path
 
 import anthropic
 
-import client
-import config
-import save
 from evals import faithful, golden, graders
+from mnemo.core import client, config
+from mnemo.save import pipeline as save
 
 EVALS_DIR = Path(__file__).resolve().parent
 PAGES_PATH = EVALS_DIR / "pages.json"
@@ -86,7 +85,7 @@ def _preview_counting(
     """Run save.preview and return the record and the tokens its Claude calls used.
 
     Counts at the SDK response, so a billed call that client.py then rejects
-    (refusal, max_tokens, no parsed output) and save.py retries is still counted.
+    (refusal, max_tokens, no parsed output) and mnemo/save/pipeline.py retries is still counted.
     """
     with _counting_sdk() as total:
         record = save.preview(

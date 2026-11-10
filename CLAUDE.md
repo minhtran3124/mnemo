@@ -2,18 +2,21 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Mnemo is a personal AI bookmark app. Stack: Python 3.12 managed with uv, plain JSON and text files under `data/`, all storage through `store.py`. Start at `docs/README.md`, then the current phase plan in `docs/product/plans/`. After a fresh clone run `npm install && npm run design:install` (UI design tooling, see `README.md`), then `git config core.hooksPath .githooks` to turn on the secrets pre-commit hook.
+Mnemo is a personal AI bookmark app. Stack: Python 3.12 managed with uv, plain JSON and text files under `data/`, all storage through `mnemo/core/store.py`. Start at `docs/README.md`, then the current phase plan in `docs/plans/`. After a fresh clone run `npm install && npm run design:install` (UI design tooling, see `README.md`), then `git config core.hooksPath .githooks` to turn on the secrets pre-commit hook.
 
 ## Commands
 
 - Install: `uv sync`
 - Test: `uv run pytest`
 - Lint and format check: `uv run ruff check . && uv run ruff format --check .`
+- Run the server: `uv run python -m mnemo.api.server`
+
+Code lives in the `mnemo/` package: `core/` (config, client, store), `chat/`, `save/`, `fetcher/`, `api/` (server and `web/`). Tests in `tests/` mirror it. Import as `from mnemo.core import store`.
 
 ## Easy to get wrong
 
 - The API key lives only on the server, in `.env`. Never put it in a page, log, commit or chat. The server binds to `127.0.0.1`. See `docs/process/git-and-secrets.md`.
-- Bookmark data is read and written only through `store.py`. See `docs/feature-specs/storage.md`.
+- Bookmark data is read and written only through `mnemo/core/store.py`. See `docs/feature-specs/storage.md`.
 - Plain code (a URL regex), not Claude, decides link versus question. See `docs/feature-specs/chat-and-intent.md`.
 - An unreadable page is saved as link only with a null summary. Never write a summary of text the app did not see, and mark a reason the app wrote as a guess. See `docs/solutions/honest-failure.md`.
 - Filing uses existing folders or Unsorted, and the app never moves or deletes without the user. See `docs/solutions/safe-auto-filing.md`.

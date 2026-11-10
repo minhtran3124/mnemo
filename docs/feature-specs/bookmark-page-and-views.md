@@ -51,7 +51,7 @@ Out: visual style (see [frontend-ui.md](frontend-ui.md)); how search works (see 
 
 ### Built in phase 3 (views)
 
-- The switcher offers three buttons: Ledger, Cards and Compact. It sets `view-ledger`, `view-cards` or `view-compact` on every `.bm-list`, and keeps the last choice in `localStorage` under `mnemo.bookmarks.view` (Ledger when nothing is stored). Script: `web/js/view-switcher.js`.
+- The switcher offers three buttons: Ledger, Cards and Compact. It sets `view-ledger`, `view-cards` or `view-compact` on every `.bm-list`, and keeps the last choice in `localStorage` under `mnemo.bookmarks.view` (Ledger when nothing is stored). Script: `mnemo/api/web/js/view-switcher.js`.
 - Compact draws one short line per bookmark: title, type, host, date, and the reason with its "guess" flag when there is one. It hides the summary, tags, "Filed in" line and the row action controls.
 - Move and Undo are **not** shown in Compact. That is out of scope for ticket #112; use Cards or Ledger to file a bookmark.
 - **Unverified**: the Compact line at 390px, the focus ring, and the remembered choice across a real reload have not been checked in a real browser. The CSS keeps the global `:focus-visible` outline and hides nothing focusable in Compact.
@@ -81,7 +81,7 @@ Five mockups (V1 to V5) exist in the Claude design canvas. They are not in this 
 
 ## Tests
 
-Manual smoke test in `manual-testing`. Data from [data-model.md](data-model.md).
+Manual smoke test in `testing/`. Data from [data-model.md](data-model.md).
 
 ## Open questions
 

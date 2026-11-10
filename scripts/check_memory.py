@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import anthropic
 
-import client
+from mnemo.core import client
 
 CODE_WORD = "zephyr-lantern-4417"
 TELL = f"Remember this code word: {CODE_WORD}. Reply with one short sentence."

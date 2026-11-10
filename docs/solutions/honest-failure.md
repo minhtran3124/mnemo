@@ -22,7 +22,7 @@ Many pages cannot be read: logins, paywalls, pages built with JavaScript, blocke
 6. For a partial read (for example only a video description), the card says what was used.
 7. Show a "page not read" badge on the bookmark page row.
 
-"Too short" means under 300 characters for HTML and under 40 for GitHub, after whitespace is collapsed. Set in `config.py` (`MIN_TEXT_CHARS_HTML`, `MIN_TEXT_CHARS_GITHUB`). Pasted text skips the fetch but has its own floor of 40 characters (`MIN_TEXT_CHARS_PASTED`), so a one-character paste is saved as link only with `page_status` `unreadable` and a null summary. The text Claude sees is the text stored in `data/pages/<id>.txt`: whitespace collapsed once, cut to `MAX_PAGE_CHARS` once.
+"Too short" means under 300 characters for HTML and under 40 for GitHub, after whitespace is collapsed. Set in `mnemo/core/config.py` (`MIN_TEXT_CHARS_HTML`, `MIN_TEXT_CHARS_GITHUB`). Pasted text skips the fetch but has its own floor of 40 characters (`MIN_TEXT_CHARS_PASTED`), so a one-character paste is saved as link only with `page_status` `unreadable` and a null summary. The text Claude sees is the text stored in `data/pages/<id>.txt`: whitespace collapsed once, cut to `MAX_PAGE_CHARS` once.
 
 ## Claude API errors on save
 
@@ -42,7 +42,7 @@ Each retry and each link-only fallback is logged once with the exception class a
 - Tested by the most important code check: an unreadable page gives a null summary.
 
 ## Where used
-F-01, F-02, F-04. See [page reading](../feature-specs/page-reading.md) and [phase 1 plan](../product/plans/phase-1-chat-and-bookmark-pages.md).
+F-01, F-02, F-04. See [page reading](../feature-specs/page-reading.md) and [phase 1 plan](../plans/phase-1-chat-and-bookmark-pages.md).
 
 ## Tests
 | Test | Expected |

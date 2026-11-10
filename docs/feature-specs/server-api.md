@@ -19,7 +19,7 @@ Out: the MCP interface ([mcp-server.md](mcp-server.md)).
 
 | ID | Requirement |
 | --- | --- |
-| SA-01 | All data access goes through `store.py` ([storage.md](storage.md)). |
+| SA-01 | All data access goes through `mnemo/core/store.py` ([storage.md](storage.md)). |
 | SA-02 | The server never returns the API key. |
 | SA-03 | From phase A (and phase B), every call needs a token. On the local server in phase 1 there is no login yet. |
 | SA-04 | Errors use one format. |
@@ -51,7 +51,7 @@ Open question: the upload endpoint for PDFs and screenshots.
 
 ## Start command
 
-`uv run python server.py` starts the server on `127.0.0.1` (`HOST` in `server.py`). It never binds to another address.
+`uv run python -m mnemo.api.server` starts the server on `127.0.0.1` (`HOST` in `mnemo/api/server.py`). It never binds to another address.
 
 ## POST /api/chat in phase 1
 
@@ -102,7 +102,7 @@ Page routes (HTML, not API): `GET /` chat, `GET /bookmarks` bookmark page, `GET 
 
 ## Tests
 
-Automated tests for each endpoint. Phone test: `manual-testing`.
+Automated tests for each endpoint. Phone test: `testing/`.
 
 ## Open questions
 

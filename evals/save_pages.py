@@ -8,8 +8,8 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-import fetcher
-import save
+from mnemo import fetcher
+from mnemo.save import pipeline as save
 
 EVALS_DIR = Path(__file__).parent
 PAGES_FILE = EVALS_DIR / "pages.json"

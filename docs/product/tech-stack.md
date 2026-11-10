@@ -14,16 +14,16 @@ Versions are the latest on PyPI and npm at the research date (2026-11-04). Pin t
 | Language | Python | 3.12 (the local machine has 3.12.3; pydantic-settings and python-multipart need 3.11 or newer) | D-001 course; the plan is Python |
 | Packages and env | uv | 0.13.7 | One tool for venv, install and lockfile (`uv.lock`) |
 | Backend (HTTP) | FastAPI + Uvicorn | FastAPI 0.162.0, Uvicorn 0.54.0 | Type hints and automatic validation; serves the thin pages (D-002) |
-| Data validation | Pydantic + pydantic-settings | Pydantic 2.14.2, pydantic-settings 2.16.2 | Validates records before `store.py` writes them (DM-02); reads `.env` and `config.py` values |
+| Data validation | Pydantic + pydantic-settings | Pydantic 2.14.2, pydantic-settings 2.16.2 | Validates records before `mnemo/core/store.py` writes them (DM-02); reads `.env` and `mnemo/core/config.py` values |
 | Form and file upload | python-multipart | 0.0.33 | Needed by FastAPI for uploads (PDF, screenshots; phases 4 and 6) |
 | Claude API | Anthropic Python SDK | 2.4.0 | The only model provider (D-001). JSON output via `client.messages.parse()` with a Pydantic model (verified in the SDK source) |
-| MCP server | MCP Python SDK (`MCPServer`, in mcp 2.x; the old `FastMCP` name was removed) | 2.3.0 (MIT) | Phase 9. The MCP server calls the web server's HTTP API, which uses `store.py`; it does not write files itself (decision D-022) |
+| MCP server | MCP Python SDK (`MCPServer`, in mcp 2.x; the old `FastMCP` name was removed) | 2.3.0 (MIT) | Phase 9. The MCP server calls the web server's HTTP API, which uses `mnemo/core/store.py`; it does not write files itself (decision D-022) |
 | Web fetch | httpx2 | 2.16.0 | Timeouts, redirects and size limits in one client (PR-03, PR-05). Chosen (D-022): `anthropic` and `mcp` already depend on it, so the app runs one HTTP stack. Verified by names only: `Client`, `Timeout`, `follow_redirects`, `max_redirects`, `stream`. The timeout, redirect and size values come from its wheel source, not from the docs site; limits are in [page reading](../feature-specs/page-reading.md). Run a test fetch before relying on it |
 | Page text extraction | trafilatura | 2.3.1 | Main text and metadata from HTML (PR-01 to PR-05) |
 | PDF text | pypdf | 6.21.4 | Plain text for PDFs in phase 6; BSD-3-Clause |
 | Search | bm25s | 0.3.16 | BM25 for the two indexes, behind a thin wrapper that gives SE-03's `add_document()` and `search()`. The wrapper rebuilds the index after each change; this is fast enough for hundreds of bookmarks (D-022) |
 | Storage (v1) | JSON and text files, written atomically | stdlib | No database in v1 (ST-02, NF-03) |
-| Storage (later) | Hosted database (for example Postgres), behind `store.py` | not chosen | If the host disk does not persist, a file-based SQLite would be lost the same way. A database must live off the host (D-012) |
+| Storage (later) | Hosted database (for example Postgres), behind `mnemo/core/store.py` | not chosen | If the host disk does not persist, a file-based SQLite would be lost the same way. A database must live off the host (D-012) |
 | Frontend | Plain HTML, CSS and a little vanilla JS, served by FastAPI | none | Thin screens (D-002). No build step. The design hook already checks `.html`, `.css` and `.js` |
 | Styling | CSS custom properties from the theming spec | none | Tokens only (UI-09, D-019) |
 | Lint and format | ruff | 0.17.3 | One tool for both |
@@ -52,18 +52,20 @@ Versions are the latest on PyPI and npm at the research date (2026-11-04). Pin t
 The layout follows the specs, not a generated template. Build it in phase 0 and 1.
 
 ```text
-app/            FastAPI app, routes (thin)
-store.py        the only module that touches data/ (NF-03)
-config.py       model name, max_tokens, page length limits (NF-02)
-fetcher/        page fetch and GitHub API (PR-01)
-save.py         Claude call for a card (phase 1)
-prompts/        versioned prompts, one file per version (phase 1, 3)
-search.py       BM25 indexes, RRF, pick step (phase 5)
-mcp_server.py   MCP server (phase 9)
-web/            HTML, CSS, JS pages (no build)
-evals/          golden sets, graders, results CSV (phase 2)
-tests/          pytest
-data/           local bookmarks, pages, chat history, log (gitignored)
+mnemo/core/store.py       the only module that touches data/ (NF-03)
+mnemo/core/config.py      model name, max_tokens, page length limits (NF-02)
+mnemo/core/client.py      Claude API client
+mnemo/chat/               intent, ask loop and tools, import
+mnemo/fetcher/            page fetch and GitHub API (PR-01)
+mnemo/save/pipeline.py    Claude call for a card (phase 1)
+mnemo/save/prompts/       versioned prompts, one file per version (phase 1, 3)
+mnemo/api/server.py       FastAPI app, routes (thin)
+mnemo/api/web/            HTML, CSS, JS pages (no build)
+mnemo/search/             BM25 indexes, RRF, pick step (phase 5, planned)
+mnemo/mcp_server.py       MCP server (phase 9, planned)
+evals/                    golden sets, graders, eval prompts, results CSV (phase 2)
+tests/                    pytest, folders mirror mnemo/
+data/                     local bookmarks, pages, chat history, log (gitignored)
 ```
 
 ## Model choice and monthly cost
@@ -77,7 +79,7 @@ Prices verified on the [Anthropic pricing page](https://platform.claude.com/docs
 | Claude Opus 5.5 | $4 | $20 |
 | Claude Fable 5.1 | $10 | $50 |
 
-Estimate for `save.py` only (assumptions, not measured: 8,000 input and 500 output tokens per save, 300 saves per month; the PRD sets no monthly volume):
+Estimate for `mnemo/save/pipeline.py` only (assumptions, not measured: 8,000 input and 500 output tokens per save, 300 saves per month; the PRD sets no monthly volume):
 
 | Model | API per month | With hosting at about $7 (unverified) | Fits $10? |
 | --- | --- | --- | --- |
@@ -85,7 +87,7 @@ Estimate for `save.py` only (assumptions, not measured: 8,000 input and 500 outp
 | Sonnet 5.5 | about $6.30 | about $13.30 | No |
 | Opus 5.5 | about $12.60 | about $19.60 | No |
 
-Chosen (D-022): Haiku 5.5 for `save.py`. Re-check the score in the eval; move to a bigger model only if the save score fails and the budget allows it. Set the model name in `config.py` (NF-02).
+Chosen (D-022): Haiku 5.5 for `mnemo/save/pipeline.py`. Re-check the score in the eval; move to a bigger model only if the save score fails and the budget allows it. Set the model name in `mnemo/core/config.py` (NF-02).
 
 ## Commands (once the code exists)
 
@@ -96,7 +98,7 @@ Chosen (D-022): Haiku 5.5 for `save.py`. Re-check the score in the eval; move to
 | All tests | `uv run pytest` |
 | One test | `uv run pytest tests/test_store.py::test_name` |
 | Lint and format | `uv run ruff check . && uv run ruff format --check .` |
-| UI design scan | `npm run design:detect` (once `web/` exists) |
+| UI design scan | `npm run design:detect` (once `mnemo/api/web/` exists) |
 
 The module path `app.main:app` is a proposal. Keep it in sync with the real layout.
 
@@ -104,7 +106,7 @@ The module path `app.main:app` is a proposal. Keep it in sync with the real layo
 
 - **Phase 0 to 4:** run on your own computer, bound to `127.0.0.1` (D-007).
 - **Phase A:** Render, as planned. Verified in [Render persistent disks](https://render.com/docs/disks): the disk attaches to a paid web service, keeps files across deploys and restarts (only under the mount path), takes a snapshot every 24 hours, keeps snapshots 7 days, and allows only one instance. Price: Unverified (Q-01); the official page lists no per-GB price.
-- **Data risk:** the disk persists, but `bookmarks.json` is rewritten whole on each save. Use one worker plus a file lock in `store.py`, and export data off the host on a schedule (storage.md).
+- **Data risk:** the disk persists, but `bookmarks.json` is rewritten whole on each save. Run one worker with the process-local write lock (D-035), and export data off the host on a schedule (storage.md).
 - **Backups:** copy `data/` on a schedule. How often is an open question (storage.md).
 - **Secrets:** the key is an environment variable on the host, never in the repo (NF-01). A pre-commit hook (`.githooks/pre-commit`) blocks a commit that stages a key; see git-and-secrets.md.
 - **CI:** `.github/workflows/ci.yml` (added in phase 0, #9) runs `uv sync --locked`, `ruff check`, `ruff format --check` and `pytest` on every pull request and on pushes to `main`. The autopilot merge gate needs a CI check on each PR.
@@ -113,7 +115,7 @@ The module path `app.main:app` is a proposal. Keep it in sync with the real layo
 
 - **PyMuPDF licence:** AGPL-3.0 or commercial. This is why pypdf is chosen.
 - **pypdf licence:** BSD-3-Clause (checked in the wheel metadata).
-- **Two writers:** the MCP server (phase 9) runs as a separate process. If it writes through `store.py` while the web server runs, `store.py` needs a lock or the MCP server must call the HTTP API instead. Open question.
+- **Two writers:** the MCP server (phase 9) runs as a separate process and calls the web server's HTTP API, so the web server stays the only writer (D-022). The process-local write lock (D-035) is enough. A cross-process lock in `mnemo/core/store.py` is needed only if a second process ever writes files directly.
 - **Claude JSON output:** use structured outputs (`client.messages.parse(output_format=Model)`; D-025) instead of prefill. Checked on the [official page](https://platform.claude.com/docs/en/build-with-claude/structured-outputs): `claude-haiku-5-5` is supported, no beta header is needed, and prefill is incompatible with JSON outputs. The schema cannot enforce string length or array size, so code still checks them.
 - **Temperature:** `Messages.create()` and `Messages.parse()` in the installed `anthropic` 2.4.0 have no `temperature` parameter (checked by inspecting the SDK; passing it raises `TypeError`). Do not set it. Whether the HTTP API itself accepts it for current models is unverified.
 - **Phase A login:** not chosen. SA-03 and PV-03 need a method (for example one token checked by middleware).

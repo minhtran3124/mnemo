@@ -10,7 +10,7 @@ An expected entry is a dict with the keys `expect` ("readable" or
 from dataclasses import dataclass
 from typing import Any
 
-import store
+from mnemo.core import store
 
 UNREADABLE = "unreadable"
 

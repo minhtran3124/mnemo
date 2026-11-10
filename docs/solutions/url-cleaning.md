@@ -20,7 +20,7 @@ Your sample list had one repeat: the same GitHub repo (`gyoridavid/ai_agents_az`
 8. Compare clean links to find an exact duplicate.
 
 ## Code
-The function is `clean_url(url)` in `urlclean.py`. It is pure and makes no network call. Tests: `tests/test_url_clean.py`.
+The function is `clean_url(url)` in `mnemo/core/urlclean.py`. It is pure and makes no network call. Tests: `tests/test_url_clean.py`.
 
 ## Other parameters
 The plan names only `fbclid` and `utm_*`. Other tracking parameters exist, but this file does not list any the plan did not name. Open question: which other parameters to remove. Decide from real links you save. Removing a parameter that the page needs would break the link, so add one only when you can show it is safe.

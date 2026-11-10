@@ -40,4 +40,4 @@ Use option 1 with a private switch (F-19). Build local first (D-007). Move to op
 | Putting the key in a page or Shortcut | Anyone can read it | Key stays on the server (NF-01) |
 | Going online with no login | Anyone can spend your money | Login, `max_tokens`, page length limit, spending cap (NF-02) |
 
-Related: [privacy and security spec](../feature-specs/privacy-and-security.md), [phase A plan](../product/plans/phase-a-online-host.md).
+Related: [privacy and security spec](../feature-specs/privacy-and-security.md), [phase A plan](../plans/phase-a-online-host.md).

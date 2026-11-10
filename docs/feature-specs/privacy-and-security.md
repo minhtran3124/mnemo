@@ -68,10 +68,10 @@ Unverified: Anthropic's data retention policy for the API. Read it before saving
 
 ## Tests
 
-Manual checks in `manual-testing`.
+Manual checks in `testing/`.
 
 ## Open questions
 
 - Company AI policy result.
 - Retention policy.
-- Details of private mode.
+- Whether private bookmarks appear in the digest, the MCP server and search (see [digest](digest-and-roast.md), [MCP server](mcp-server.md), [search](search-no-embeddings.md)). The save behaviour itself is decided: [chat and intent](chat-and-intent.md).
