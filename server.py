@@ -20,6 +20,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 import ask
 import config
+import importer
 import intent
 import save
 import store
@@ -384,6 +385,71 @@ def undo_bookmark(bookmark_id: int) -> dict | JSONResponse:
         return store.update_bookmark(
             bookmark_id, {"folder": folder, "prev_folder": None}
         )
+
+
+class ImportPreviewBody(BaseModel):
+    # `file` is the browser export HTML; `text` is pasted text. `file` wins.
+    file: str | None = None
+    text: str | None = None
+
+
+def _import_estimate(new: int) -> float:
+    """The cost estimate in dollars for `new` links (IM-04).
+
+    Unverified: the token figure and the price live in config.py and must be
+    checked against the current Claude API prices.
+    """
+    return round(
+        new
+        * config.IMPORT_TOKENS_PER_LINK
+        * config.IMPORT_PRICE_PER_MILLION_TOKENS
+        / 1_000_000,
+        6,
+    )
+
+
+def _links_message(count: int) -> str:
+    return f"{count} link{'' if count == 1 else 's'} found."
+
+
+@app.post("/api/import/preview")
+def import_preview(body: ImportPreviewBody) -> dict:
+    """Count the links and estimate the cost before any import API call (IM-04).
+
+    Reads the browser export (`file`) or the pasted text (`text`); `file` wins
+    when both are present. Links already saved are counted but left out of
+    `new`. `slack` counts found Slack archive links, saved or not. No page is
+    fetched and no Claude call is made.
+    """
+    if body.file is not None:
+        links = importer.links_from_browser_export(body.file)
+    elif body.text is not None:
+        links = importer.links_from_text(body.text)
+    else:
+        links = []
+
+    found = len(links)
+    if found == 0:
+        return {
+            "found": 0,
+            "new": 0,
+            "already_saved": 0,
+            "slack": 0,
+            "estimate": 0.0,
+            "message": "No links found.",
+        }
+    already_saved = sum(
+        1 for link in links if store.find_by_url_clean(link["url_clean"]) is not None
+    )
+    new = found - already_saved
+    return {
+        "found": found,
+        "new": new,
+        "already_saved": already_saved,
+        "slack": sum(1 for link in links if link["slack"]),
+        "estimate": _import_estimate(new),
+        "message": _links_message(found),
+    }
 
 
 class ChatBody(BaseModel):
