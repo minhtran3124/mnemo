@@ -68,7 +68,7 @@ Unverified: Anthropic's data retention policy for the API. Read it before saving
 
 ## Tests
 
-Manual checks in `manual-testing`.
+Manual checks in `testing/`.
 
 ## Open questions
 

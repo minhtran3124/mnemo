@@ -11,7 +11,7 @@ This file explains the three levels of checking in Mnemo and what a person tests
 | Eval | The computer plus a model grader | Whether tags, summaries and answers got better or worse | Every prompt change (from phase 2) |
 | Manual test | You | Things only a person sees: confusing text, a card that looks wrong, a phone layout that breaks | After every phase |
 
-Code checks are fast and exact. The eval is a measure, not a proof (see [eval process](../process/eval-process.md)). Manual testing is the only level that finds "this feels wrong". Use all three. Do not skip manual testing because the score is high.
+Code checks are fast and exact. The eval is a measure, not a proof (see [eval process](eval-process.md)). Manual testing is the only level that finds "this feels wrong". Use all three. Do not skip manual testing because the score is high.
 
 ## What to test by hand on each screen
 
@@ -35,7 +35,7 @@ Code checks are fast and exact. The eval is a measure, not a proof (see [eval pr
 | Open, Move, Delete | Each works; Delete asks before it acts (Move from phase 3) |
 | View switcher (F-05) | Grid and List in phase 1, Compact from phase 3 |
 
-Test cases for each feature are in [test-cases](../feature-specs/test-cases/README.md). Sample links are in [sample links](../reference/sample-links.md). Hard cases are in [hard cases](../feature-specs/test-cases/hard-cases.md).
+Test cases for each feature are in [golden sets](golden-sets/README.md). Sample links are in [sample links](../reference/sample-links.md). Hard cases are in [hard cases](golden-sets/hard-cases.md).
 
 ## Entry and exit per phase
 

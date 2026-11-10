@@ -7,7 +7,7 @@ from mnemo.core import config
 
 ROOT = Path(__file__).resolve().parents[2]
 RUNS = ROOT / "evals" / "results" / "runs.csv"
-DOC = ROOT / "docs" / "process" / "eval-process.md"
+DOC = ROOT / "docs" / "testing" / "eval-process.md"
 NOISE = 0.08
 
 

@@ -38,7 +38,7 @@ Decision D-016 (Accepted): the visual direction is **V3, the ledger**. Serif hea
 Mockup (light and dark, laptop and phone, Settings screen): https://claude.ai/artifact/7Q93Na93mLjP5FCbWbeYwz
 The built pages must follow the mockup. Its final boards are saved in [design/v3-mockup](../design/v3-mockup/README.md), and [ui-reference.md](ui-reference.md) lists the measurements, the parts not built yet in phase 1, and the open decisions. The mockup was never checked as a rendered page and the link is not a permanent store. The tokens in the spec are the source of truth for colour.
 
-V1, V2, V4 and V5 are dropped. They stay in the mockup file and in the [design review](../reviews/design-review-v1-v5.md) as history.
+V1, V2, V4 and V5 are dropped. They stay in the mockup file and in the [design review](../research/design-review-v1-v5.md) as history.
 
 | Item | Decision |
 | --- | --- |
@@ -84,7 +84,7 @@ Final wording: Open question.
 
 ## Tests
 
-Manual: see `manual-testing`.
+Manual: see `testing/`.
 
 ## Open questions
 

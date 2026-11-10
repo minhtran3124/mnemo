@@ -60,4 +60,4 @@ Copy one row per day.
 - If you do not type the reason, change the reason design (decision point after phase 3).
 - Phase B and phase 5 can be cut if the web page alone already solves your problem.
 
-Related: [risk review](../reviews/risk-review.md), [smoke checklist](smoke-checklist.md).
+Related: [risk review](../research/risk-review.md), [smoke checklist](smoke-checklist.md).

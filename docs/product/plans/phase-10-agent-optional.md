@@ -31,7 +31,7 @@ Pick one choice and write it down first.
 - [ ] The agent stops at its step limit.
 
 ## Risks
-A wrong fix hurts your list. See [risk review](../../reviews/risk-review.md).
+A wrong fix hurts your list. See [risk review](../../research/risk-review.md).
 
 ## If time runs short
 Cut it first (first in cut order).

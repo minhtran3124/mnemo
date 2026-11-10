@@ -75,7 +75,7 @@ If search is still weak, an embeddings provider can be added later.
 
 ## Tests
 
-[ask-golden-set.md](test-cases/ask-golden-set.md). Duplicates also use this search ([duplicates.md](duplicates.md)).
+[ask-golden-set.md](../testing/golden-sets/ask-golden-set.md). Duplicates also use this search ([duplicates.md](duplicates.md)).
 
 ## Open questions
 

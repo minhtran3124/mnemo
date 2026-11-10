@@ -16,7 +16,7 @@ A feature is done when all rows are true.
 | 6 | Cost limits still apply: `max_tokens` and a maximum page length (NF-02). |
 | 7 | Bookmarks are read and written only through `mnemo/core/store.py` (NF-03). |
 | 8 | A guess is marked as a guess (NF-04). |
-| 9 | The [smoke checklist](../manual-testing/smoke-checklist.md) passes. |
+| 9 | The [smoke checklist](../testing/smoke-checklist.md) passes. |
 | 10 | The change is committed, with a note in the session log. |
 | 11 | Docs that describe the feature are updated. |
 
@@ -39,7 +39,7 @@ A feature is done when all rows are true.
 | C | A `.deb` file installs and opens the chat page in its own window. |
 
 ## What "done" does not mean
-- A high eval score is not enough. See the [two-week user test](../manual-testing/two-week-user-test.md).
+- A high eval score is not enough. See the [two-week user test](../testing/two-week-user-test.md).
 - Code that runs once is not enough. Run it twice, with a bad input.
 
-Related: [test strategy](../manual-testing/test-strategy.md), [phases overview](../product/phases-overview.md).
+Related: [test strategy](../testing/test-strategy.md), [phases overview](../product/phases-overview.md).

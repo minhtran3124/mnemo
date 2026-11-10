@@ -6,7 +6,7 @@ This file defines the Route set: 15 links with the expected type and the expecte
 
 ## Purpose
 
-Score the type choice and the folder choice. Supports F-03 and F-13. Rules: [README.md](README.md). Folder rules: [folders.md](../folders.md).
+Score the type choice and the folder choice. Supports F-03 and F-13. Rules: [README.md](README.md). Folder rules: [folders.md](../../feature-specs/folders.md).
 
 ## Format
 

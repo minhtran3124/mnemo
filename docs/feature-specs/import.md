@@ -70,7 +70,7 @@ Each result is a dict: `{"url": <link as written>, "url_clean": <cleaned link>, 
 
 ## Tests
 
-Use a small export file and one pasted text. Cases: [hard-cases.md](test-cases/hard-cases.md).
+Use a small export file and one pasted text. Cases: [hard-cases.md](../testing/golden-sets/hard-cases.md).
 
 ## Open questions
 

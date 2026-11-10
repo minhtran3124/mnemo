@@ -43,7 +43,7 @@ Mark the 5 held-out rows with `held-out` in notes. Never use them as prompt exam
 
 | Check | Type | What it tests |
 | --- | --- | --- |
-| Valid JSON and schema | Code | All fields present, only allowed values (see [data-model.md](../data-model.md)). |
+| Valid JSON and schema | Code | All fields present, only allowed values (see [data-model.md](../../feature-specs/data-model.md)). |
 | Tag rules | Code | 3 to 6 lowercase tags. |
 | Summary length | Code | At most 60 words. |
 | Honest failure | Code | An unreadable page gives a null summary. The most important check. |

@@ -10,7 +10,7 @@ The eval harness reports an honesty score that can fail, and the faithful-summar
 Trust a change in the three scores.
 
 ## Inputs
-Phase 2 merged (PR #95, baseline PR #96). See the "Baseline and noise" section of [eval process](../../process/eval-process.md).
+Phase 2 merged (PR #95, baseline PR #96). See the "Baseline and noise" section of [eval process](../../testing/eval-process.md).
 
 ## Tasks
 Each task is one change with its own check, so each can become one ticket.
@@ -33,7 +33,7 @@ Each task is one change with its own check, so each can become one ticket.
 - [ ] S-03, S-06 and S-09 are graded the same in two runs.
 
 ## Risks
-The grader is a model, so Task 5 can reduce noise but not remove it. See [eval process](../../process/eval-process.md).
+The grader is a model, so Task 5 can reduce noise but not remove it. See [eval process](../../testing/eval-process.md).
 
 ## Links to specs
-[eval process](../../process/eval-process.md) · [save golden set](../../feature-specs/test-cases/save-golden-set.md) · [phase 2 plan](phase-2-eval-harness.md)
+[eval process](../../testing/eval-process.md) · [save golden set](../../testing/golden-sets/save-golden-set.md) · [phase 2 plan](phase-2-eval-harness.md)

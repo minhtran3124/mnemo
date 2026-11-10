@@ -68,14 +68,14 @@ Claude picks from the folders that exist, or `Unsorted`. If unsure, it must choo
 
 | # | Check |
 | --- | --- |
-| 1 | Code check passes for JSON, tags, summary length (see the checks table in [save-golden-set.md](test-cases/save-golden-set.md)). |
+| 1 | Code check passes for JSON, tags, summary length (see the checks table in [save-golden-set.md](../testing/golden-sets/save-golden-set.md)). |
 | 2 | Faithful-summary grader finds 0 unsupported statements. |
 | 3 | Type matches expected type on the Save set. Target: set after first baseline. |
-| 4 | Filing: the Route set scores the folder choice ([route-set.md](test-cases/route-set.md)). |
+| 4 | Filing: the Route set scores the folder choice ([route-set.md](../testing/golden-sets/route-set.md)). |
 
 ## Tests
 
-[save-golden-set.md](test-cases/save-golden-set.md), [route-set.md](test-cases/route-set.md).
+[save-golden-set.md](../testing/golden-sets/save-golden-set.md), [route-set.md](../testing/golden-sets/route-set.md).
 
 ## Open questions
 

@@ -8,7 +8,7 @@ The name was chosen by you. Other software already uses "mnemo" (see [naming](re
 
 ## Start here
 
-1. [Pre-start checklist](reviews/pre-start-checklist.md): what must be true before phase 0.
+1. [Pre-start checklist](process/pre-start-checklist.md): what must be true before phase 0.
 2. [PRD](product/mnemo-prd.md): what we build and why.
 3. [Roadmap](product/roadmap.md) and [phases overview](product/phases-overview.md): in what order.
 4. [Open questions](research/open-questions.md): what you still need to answer. None blocks phase 0.
@@ -33,12 +33,12 @@ Building these pages found conflicts between docs. They are not fixed yet: JSON 
 | Folder | What is inside |
 | --- | --- |
 | [`product/`](product/) | PRD, roadmap, phases overview. [`product/plans/`](product/plans/) has one plan per phase (0 to 10, A, B, C). |
-| [`feature-specs/`](feature-specs/) | One spec per feature area: data model, chat, page reading, filing, folders, views, search, import, API, privacy, storage. [`test-cases/`](feature-specs/test-cases/) has the golden sets and hard cases. |
-| [`manual-testing/`](manual-testing/) | Test strategy, smoke checklist, the two-week user test, phone and Shortcut test, [phase 1 links check](manual-testing/phase1-links-check.md). |
+| [`feature-specs/`](feature-specs/) | One spec per feature area: data model, chat, page reading, filing, folders, views, search, import, API, privacy, storage. [`test-cases/`](testing/golden-sets/) has the golden sets and hard cases. |
+| [`manual-testing/`](testing/) | Test strategy, smoke checklist, the two-week user test, phone and Shortcut test, [phase 1 links check](testing/phase1-links-check.md). |
 | [`process/`](process/) | How we work: agreements, definition of done, eval process, secrets, session log, decision log. |
 | [`reference/`](reference/) | Glossary, course map, competitors, API notes to verify, sample links. |
 | [`research/`](research/) | Open questions, local vs online, naming, hosting check, embeddings alternatives. |
-| [`reviews/`](reviews/) | Risk review, design review of the five mockups, pre-start checklist. |
+| [`reviews/`](research/) | Risk review, design review of the five mockups, pre-start checklist. |
 | [`solutions/`](solutions/) | Short notes on problems we already solved on paper: honest failure, URL cleaning, Slack pages, big PDFs, safe auto-filing. |
 
 ## IDs used in all docs
@@ -56,7 +56,7 @@ Building these pages found conflicts between docs. They are not fixed yet: JSON 
 ## Known gaps
 
 - You have not chosen your 5 or 6 starter folders yet.
-- The design is chosen (V3, light and dark) but only as a mockup. It is not checked in a rendered page (see [design review](reviews/design-review-v1-v5.md) and [theming spec](feature-specs/theming-and-design-tokens.md)).
+- The design is chosen (V3, light and dark) but only as a mockup. It is not checked in a rendered page (see [design review](research/design-review-v1-v5.md) and [theming spec](feature-specs/theming-and-design-tokens.md)).
 - Render price and storage rules are not checked (see [hosting check](research/hosting-check.md)).
 - Claude API prices and PDF limits are not checked. The model name is checked (see [API notes](reference/api-notes.md)).
 

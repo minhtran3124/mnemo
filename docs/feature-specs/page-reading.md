@@ -100,7 +100,7 @@ Version 1 writes English summaries only (D-011). A Vietnamese page gets an Engli
 
 ## Tests
 
-[hard-cases.md](test-cases/hard-cases.md), [save-golden-set.md](test-cases/save-golden-set.md). Links: [sample-links.md](../reference/sample-links.md).
+[hard-cases.md](../testing/golden-sets/hard-cases.md), [save-golden-set.md](../testing/golden-sets/save-golden-set.md). Links: [sample-links.md](../reference/sample-links.md).
 
 ## Open questions
 

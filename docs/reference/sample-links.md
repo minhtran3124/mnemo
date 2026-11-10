@@ -2,13 +2,13 @@
 
 Status: Draft v0.1 · Owner: KhoiTran · Phase: 2 (golden sets), used from phase 1
 
-This file lists the real links you sent while we made the plan, what a fetch tool did with each one, and what each link tests. It is the input for the [save golden set](../feature-specs/test-cases/save-golden-set.md), the [route set](../feature-specs/test-cases/route-set.md) and the [hard cases](../feature-specs/test-cases/hard-cases.md).
+This file lists the real links you sent while we made the plan, what a fetch tool did with each one, and what each link tests. It is the input for the [save golden set](../testing/golden-sets/save-golden-set.md), the [route set](../testing/golden-sets/route-set.md) and the [hard cases](../testing/golden-sets/hard-cases.md).
 
 **Read this first.**
 - "Result" is what the planning tool saw when it read the page. Your own fetcher may behave differently.
 - "Type (proposed)" is a guess for the test set. It is not verified. Fix it when you write your expected answers.
 - Where the full address was not kept, the link is shortened with "…". Copy the full address from your own list before you save the page text to `evals/golden/`.
-- The plan says "20 different links". Counting the rows below gives 21. Decide which 20 go into the Save set. Keep 5 as the held-out set (see [eval process](../process/eval-process.md)).
+- The plan says "20 different links". Counting the rows below gives 21. Decide which 20 go into the Save set. Keep 5 as the held-out set (see [eval process](../testing/eval-process.md)).
 
 ## Links
 
@@ -55,7 +55,7 @@ Informational, not part of the 5: the X post (#1 in the table above) is readable
 
 | Sample | Result | Where it is tested |
 | --- | --- | --- |
-| PDF book "AI-Ready PostgreSQL 18" (580 pages, 14.6 MB) | Pages 1 to 3 are a print cover, a title page and a copyright page. | [Hard cases](../feature-specs/test-cases/hard-cases.md), [big PDFs](../solutions/big-pdfs.md) |
+| PDF book "AI-Ready PostgreSQL 18" (580 pages, 14.6 MB) | Pages 1 to 3 are a print cover, a title page and a copyright page. | [Hard cases](../testing/golden-sets/hard-cases.md), [big PDFs](../solutions/big-pdfs.md) |
 | A Slack message link (`secretboth.slack.com/archives/…`) | Cannot be opened. It needs a sign-in. | [Slack and login pages](../solutions/slack-and-login-pages.md) |
 | Screenshot of an X post by @0xShoopy about a "10-page PDF" | The image does not support the claim in the post. Text is cut ("Show more"). No URL. | [PDF and screenshots](../feature-specs/pdf-and-screenshots.md) |
 | `about:blank#blocked` | Not a link. A browser placeholder. | Not a test. Send the real link if you still have it. |

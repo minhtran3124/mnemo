@@ -97,4 +97,4 @@ Notes:
 - Whether the accent needs a second colour for success and error states.
 - Font licences: confirm each `*-OFL.txt` against the upstream project (Q-16 itself is answered: self-host).
 
-Related: [frontend UI](frontend-ui.md), [bookmark page](bookmark-page-and-views.md), [decision log](../process/decision-log.md), [design review](../reviews/design-review-v1-v5.md).
+Related: [frontend UI](frontend-ui.md), [bookmark page](bookmark-page-and-views.md), [decision log](../process/decision-log.md), [design review](../research/design-review-v1-v5.md).

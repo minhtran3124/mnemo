@@ -10,7 +10,7 @@ from mnemo.core import client, config, store
 from mnemo.save import pipeline as save
 
 ROOT = Path(__file__).resolve().parents[2]
-ROUTE_DOC = ROOT / "docs" / "feature-specs" / "test-cases" / "route-set.md"
+ROUTE_DOC = ROOT / "docs" / "testing" / "golden-sets" / "route-set.md"
 PAGES = json.loads((ROOT / "evals" / "pages.json").read_text(encoding="utf-8"))
 EXPECTED = json.loads((ROOT / "evals" / "expected.json").read_text(encoding="utf-8"))
 

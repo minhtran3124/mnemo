@@ -86,7 +86,7 @@ Tools return clear errors. When a tool fails, the loop sends the error back with
 
 ## Tests
 
-[ask-golden-set.md](test-cases/ask-golden-set.md).
+[ask-golden-set.md](../testing/golden-sets/ask-golden-set.md).
 
 ## Open questions
 

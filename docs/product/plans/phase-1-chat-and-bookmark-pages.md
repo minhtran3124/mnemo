@@ -67,10 +67,10 @@ Each task is one change with its own check, so each can become one ticket. Tasks
 - [ ] The theme control switches System, Light and Dark, and the choice survives a reload.
 
 ## Risks
-Many pages cannot be read. Structured output can still end in a refusal or a `max_tokens` cut; code treats both as invalid and retries once. See [risk review](../../reviews/risk-review.md).
+Many pages cannot be read. Structured output can still end in a refusal or a `max_tokens` cut; code treats both as invalid and retries once. See [risk review](../../research/risk-review.md).
 
 ## If time runs short
 Cut the Grid view; keep List. Cut `note <id>` (edit later). Do not cut honest failure.
 
 ## Links to specs
-[UI reference](../../feature-specs/ui-reference.md) · [chat and intent](../../feature-specs/chat-and-intent.md) · [page reading](../../feature-specs/page-reading.md) · [bookmark page and views](../../feature-specs/bookmark-page-and-views.md) · [frontend UI](../../feature-specs/frontend-ui.md) · [server API](../../feature-specs/server-api.md) · [storage](../../feature-specs/storage.md) · [honest failure](../../solutions/honest-failure.md) · [hard cases](../../feature-specs/test-cases/hard-cases.md) · [smoke checklist](../../manual-testing/smoke-checklist.md)
+[UI reference](../../feature-specs/ui-reference.md) · [chat and intent](../../feature-specs/chat-and-intent.md) · [page reading](../../feature-specs/page-reading.md) · [bookmark page and views](../../feature-specs/bookmark-page-and-views.md) · [frontend UI](../../feature-specs/frontend-ui.md) · [server API](../../feature-specs/server-api.md) · [storage](../../feature-specs/storage.md) · [honest failure](../../solutions/honest-failure.md) · [hard cases](../../testing/golden-sets/hard-cases.md) · [smoke checklist](../../testing/smoke-checklist.md)

@@ -81,7 +81,7 @@ Five mockups (V1 to V5) exist in the Claude design canvas. They are not in this 
 
 ## Tests
 
-Manual smoke test in `manual-testing`. Data from [data-model.md](data-model.md).
+Manual smoke test in `testing/`. Data from [data-model.md](data-model.md).
 
 ## Open questions
 

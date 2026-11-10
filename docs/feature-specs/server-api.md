@@ -102,7 +102,7 @@ Page routes (HTML, not API): `GET /` chat, `GET /bookmarks` bookmark page, `GET 
 
 ## Tests
 
-Automated tests for each endpoint. Phone test: `manual-testing`.
+Automated tests for each endpoint. Phone test: `testing/`.
 
 ## Open questions
 

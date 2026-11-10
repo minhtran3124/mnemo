@@ -32,7 +32,7 @@ This file lists everything you need before phase 0. Tick each box. Nothing here 
 - [ ] D-017: private mode, yes or no.
 - [ ] Weekly API spend limit (Q-12).
 - [ ] Sessions per week (Q-05).
-- [ ] You know the targets in the [two-week test](../manual-testing/two-week-user-test.md) are proposals. Change them now.
+- [ ] You know the targets in the [two-week test](../testing/two-week-user-test.md) are proposals. Change them now.
 
 ## Policy
 - [ ] You checked your company's AI policy before saving any work link (Q-13).
