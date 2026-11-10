@@ -33,7 +33,7 @@ Nothing visible yet. The project is safe and ready.
 - [ ] `CLAUDE.md` exists and lists the rules above.
 
 ## Risks
-Key leaks into git (NF-01). Wrong model name. See [risk review](../../reviews/risk-review.md).
+Key leaks into git (NF-01). Wrong model name. See [risk review](../../research/risk-review.md).
 
 ## If time runs short
 Skip the spending limit for now (but set it before phase A). Do not skip the `.gitignore`.

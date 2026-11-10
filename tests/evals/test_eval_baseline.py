@@ -25,6 +25,6 @@ def test_baseline_rows_have_numeric_scores_and_tokens():
 
 
 def test_noise_level_and_session_log_are_written():
-    doc = (ROOT / "docs" / "process" / "eval-process.md").read_text(encoding="utf-8")
+    doc = (ROOT / "docs" / "testing" / "eval-process.md").read_text(encoding="utf-8")
     assert any(line.startswith("Noise level:") for line in doc.splitlines())
     assert (ROOT / "docs" / "process" / "session-log.md").is_file()

@@ -18,14 +18,14 @@ This file says how the built pages must follow the V3 mockup, and lists where th
 | --- | --- | --- |
 | Chat, laptop | `V3LightChat` | Built at `/` (web/index.html), without the parts listed under "Not built yet". Compared with the board in a browser on 2026-11-05 at 1280px, light and dark; the differences left are under "Accepted differences" |
 | Bookmark page, laptop | `V3LightBookmarks` | Yes, Ledger and Cards views. Both compared with the board in a browser on 2026-11-05 |
-| Chat, phone | `V3LightPhoneChat` | Built with the same page (margin column becomes a "Filed in" line under the text). Compared at 390px, light and dark, on 2026-11-05. NF-05 measured at 390px, light: pass ([check](../manual-testing/phase1-nf05-check.md)) |
+| Chat, phone | `V3LightPhoneChat` | Built with the same page (margin column becomes a "Filed in" line under the text). Compared at 390px, light and dark, on 2026-11-05. NF-05 measured at 390px, light: pass ([check](../testing/phase1-nf05-check.md)) |
 | Bookmarks, phone | `V3LightPhoneList` | Yes |
 | Settings, phone | `V3LightSettings` | Theme is built; the bookmark view choice and the preview are not (A10). At 1280px there is no board: compared with the phone board and the measurement tables |
 | Dark versions of all five | `V3Dark*` | Yes. Same markup as the light board; only the token set differs (see the [README](../design/v3-mockup/README.md)) |
 
 ## Accepted differences
 
-Result of the parity check of 2026-11-05 (see [phase 1 parity check](../manual-testing/phase1-parity-check.md); screenshots are in the PR). The Ledger and Cards views were both compared with the boards in screenshots and computed styles, at 1280px and 390px, light and dark. The Cards box, grid and gaps match the boards; the one size difference found (row title and meta on the phone) was fixed. Each line is a difference the build keeps for now.
+Result of the parity check of 2026-11-05 (see [phase 1 parity check](../testing/phase1-parity-check.md); screenshots are in the PR). The Ledger and Cards views were both compared with the boards in screenshots and computed styles, at 1280px and 390px, light and dark. The Cards box, grid and gaps match the boards; the one size difference found (row title and meta on the phone) was fixed. Each line is a difference the build keeps for now.
 
 - A1 **All pages, header.** The board has Chat and Bookmarks tabs with a count (laptop) and a bottom tab bar (phone). The build has the brand, a Settings link and the theme control. Reason: the tabs are not built (see the Open question under "Chat page as built"); the count needs server data.
 - A2 **Chat, both widths.** No Move and Undo buttons and no real folder name: phase 3.
@@ -151,4 +151,4 @@ These come from the specs and need a place in the layout. Put them where the led
 4. Put screenshots in the PR. List each difference as "fixed" or add it to this file as accepted, with the reason.
 5. Measure contrast and touch targets in the built page (NF-05); the numbers in the theming spec come from the mockup and are unverified.
 
-Related: [frontend UI](frontend-ui.md), [theming and tokens](theming-and-design-tokens.md), [bookmark page and views](bookmark-page-and-views.md), [chat and intent](chat-and-intent.md), [design review](../reviews/design-review-v1-v5.md), `PRODUCT.md`.
+Related: [frontend UI](frontend-ui.md), [theming and tokens](theming-and-design-tokens.md), [bookmark page and views](bookmark-page-and-views.md), [chat and intent](chat-and-intent.md), [design review](../research/design-review-v1-v5.md), `PRODUCT.md`.

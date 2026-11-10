@@ -61,4 +61,4 @@ In the Claude Console, set a monthly limit. Your budget is about $10 per month f
 - Starting the server on `0.0.0.0` on a shared network (see [local vs online](../research/local-vs-online.md)).
 - Pasting an error message that contains the key into a chat.
 
-Related: [privacy and security spec](../feature-specs/privacy-and-security.md), [smoke checklist](../manual-testing/smoke-checklist.md).
+Related: [privacy and security spec](../feature-specs/privacy-and-security.md), [smoke checklist](../testing/smoke-checklist.md).

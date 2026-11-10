@@ -59,7 +59,7 @@ Out: the web server endpoints ([server-api.md](server-api.md)).
 
 ## Tests
 
-Inspector tests listed in the phase 9 plan. Questions: [ask-golden-set.md](test-cases/ask-golden-set.md).
+Inspector tests listed in the phase 9 plan. Questions: [ask-golden-set.md](../testing/golden-sets/ask-golden-set.md).
 
 ## Open questions
 

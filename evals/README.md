@@ -16,6 +16,6 @@ Entries with `"draft": true` are not reviewed; set it to `false` after you read 
 uv run python -m evals.run_eval --run-id <id> --prompt-version <name>
 ```
 
-It previews every page in `pages.json` (nothing is written to `data/`), prints save quality, honesty, find rate and folder choice as four separate scores, and appends one row to `results/runs.csv`. `--prompt-version` loads `mnemo/save/prompts/<version>.txt`; the default version for the app is `config.SAVE_PROMPT_VERSION`. See `docs/process/eval-process.md`.
+It previews every page in `pages.json` (nothing is written to `data/`), prints save quality, honesty, find rate and folder choice as four separate scores, and appends one row to `results/runs.csv`. `--prompt-version` loads `mnemo/save/prompts/<version>.txt`; the default version for the app is `config.SAVE_PROMPT_VERSION`. See `docs/testing/eval-process.md`.
 
 The folder choice score is the share of the 15 Route rows where the model's folder equals `expected_folder`. The eval reads the raw model folder, not the stored record, so a made-up name that code would reject still counts as a miss. Older rows in `runs.csv` have an empty `folder_score`; they are left as they were.

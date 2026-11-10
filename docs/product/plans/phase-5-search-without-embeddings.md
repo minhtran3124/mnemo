@@ -35,10 +35,10 @@ Phase 4 done and the 2-week test result. The ask eval from phase 4 as baseline. 
 - [ ] If search is weak, you wrote an open question about adding embeddings later ([alternatives](../../research/embeddings-alternatives.md)).
 
 ## Risks
-Weaker search for very different words; caching may not help (minimum length Unverified). See [risk review](../../reviews/risk-review.md).
+Weaker search for very different words; caching may not help (minimum length Unverified). See [risk review](../../research/risk-review.md).
 
 ## If time runs short
 Skip the cache test. Keep RRF and the duplicate check. Phase 5 can be cut after the 2-week test if the page already solves your problem.
 
 ## Links to specs
-[search without embeddings](../../feature-specs/search-no-embeddings.md) · [duplicates](../../feature-specs/duplicates.md) · [ask and answers](../../feature-specs/ask-and-answers.md) · [ask golden set](../../feature-specs/test-cases/ask-golden-set.md)
+[search without embeddings](../../feature-specs/search-no-embeddings.md) · [duplicates](../../feature-specs/duplicates.md) · [ask and answers](../../feature-specs/ask-and-answers.md) · [ask golden set](../../testing/golden-sets/ask-golden-set.md)

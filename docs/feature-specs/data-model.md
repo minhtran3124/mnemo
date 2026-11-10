@@ -136,7 +136,7 @@ The plan names: saves, opens and digests. Each line has `event` and `time` (ISO 
 
 ## Tests
 
-See [save-golden-set.md](test-cases/save-golden-set.md) for the checks table.
+See [save-golden-set.md](../testing/golden-sets/save-golden-set.md) for the checks table.
 
 ## Open questions
 

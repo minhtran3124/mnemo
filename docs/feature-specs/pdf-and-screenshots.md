@@ -68,7 +68,7 @@ This is a hard check in the faithful-summary grader.
 
 ## Tests
 
-[hard-cases.md](test-cases/hard-cases.md). Samples: [sample-links.md](../reference/sample-links.md).
+[hard-cases.md](../testing/golden-sets/hard-cases.md). Samples: [sample-links.md](../reference/sample-links.md).
 
 ## Open questions
 

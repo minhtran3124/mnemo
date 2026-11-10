@@ -13,7 +13,7 @@ Trust the cards and the filing.
 3 sessions. Lessons 15-19.
 
 ## Inputs
-Phase 2 done with a baseline. You wrote 5-6 starter folders (open question; "Unsorted" always exists). The Route set of 15 links with expected types: [route set](../../feature-specs/test-cases/route-set.md).
+Phase 2 done with a baseline. You wrote 5-6 starter folders (open question; "Unsorted" always exists). The Route set of 15 links with expected types: [route set](../../testing/golden-sets/route-set.md).
 
 ## Tasks
 1. Change one thing per run and log it: direct first sentence with an action verb.
@@ -41,10 +41,10 @@ Phase 2 done with a baseline. You wrote 5-6 starter folders (open question; "Uns
 - [ ] You wrote down whether you type the reason.
 
 ## Risks
-The reason field stays empty; wrong folder hides a bookmark. See [risk review](../../reviews/risk-review.md).
+The reason field stays empty; wrong folder hides a bookmark. See [risk review](../../research/risk-review.md).
 
 ## If time runs short
 Cut Compact view. Keep filing rules, Move, Undo and private mode.
 
 ## Links to specs
-[classification and filing](../../feature-specs/classification-and-filing.md) · [folders](../../feature-specs/folders.md) · [bookmark page and views](../../feature-specs/bookmark-page-and-views.md) · [privacy and security](../../feature-specs/privacy-and-security.md) · [data model](../../feature-specs/data-model.md) · [route set](../../feature-specs/test-cases/route-set.md) · [save golden set](../../feature-specs/test-cases/save-golden-set.md)
+[classification and filing](../../feature-specs/classification-and-filing.md) · [folders](../../feature-specs/folders.md) · [bookmark page and views](../../feature-specs/bookmark-page-and-views.md) · [privacy and security](../../feature-specs/privacy-and-security.md) · [data model](../../feature-specs/data-model.md) · [route set](../../testing/golden-sets/route-set.md) · [save golden set](../../testing/golden-sets/save-golden-set.md)

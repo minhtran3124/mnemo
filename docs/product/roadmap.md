@@ -53,4 +53,4 @@ The plan's estimate is about 13 weeks at 3 sessions per week (a full 3 months). 
 
 Never cut phases 0 to 4, phase A, or the eval in later phases. Cutting means you read the lessons but do not build.
 
-Links: [phases overview](phases-overview.md), [risk review](../reviews/risk-review.md).
+Links: [phases overview](phases-overview.md), [risk review](../research/risk-review.md).

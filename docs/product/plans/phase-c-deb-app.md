@@ -30,7 +30,7 @@ Phase A done (an online chat page to open). An Ubuntu machine.
 - [ ] Uninstall works.
 
 ## Risks
-Outside the course; low value. See [risk review](../../reviews/risk-review.md).
+Outside the course; low value. See [risk review](../../research/risk-review.md).
 
 ## If time runs short
 Cut the whole phase first (D-009).

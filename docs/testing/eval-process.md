@@ -12,7 +12,7 @@ A golden set is a fixed list of inputs with the answers you expect. Save the pag
 | Ask | 15 questions plus 3 trick questions | Each real question has an expected bookmark. A trick question has no answer; the right result is "nothing found". | Phase 4 |
 | Route | 15 links | Each has an expected type. | Phase 7 |
 
-The set files are in `evals/golden/`. See [test cases](../feature-specs/test-cases/README.md) for content.
+The set files are in `evals/golden/`. See [test cases](golden-sets/README.md) for content.
 
 ## Held-out set
 Keep 5 of the 20 save pages as a held-out set. Never use them as prompt examples. If a score rises on the other 15 but not on these 5, the gain may not be real. At least 2 of the 5 should be hard cases. `run_eval.py` prints the save quality of the held-out pages and of the tuning pages on separate lines; compare them after each run. runs.csv keeps the pooled figure.
@@ -107,4 +107,4 @@ Each version changes one thing from the version before it. The run id and the ve
 - Change one thing per run.
 - Log every run, including bad ones.
 
-Related: [definition of done](definition-of-done.md), [phase 2 plan](../product/plans/phase-2-eval-harness.md).
+Related: [definition of done](../process/definition-of-done.md), [phase 2 plan](../product/plans/phase-2-eval-harness.md).

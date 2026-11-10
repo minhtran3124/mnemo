@@ -13,7 +13,7 @@ Get quotes, and save PDFs.
 2 sessions. Lessons 41, 42.
 
 ## Inputs
-Phase 4 done. One small PDF and the 580-page book from the [hard cases](../../feature-specs/test-cases/hard-cases.md).
+Phase 4 done. One small PDF and the 580-page book from the [hard cases](../../testing/golden-sets/hard-cases.md).
 
 ## Tasks
 1. Check the current PDF page and size limits in lesson 41 and the official docs. They are Unverified; do not trust the numbers in this plan.
@@ -31,10 +31,10 @@ Phase 4 done. One small PDF and the 580-page book from the [hard cases](../../fe
 - [ ] A made-up quote is rejected.
 
 ## Risks
-Limits unknown; first pages of a book hold little content (cover layout, copyright). See [risk review](../../reviews/risk-review.md).
+Limits unknown; first pages of a book hold little content (cover layout, copyright). See [risk review](../../research/risk-review.md).
 
 ## If time runs short
 Cut quotes, keep PDF. This phase is fifth in the cut order.
 
 ## Links to specs
-[PDF and screenshots](../../feature-specs/pdf-and-screenshots.md) · [ask and answers](../../feature-specs/ask-and-answers.md) · [page reading](../../feature-specs/page-reading.md) · [hard cases](../../feature-specs/test-cases/hard-cases.md)
+[PDF and screenshots](../../feature-specs/pdf-and-screenshots.md) · [ask and answers](../../feature-specs/ask-and-answers.md) · [page reading](../../feature-specs/page-reading.md) · [hard cases](../../testing/golden-sets/hard-cases.md)

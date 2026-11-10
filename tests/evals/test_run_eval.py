@@ -310,7 +310,7 @@ def test_link_only_save_of_readable_page_is_not_honest_and_not_unscored(
 
 
 def test_eval_process_doc_matches_honesty_columns():
-    doc = (run_eval.EVALS_DIR.parent / "docs/process/eval-process.md").read_text(
+    doc = (run_eval.EVALS_DIR.parent / "docs/testing/eval-process.md").read_text(
         encoding="utf-8"
     )
     assert "share of all pages" in doc

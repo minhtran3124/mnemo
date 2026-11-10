@@ -24,7 +24,7 @@ Phase 4 and the 2-week test done. Budget about 0 per month for hosting and API t
 6. Change the bind address only for the host. Locally keep 127.0.0.1.
 7. Make the chat and bookmark pages work at 390px width on a phone (NF-05).
 8. Decide private mode online: private links must still send nothing to the API.
-9. Run [phone and shortcut test](../../manual-testing/phone-and-shortcut-test.md).
+9. Run [phone and shortcut test](../../testing/phone-and-shortcut-test.md).
 
 ## Done when
 - [ ] The server runs online and asks for a login.
@@ -35,7 +35,7 @@ Phase 4 and the 2-week test done. Budget about 0 per month for hosting and API t
 - [ ] The key is not visible in any page source.
 
 ## Risks
-Public server spends money; data lost on redeploy. See [risk review](../../reviews/risk-review.md).
+Public server spends money; data lost on redeploy. See [risk review](../../research/risk-review.md).
 
 ## If time runs short
 Never cut login or the cap. Cut polish on the phone layout.

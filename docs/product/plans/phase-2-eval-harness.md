@@ -13,7 +13,7 @@ See whether a change helps.
 3 sessions. Lessons 9-14.
 
 ## Inputs
-Phase 1 done. 20 links chosen (include the PDF, Slack link, YouTube video, failed fetch, repeat link, index page; at least 2 of the 5 hidden links are hard cases). See [save golden set](../../feature-specs/test-cases/save-golden-set.md).
+Phase 1 done. 20 links chosen (include the PDF, Slack link, YouTube video, failed fetch, repeat link, index page; at least 2 of the 5 hidden links are hard cases). See [save golden set](../../testing/golden-sets/save-golden-set.md).
 
 ## Tasks
 1. Save the text of 20 pages to `evals/golden/`, so each run uses the same input.
@@ -35,10 +35,10 @@ Phase 1 done. 20 links chosen (include the PDF, Slack link, YouTube video, faile
 - [ ] The CSV has one row per run.
 
 ## Risks
-The eval is subjective and the grader is a model. See [eval process](../../process/eval-process.md).
+The eval is subjective and the grader is a model. See [eval process](../../testing/eval-process.md).
 
 ## If time runs short
 Keep the code checks and the faithful-summary grader. Cut tag overlap.
 
 ## Links to specs
-[save golden set](../../feature-specs/test-cases/save-golden-set.md) · [hard cases](../../feature-specs/test-cases/hard-cases.md) · [test cases README](../../feature-specs/test-cases/README.md) · [test strategy](../../manual-testing/test-strategy.md)
+[save golden set](../../testing/golden-sets/save-golden-set.md) · [hard cases](../../testing/golden-sets/hard-cases.md) · [test cases README](../../testing/golden-sets/README.md) · [test strategy](../../testing/test-strategy.md)

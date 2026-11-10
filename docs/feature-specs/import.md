@@ -59,7 +59,7 @@ Out: a direct Slack connection (not planned for version 1; it needs app approval
 
 ## Tests
 
-Use a small export file and one pasted text. Cases: [hard-cases.md](test-cases/hard-cases.md).
+Use a small export file and one pasted text. Cases: [hard-cases.md](../testing/golden-sets/hard-cases.md).
 
 ## Open questions
 

@@ -33,4 +33,4 @@ A short file about one problem, the choice made, and how to test it. It uses fac
 - Link to the spec that holds the rule. Do not copy long rules.
 - Add a note when a case took more than one session to solve, or when it will come back.
 
-Hard cases are listed in [hard cases](../feature-specs/test-cases/hard-cases.md). Sample links are in [sample links](../reference/sample-links.md).
+Hard cases are listed in [hard cases](../testing/golden-sets/hard-cases.md). Sample links are in [sample links](../reference/sample-links.md).

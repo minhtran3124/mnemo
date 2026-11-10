@@ -61,7 +61,7 @@ Exact menu names in the Shortcuts app: Open question. Check on the device.
 
 ## Tests
 
-Phone test: `manual-testing`. Do one early test with one link before relying on it.
+Phone test: `testing/`. Do one early test with one link before relying on it.
 
 ## Open questions
 

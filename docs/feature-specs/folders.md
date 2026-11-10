@@ -73,7 +73,7 @@ Undo puts the bookmark back to the folder it had before the last filing or Move.
 
 ## Tests
 
-[route-set.md](test-cases/route-set.md).
+[route-set.md](../testing/golden-sets/route-set.md).
 
 ## Open questions
 

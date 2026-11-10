@@ -12,7 +12,7 @@ Check honest failure and faithful summaries on real trouble. Supports F-02, F-09
 
 | id | Case | Expected behavior | Pass condition |
 | --- | --- | --- | --- |
-| H-01 | PDF book, 580 pages, 14.6 MB | Code checks size and pages first. Send first pages and table of contents. Card says "summary from the first pages only". Limits are unverified. See [pdf-and-screenshots.md](../pdf-and-screenshots.md). | Card has the first-pages notice; no summary built from the printer cover only. |
+| H-01 | PDF book, 580 pages, 14.6 MB | Code checks size and pages first. Send first pages and table of contents. Card says "summary from the first pages only". Limits are unverified. See [pdf-and-screenshots.md](../../feature-specs/pdf-and-screenshots.md). | Card has the first-pages notice; no summary built from the printer cover only. |
 | H-02 | Slack message link | App cannot open it. Card says "I cannot open Slack links. I saved the link only." and the paste hint Pasted text goes through the paste path. | Link saved or offered as paste; no summary; pasted text finds links. |
 | H-03 | X post link (`https://x.com/addyosmani/article/2117512471930167377`) | Tool cannot read it. "Page not read" card; paste option. | `page_status` = `unreadable`, `summary` = `null`. |
 | H-04 | bleepingcomputer.com article (fetch error) | Retry once if the error is transient (timeout, 5xx), then honest failure. A 4xx is not retried. Also a near-duplicate of the thehackernews.com Brotli article. | The `fetch` log shows one retry if the first outcome was `timeout` or `error` (5xx), and no retry for a 4xx; null summary either way; near-duplicate warning if comparison is possible. Record the real status code in the run log, because the cause is still unknown. |
