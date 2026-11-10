@@ -52,3 +52,14 @@ def parse_note(message: str) -> tuple[int | None, str | None] | None:
         return None  # `note abc x` is not a note command
     text = raw_text.strip() if raw_text else None
     return (int(raw_id) if raw_id else None, text or None)
+
+
+_PRIVATE = re.compile(r"private\s+", re.IGNORECASE)
+
+
+def is_private(message: str) -> bool:
+    """True when the message starts with the `private` prefix (F-19).
+
+    The caller checks for a link first: `private` with no link is a question.
+    """
+    return _PRIVATE.match(message.strip()) is not None

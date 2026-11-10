@@ -2,6 +2,7 @@
   {
     "id": "S-01",
     "expected_type": "article",
+    "expected_folder": "Learning",
     "expected_tags": [
       "agents",
       "critical thinking",
@@ -23,6 +24,7 @@
   {
     "id": "S-02",
     "expected_type": "article",
+    "expected_folder": "Learning",
     "expected_tags": [
       "pocket",
       "read-later",
@@ -44,6 +46,7 @@
   {
     "id": "S-03",
     "expected_type": "tool",
+    "expected_folder": "Work",
     "expected_tags": [
       "no-code",
       "workflows",
@@ -65,6 +68,7 @@
   {
     "id": "S-04",
     "expected_type": "article",
+    "expected_folder": "Learning",
     "expected_tags": [
       "claude code",
       "skills",
@@ -86,6 +90,7 @@
   {
     "id": "S-05",
     "expected_type": "github_repo",
+    "expected_folder": "Reference",
     "expected_tags": [
       "font",
       "monospace",
@@ -106,6 +111,7 @@
   {
     "id": "S-06",
     "expected_type": "github_repo",
+    "expected_folder": "Learning",
     "expected_tags": [
       "n8n",
       "ai agents",
@@ -126,6 +132,7 @@
   {
     "id": "S-07",
     "expected_type": "tool",
+    "expected_folder": "Ideas",
     "expected_tags": [
       "claude code",
       "skill",
@@ -146,6 +153,7 @@
   {
     "id": "S-08",
     "expected_type": "video_page",
+    "expected_folder": "Unsorted",
     "expected_tags": [],
     "key_facts": [],
     "held_out": true,
@@ -157,6 +165,7 @@
   {
     "id": "S-09",
     "expected_type": "video_page",
+    "expected_folder": "Unsorted",
     "expected_tags": [
       "videos",
       "news",
@@ -177,6 +186,7 @@
   {
     "id": "S-10",
     "expected_type": "tool",
+    "expected_folder": "Unsorted",
     "expected_tags": [],
     "key_facts": [],
     "held_out": false,
@@ -188,6 +198,7 @@
   {
     "id": "S-11",
     "expected_type": "github_repo",
+    "expected_folder": "Learning",
     "expected_tags": [
       "claude code",
       "game development",
@@ -208,6 +219,7 @@
   {
     "id": "S-12",
     "expected_type": "article",
+    "expected_folder": "Learning",
     "expected_tags": [
       "llm agents",
       "harness",
@@ -229,6 +241,7 @@
   {
     "id": "S-13",
     "expected_type": "article",
+    "expected_folder": "Learning",
     "expected_tags": [
       "feature flags",
       "tech debt",
@@ -249,6 +262,7 @@
   {
     "id": "S-14",
     "expected_type": "article",
+    "expected_folder": "Ideas",
     "expected_tags": [
       "claude code",
       "agents",
@@ -269,6 +283,7 @@
   {
     "id": "S-15",
     "expected_type": "tool",
+    "expected_folder": "Unsorted",
     "expected_tags": [],
     "key_facts": [],
     "held_out": false,

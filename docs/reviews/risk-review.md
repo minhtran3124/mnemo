@@ -9,7 +9,7 @@ This file expands the plan's risk table. Likelihood and impact are my judgement 
 | R-02 | One wrong summary breaks trust | Medium | High | Show page status on every card. Keep the honest-failure and faithful-summary checks. | You find an invented fact in a card |
 | R-03 | The reason field stays empty | Medium | Medium | Test in phase 3. If you do not type it, change the design. | Most saves have `reason_source` = guess |
 | R-04 | Many pages cannot be read | High | Medium | Count unreadable pages among real links. Keep the Paste text path. | Many "Page not read" cards (the X post and Slack link already failed) |
-| R-05 | Privacy: page text goes to the API | High | Medium | Public links only (D-018). Check company AI policy. Private mode F-19 if accepted. | You want to save a private or work link |
+| R-05 | Privacy: page text goes to the API | High | Medium | Public links only (D-018). Check company AI policy. Private mode F-19 is accepted (D-017): a private link is saved link only. | You want to save a private or work link |
 | R-06 | Site rules | Low | Unknown | Keep saved text on your disk; do not share it. Not legal advice. | Plan to share or publish saved text |
 | R-07 | Project too big | Medium | High | Finish phases 0 to 4, use it for 2 weeks, then continue. See [roadmap](../product/roadmap.md). | A phase takes far more sessions than planned |
 | R-08 | The eval is subjective | Medium | Medium | Held-out set. Read 3 results every run. Fix the grader first. | You disagree with the grader often |

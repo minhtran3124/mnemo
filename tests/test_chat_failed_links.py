@@ -36,10 +36,10 @@ def api(monkeypatch, tmp_path):
     monkeypatch.setattr(save.client, "parse", lambda *a, **k: good())
     real = save.save
 
-    def fake(url, pasted_text=None):
+    def fake(url, pasted_text=None, private=False):
         if "bad" in url:
             raise store.StoreError("disk full")
-        return real(url, pasted_text=pasted_text)
+        return real(url, pasted_text=pasted_text, private=private)
 
     monkeypatch.setattr(save, "save", fake)
     import server

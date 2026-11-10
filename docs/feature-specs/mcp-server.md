@@ -37,7 +37,7 @@ Out: the web server endpoints ([server-api.md](server-api.md)).
 | Resource: one | One bookmark by id |
 | Prompt `find_related_to_task` | Takes a task description and asks Claude Code to look for related bookmarks. Wording: Open question. |
 
-- Private bookmarks (proposed F-19): Open question whether they appear.
+- Private bookmarks (F-19): Open question whether they appear.
 - `add_bookmark` calls the API and costs money. Cost limits (NF-02) still apply.
 
 ## Edge cases

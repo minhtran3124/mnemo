@@ -39,10 +39,12 @@ COLUMNS = [
     "save_quality",
     "honesty",
     "find_rate",
+    "folder_score",
     "tokens_used",
     "notes",
 ]
 SAVE_CHECKS = ("schema", "tags", "summary_length", "type_match")
+SCORES = ("save_quality", "honesty", "find_rate", "folder_score")
 
 
 class _CountingMessages:
@@ -75,14 +77,21 @@ def _counting_sdk():
         client._get_client = original
 
 
-def _preview_counting(url: str, text: str | None) -> tuple[dict, int]:
+def _preview_counting(
+    url: str,
+    text: str | None,
+    folder_trace: list[str | None] | None = None,
+    prompt_version: str | None = None,
+) -> tuple[dict, int]:
     """Run save.preview and return the record and the tokens its Claude calls used.
 
     Counts at the SDK response, so a billed call that client.py then rejects
     (refusal, max_tokens, no parsed output) and save.py retries is still counted.
     """
     with _counting_sdk() as total:
-        record = save.preview(url, text)
+        record = save.preview(
+            url, text, folder_choice=folder_trace, prompt_version=prompt_version
+        )
     return record, total[0]
 
 
@@ -105,6 +114,16 @@ def _rate(passed: int, total: int) -> float | None:
 
 def _fmt(value: float | None) -> str:
     return "n/a" if value is None else f"{value:.2f}"
+
+
+def folder_match(chosen: str | None, expected: str) -> bool:
+    """True when the chosen folder equals the expected one.
+
+    Unsorted is stored as null, so null matches Unsorted. A made-up name was
+    rejected by code before it reached the record, but the eval passes the raw
+    model answer, so it still counts as a miss.
+    """
+    return (chosen if chosen is not None else config.UNSORTED) == expected
 
 
 def _faithful_cell(
@@ -139,6 +158,29 @@ def _grade_with_retry(
     return None
 
 
+def _migrate_runs(path: Path) -> None:
+    """Put an older runs.csv under the current columns, keeping every row.
+
+    Rows written before folder_score existed get an empty folder_score, so an
+    old row stays valid and the new row keeps the same column count.
+    """
+    if not path.exists() or path.stat().st_size == 0:
+        return
+    with path.open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.reader(handle))
+    if not rows or rows[0] == COLUMNS:
+        return
+    header = rows[0]
+    migrated = [COLUMNS]
+    for row in rows[1:]:
+        values = dict(zip(header, row, strict=False))
+        migrated.append([values.get(column, "") for column in COLUMNS])
+    tmp = path.with_suffix(".csv.tmp")
+    with tmp.open("w", encoding="utf-8", newline="") as handle:
+        csv.writer(handle).writerows(migrated)
+    tmp.replace(path)
+
+
 def run(
     run_id: str,
     prompt_version: str,
@@ -155,6 +197,11 @@ def run(
     if set(expected) != {page["id"] for page in pages}:
         raise ValueError("ids in pages.json and expected.json do not match")
 
+    prompt = save.prompt_file(prompt_version)
+    if not prompt.exists():
+        raise ValueError(f"no prompt file for version {prompt_version}: {prompt.name}")
+    print(f"Prompt: {prompt_version} ({prompt.name})")
+
     drafts = [entry.id for entry in entries if entry.draft]
     if drafts:
         print(
@@ -169,6 +216,7 @@ def run(
     overlaps: list[float] = []
     honest_ok = honest_total = 0
     faith_ok = 0
+    folder_ok = folder_total = 0
     # Per group [passed, total] for save quality, so a gain on the tuning pages
     # that does not reach the held-out pages shows in the log.
     split = {True: [0, 0], False: [0, 0]}
@@ -178,9 +226,15 @@ def run(
         entry = expected[page_id]
         golden_file = GOLDEN_DIR / f"{page_id}.txt"
         text = golden_file.read_text(encoding="utf-8") if golden_file.exists() else ""
-        record, used = _preview_counting(page["url"], text)
+        folder_trace: list[str | None] = []
+        record, used = _preview_counting(
+            page["url"], text, folder_trace, prompt_version
+        )
         tokens += used
         grades = graders.grade_record(record, asdict(entry))
+        chosen_folder = folder_trace[0] if folder_trace else record.get("folder")
+        folder_total += 1
+        folder_ok += int(folder_match(chosen_folder, entry.expected_folder))
 
         result = None
         scored = False
@@ -233,6 +287,7 @@ def run(
     save_quality = _rate(save_ok, save_total)
     overlap = sum(overlaps) / len(overlaps) if overlaps else None
     honesty = _rate(honest_ok, honest_total)
+    folder_score = _rate(folder_ok, folder_total)
 
     print(
         f"Save quality: {_fmt(save_quality)} ({save_ok}/{save_total} pass, "
@@ -247,6 +302,10 @@ def run(
         f"tuning: {_fmt(_rate(tune_ok, tune_total))} ({tune_ok}/{tune_total} pass)"
     )
     print("Find rate: - (available from phase 4)")
+    print(
+        f"Folder choice: {_fmt(folder_score)} "
+        f"({folder_ok}/{folder_total} in the expected folder)"
+    )
     print(f"Tokens used: {tokens}")
     print("\n".join(table))
 
@@ -258,6 +317,7 @@ def run(
 
     results_dir.mkdir(parents=True, exist_ok=True)
     path = results_dir / "runs.csv"
+    _migrate_runs(path)
     new_file = not path.exists() or path.stat().st_size == 0
     with path.open("a", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
@@ -271,6 +331,7 @@ def run(
                 "" if save_quality is None else _fmt(save_quality),
                 _fmt(honesty),
                 "",
+                "" if folder_score is None else _fmt(folder_score),
                 tokens,
                 "; ".join(notes),
             ]

@@ -143,10 +143,10 @@ def test_links_save_in_order_and_duplicates_once(api, fetch_calls, parse_calls):
 def test_later_link_failure_keeps_the_saved_cards(api, fetch_calls, monkeypatch):
     real = save.save
 
-    def fake(url, pasted_text=None):
+    def fake(url, pasted_text=None, private=False):
         if "bad" in url:
             raise store.StoreError("disk full")
-        return real(url, pasted_text=pasted_text)
+        return real(url, pasted_text=pasted_text, private=private)
 
     monkeypatch.setattr(save.client, "parse", lambda *a, **k: good())
     monkeypatch.setattr(save, "save", fake)
@@ -166,10 +166,10 @@ def test_later_link_failure_keeps_the_saved_cards(api, fetch_calls, monkeypatch)
 def test_later_unexpected_error_keeps_the_saved_cards(api, fetch_calls, monkeypatch):
     real = save.save
 
-    def fake(url, pasted_text=None):
+    def fake(url, pasted_text=None, private=False):
         if "bad" in url:
             raise RuntimeError("boom")
-        return real(url, pasted_text=pasted_text)
+        return real(url, pasted_text=pasted_text, private=private)
 
     monkeypatch.setattr(save.client, "parse", lambda *a, **k: good())
     monkeypatch.setattr(save, "save", fake)
@@ -199,10 +199,10 @@ def _auth_error():
 def _post_with_bad(api, monkeypatch, message):
     real = save.save
 
-    def fake(url, pasted_text=None):
+    def fake(url, pasted_text=None, private=False):
         if "bad" in url:
             raise _auth_error()
-        return real(url, pasted_text=pasted_text)
+        return real(url, pasted_text=pasted_text, private=private)
 
     monkeypatch.setattr(save.client, "parse", lambda *a, **k: good())
     monkeypatch.setattr(save, "save", fake)

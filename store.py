@@ -15,6 +15,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+import config
+
 # Read at call time, so tests can point it at a temp folder.
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
@@ -37,6 +39,8 @@ CALLER_FIELDS = (
     "reason",
     "reason_source",
     "folder",
+    "prev_folder",
+    "private",
     "opened_count",
 )
 SERVER_FIELDS = ("id", "saved_at", "page_file")
@@ -112,10 +116,16 @@ def validate_record(record: dict[str, Any]) -> None:
         raise InvalidRecord("page_status must be 'ok' or 'unreadable'")
     if record["reason_source"] not in REASON_SOURCES:
         raise InvalidRecord("reason_source must be 'user' or 'guess'")
-    if record["folder"] is not None and not isinstance(record["folder"], str):
-        raise InvalidRecord("folder must be a string or null")
+    for name in ("folder", "prev_folder"):
+        value = record[name]
+        if value is not None and (
+            not isinstance(value, str) or not config.is_allowed_folder(value)
+        ):
+            raise InvalidRecord(f"{name} must be a starter folder, Unsorted, or null")
     if not _is_int(record["opened_count"]) or record["opened_count"] < 0:
         raise InvalidRecord("opened_count must be an integer, 0 or more")
+    if not isinstance(record["private"], bool):
+        raise InvalidRecord("private must be true or false")
 
     tags = record["tags"]
     if not isinstance(tags, list) or not all(isinstance(t, str) for t in tags):
@@ -156,6 +166,11 @@ def _load() -> dict[str, Any]:
         raise StoreError(
             f"{path} is corrupt ({exc}). Restore it from a backup; it was not changed."
         ) from exc
+    # Records written before phase 3 have no prev_folder. They never moved.
+    for item in data["bookmarks"]:
+        if isinstance(item, dict):
+            item.setdefault("prev_folder", None)
+            item.setdefault("private", False)
     return data
 
 
@@ -182,6 +197,8 @@ def add_bookmark(
         "page_file": f"data/pages/{new_id}.txt",
         **record,
     }
+    full.setdefault("prev_folder", None)
+    full.setdefault("private", False)
     validate_record(full)
     page = _page_path(new_id)
     if page_text is None:

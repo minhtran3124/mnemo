@@ -191,24 +191,16 @@ def test_card_has_every_field_and_files_have_no_colour_literal(client, tmp_path)
         assert not COLOUR_LITERAL.search((WEB / name).read_text()), name
 
 
-def test_page_not_read_card_has_paste_box_and_no_move_or_undo(client, tmp_path):
+def test_page_not_read_card_has_paste_box_and_move_controls(client, tmp_path):
     out = run_page(tmp_path, assistant([unread()]))
 
     card = out["cards"][0]
     assert "Page not read" in card["text"]
     assert card["textareas"] == 1
     assert "Paste the text" in card["buttons"]
+    assert "Move" in card["buttons"]
+    assert "Undo" in card["buttons"]
     assert "A short summary." not in card["text"]
-
-    sources = [client.get("/").text] + [
-        (WEB / name).read_text() for name in ("css/chat.css", "js/chat.js")
-    ]
-    for source in sources:
-        assert not re.search(r"\b(move|undo)\b", source, re.IGNORECASE)
-    for entry in out["cards"]:
-        assert not any(
-            re.search(r"move|undo", b, re.IGNORECASE) for b in entry["buttons"]
-        )
 
 
 def test_history_loads_on_start_and_handles_deleted_and_failed_entries(tmp_path):

@@ -16,7 +16,7 @@ Karakeep is said to support a local Ollama model (see [competitors](../reference
 ## What each choice means for privacy
 - With the Claude API, page text, URL and questions are sent to Anthropic. Unverified: Anthropic's data retention policy for the API. See [API notes](../reference/api-notes.md).
 - Local storage keeps your bookmark file on your own disk. It does not stop the API call.
-- A private link in private mode (F-19, proposed) is saved as link only and nothing is sent to the API.
+- A private link in private mode (F-19) is saved as link only and nothing is sent to the API.
 - Check your company's AI policy before saving work links (D-018).
 
 ## Trade-offs

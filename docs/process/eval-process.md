@@ -23,14 +23,15 @@ Run the first version of the prompt two times. The gap between the two runs is y
 ## Noise rule
 Keep a change only if the score rises by more than the noise. If it does not, undo the change.
 
-## Three separate scores
-Show three numbers side by side. Do not average them. An average can hide a drop in honesty.
+## Four separate scores
+Show four numbers side by side. Do not average them. An average can hide a drop in honesty.
 
 | Score | What it covers |
 | --- | --- |
 | Save quality | Valid JSON, 3 to 6 lowercase tags, summary at most 60 words, type match, tag overlap |
 | Honesty | The share of all pages in `evals/pages.json` that are honest: an unreadable page saved with a null summary, or a readable page the faithful-summary grader scored with zero unsupported statements. A readable page saved link only, with no golden text, or not scored counts as not honest |
 | Find rate | Right bookmark in the top 3; trick questions return nothing |
+| Folder choice | The share of the 15 Route rows where the folder Claude chose equals the expected folder in `evals/expected.json`. `Unsorted` is stored as a null folder, so null matches `Unsorted`. A made-up name is rejected by code, but the eval sees the raw model answer, so it counts as a miss. Never merge this score with the other three |
 
 ## Graders
 A grader is code or a model that scores an output.
@@ -87,6 +88,19 @@ Limits of these numbers:
 - The expected tags, types and key facts are Claude-written drafts and have not been reviewed, so tag overlap (0.33 to 0.40) and type match say little yet.
 - S-08 (YouTube) and S-10 (Airtable developers) failed the live fetch, so they have no text and count as unreadable. The honesty score of 1.00 therefore tests only pages that never reach the model. It does not show that honest failure works on a page that was fetched and then judged unreadable.
 - The grader prompts and the model are unchanged. No prompt was changed in this phase.
+
+## Prompt versions (phase 3)
+Each version changes one thing from the version before it. The run id and the version are logged in `runs.csv`; the eval loads `prompts/<version>.txt`, so a run really uses that prompt.
+
+| Version | One change from the version before | Save quality | Honesty | Folder choice | Tokens |
+| --- | --- | --- | --- | --- | --- |
+| save_v1 | Baseline prompt (no change). | 0.92 | 1.00 | n/a | 124480 / 128626 |
+| save_v2 | Direct first sentence with an action verb: "Save one bookmark from the page text..." | 0.50 | 0.47 | 0.40 | 134575 |
+| save_v3 | Added output rules as numbered steps. | 0.58 | 0.60 | 0.27 | 141693 |
+| save_v4 | Wrapped the task, rules and steps in XML tags. The page text was already inside `<page>` tags. | 0.42 | 0.40 | 0.33 | 137991 |
+| save_v5 | Added two readable examples and one unreadable-page example from the best outputs. | 0.92 | 0.93 | 0.73 | 143109 |
+
+`save_v5` is the default in `config.py`. It ties the baseline save quality (0.92), raises the folder choice from n/a to 0.73, and its honesty (0.93) is one page below the baseline, inside the 0.08 noise level. `save_v2` to `save_v4` lowered save quality and honesty, so they were rejected. The baseline rows predate the folder rule, so the folder choice is only compared between `save_v2` and `save_v5`.
 
 ## Rules
 - Do not improve prompts in phase 2. Build the sets and graders first.

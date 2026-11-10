@@ -44,6 +44,8 @@ Example values only.
   "reason": "for login test cases",
   "reason_source": "user",
   "folder": null,
+  "prev_folder": null,
+  "private": false,
   "opened_count": 0,
   "page_file": "data/pages/42.txt"
 }
@@ -62,7 +64,9 @@ Example values only.
 | `tags` | list of strings | 3 to 6 tags, all lowercase. May be empty only when `page_status` is `unreadable`. Proposed limits: you can change them in phase 2. |
 | `reason` | string | One line. May be empty. |
 | `reason_source` | string | `user` or `guess`. |
-| `folder` | string or null | An existing folder name, or `null`. |
+| `folder` | string or null | A starter folder name (`Work`, `Learning`, `Reference`, `Personal`, `Ideas`) or `null` for `Unsorted`. Code rejects any other name. |
+| `prev_folder` | string or null | The folder before the last Move or filing, for one-step Undo. `Unsorted` is stored as the string `Unsorted`. `null` means there is nothing to undo. |
+| `private` | boolean | `true` when the user saved the link with the `private` prefix. A private record is link only: no page text and no API call. Default `false`. |
 | `opened_count` | integer | Starts at 0. Goes up when the link is opened from the app. |
 | `page_file` | string | Path to the saved page text. |
 
@@ -72,7 +76,6 @@ An arXiv paper uses `type` = `article` with the tag `paper`.
 
 | Field | Type | Purpose |
 | --- | --- | --- |
-| `private` | boolean | F-19, D-017. A private link is saved as link only. Nothing is sent to the API. |
 | `source` | string | `chat`, `import`, `shortcut` or `screenshot`. |
 | `language` | string | Not in version 1 (D-011). |
 
@@ -111,6 +114,7 @@ The plan names: saves, opens and digests. Each line has `event` and `time` (ISO 
 | --- | --- | --- |
 | `fetch` | One fetch attempt for a page (so a retry can be checked in the log) | `url_clean`, `attempt` (1 or 2), `outcome` (`ok`, `timeout`, `error`, `too_short`, `blocked`), `ms` |
 | `save` | A bookmark is saved. | `id`, `url_clean`, `page_status`, `typed_only_link` (true if the message was only the link), `tokens_in`, `tokens_out` |
+| `folder_rejected` | Claude named a folder that does not exist, so code filed the bookmark in `Unsorted` | `id`, `url_clean`, `folder` (the rejected name) |
 | `open` | A link is opened from the app. | `id` |
 | `digest` | A weekly digest is made (phase 8). | Open question |
 

@@ -62,7 +62,7 @@ def test_report_row_shows_facts_stated_over_key_facts(tmp_path, monkeypatch, cap
     monkeypatch.setattr(
         save,
         "preview",
-        lambda url, text: (
+        lambda url, text, folder_choice=None, prompt_version=None: (
             save._ok_fields(url, url, ok) if text else save._link_only_fields(url, url)
         ),
     )
@@ -70,5 +70,5 @@ def test_report_row_shows_facts_stated_over_key_facts(tmp_path, monkeypatch, cap
         unsupported=[], key_fact_results=[True, True, False]
     )
     monkeypatch.setattr(client, "parse_with_usage", fake_parse([reply] * 40, []))
-    run_eval.run("r1", "v1", results_dir=tmp_path / "results")
+    run_eval.run("r1", "save_v1", results_dir=tmp_path / "results")
     assert "facts 2/3" in capsys.readouterr().out

@@ -31,10 +31,10 @@ Out: the MCP interface ([mcp-server.md](mcp-server.md)).
 | `POST /api/chat` | Send a message. Code decides: save a link, edit a reason (`note <id> <text>`), or answer a question. Both sides of the exchange are appended to the chat history. | `message`, optional `pasted_text` | A card, a confirmation, or an answer with up to 3 bookmarks |
 | `GET /api/chat/history` | Return the saved chat so the page can redraw it after a reload | Optional `limit` (default 50) | `{"messages": [...]}`; each message has its own `cards` list, and a deleted bookmark is `{"id": N, "deleted": true}` (D-029) |
 | `GET /api/bookmarks` | List bookmarks in saved order | none in phase 1 (filters `folder`, `type`, `tag`, `q` come later) | List of records ([data-model.md](data-model.md)) |
-| `PATCH /api/bookmarks/:id` | Change a bookmark: the reason (phase 1, from `note <id> <text>`; sets `reason_source` to `user`) or the folder (Move, phase 3) | `reason` or `folder` | Updated record. Rejects an unknown folder or an unknown id |
+| `PATCH /api/bookmarks/:id` | Change a bookmark: the reason (phase 1, from `note <id> <text>`; sets `reason_source` to `user`) or the folder (Move, phase 3) | `reason` or `folder` | Updated record. An unknown folder gives 400 `folder_not_found`; an unknown id gives 404 `bookmark_not_found` |
 | `POST /api/bookmarks/:id/open` | Record that a link was opened: `opened_count` goes up and an `open` line is logged. The page opens `url_clean` itself in a new tab and sends this call in the background, so a pop-up blocker cannot stop the link. | none | Updated record. Unknown id gives 404 `bookmark_not_found`. The count change runs under a server lock, so parallel opens are all counted |
 | `POST /api/bookmarks/:id/paste` | Fill in an unreadable bookmark from pasted text. The same bookmark is updated (id, `saved_at`, `opened_count`, folder and a user-written reason are kept); `page_status` becomes `ok`. The Claude call runs outside the server lock, the store write inside it | `text` | Updated record. Unknown id gives 404 `bookmark_not_found`; a bookmark that is not unreadable gives 409 `already_read`; text under the pasted-text floor gives 400 `text_too_short`; invalid output after one retry gives 502 `summary_failed` and nothing changes. Auth and config errors propagate as in a normal save |
-| `POST /api/bookmarks/:id/undo` | Undo last filing or move (phase 3) | none | Updated record |
+| `POST /api/bookmarks/:id/undo` | Undo the last filing or Move: restore `prev_folder` and clear it (phase 3) | none | Updated record. An unknown id gives 404 `bookmark_not_found`; nothing to undo gives 409 `nothing_to_undo` |
 | `DELETE /api/bookmarks/:id` | Delete the bookmark and its saved page text | none | `{"deleted": id}` with 200. Unknown id gives 404 `bookmark_not_found` |
 | `POST /api/import` | Start or continue an import | File or pasted text; `stage` (estimate, run) | Count, cost estimate, batch result |
 | `POST /api/share` | Save from the iPhone Shortcut | `url`, token | Same card data as chat |
@@ -71,9 +71,9 @@ Page routes (HTML, not API): `GET /` chat, `GET /bookmarks` bookmark page, `GET 
 
 | Status | Use |
 | --- | --- |
-| 400 | Bad input (for example unknown folder, or a request that fails validation; code `bad_request`; a blank chat message; code `empty_message`) |
+| 400 | Bad input (for example unknown folder `folder_not_found`, or a request that fails validation; code `bad_request`; a blank chat message; code `empty_message`) |
 | 401 | Missing or wrong token |
-| 409 | The bookmark is not unreadable (code `already_read`) |
+| 409 | The bookmark is not unreadable (code `already_read`) or there is nothing to undo (code `nothing_to_undo`) |
 | 404 | Unknown bookmark (code `bookmark_not_found`) or unknown route (code `not_found`) |
 | 502 | Claude gave invalid output twice on a paste fill-in (code `summary_failed`) |
 | 429 | Spending cap or rate limit reached |

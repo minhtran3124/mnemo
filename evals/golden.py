@@ -9,6 +9,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+import config
 import store
 
 DEFAULT_PATH = Path(__file__).resolve().parent / "expected.json"
@@ -23,6 +24,7 @@ MIN_HELD_OUT_HARD = 2
 class Expected:
     id: str
     expected_type: str
+    expected_folder: str
     expected_tags: tuple[str, ...]
     key_facts: tuple[str, ...]
     held_out: bool
@@ -35,6 +37,7 @@ class Expected:
 REQUIRED = (
     "id",
     "expected_type",
+    "expected_folder",
     "expected_tags",
     "key_facts",
     "held_out",
@@ -56,7 +59,7 @@ def _check_shape(raw: object) -> None:
     missing = [key for key in REQUIRED if key not in raw]
     if missing:
         raise ValueError(f"{page_id}: missing keys {missing}")
-    for key in ("id", "expected_type", "expect"):
+    for key in ("id", "expected_type", "expected_folder", "expect"):
         if not isinstance(raw[key], str):
             raise ValueError(f"{page_id}: {key} must be a string")
     for key in ("expected_tags", "key_facts"):
@@ -75,6 +78,7 @@ def _check(raw: dict) -> Expected:
     entry = Expected(
         id=page_id,
         expected_type=raw["expected_type"],
+        expected_folder=raw["expected_folder"],
         expected_tags=tuple(raw["expected_tags"]),
         key_facts=tuple(raw["key_facts"]),
         held_out=raw["held_out"],
@@ -85,6 +89,10 @@ def _check(raw: dict) -> Expected:
     )
     if entry.expected_type not in store.TYPES:
         raise ValueError(f"{page_id}: type must be one of {sorted(store.TYPES)}")
+    if not config.is_allowed_folder(entry.expected_folder):
+        raise ValueError(
+            f"{page_id}: expected_folder must be a starter folder or Unsorted"
+        )
     if entry.expect not in EXPECTS:
         raise ValueError(f"{page_id}: expect must be one of {sorted(EXPECTS)}")
     if not isinstance(entry.draft, bool):

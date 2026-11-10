@@ -22,6 +22,11 @@
     other: "Page"
   };
 
+  // Keep this list in step with STARTER_FOLDERS in config.py. The bookmark
+  // page draws its select from config; this page has no server template.
+  var STARTER_FOLDERS = ["Work", "Learning", "Reference", "Personal", "Ideas"];
+  var UNSORTED = "Unsorted";
+
   function el(tag, className, text) {
     var node = document.createElement(tag);
     if (className) {
@@ -46,14 +51,15 @@
     window.scrollTo(0, document.body.scrollHeight);
   }
 
-  // POST JSON. Resolves with the JSON body; rejects with an Error whose
+  // Call the API. Resolves with the JSON body; rejects with an Error whose
   // message is readable and whose code is the server's error code, if any.
-  function postJson(path, payload) {
-    return fetch(path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    }).then(
+  function requestJson(path, method, payload) {
+    var options = { method: method };
+    if (payload !== undefined) {
+      options.headers = { "Content-Type": "application/json" };
+      options.body = JSON.stringify(payload);
+    }
+    return fetch(path, options).then(
       function (response) {
         return response.json().then(
           function (body) {
@@ -74,6 +80,18 @@
         throw new Error("Could not reach the server. Nothing was saved. Try again.");
       }
     );
+  }
+
+  function postJson(path, payload) {
+    return requestJson(path, "POST", payload);
+  }
+
+  function patchJson(path, payload) {
+    return requestJson(path, "PATCH", payload);
+  }
+
+  function postNoBody(path) {
+    return requestJson(path, "POST");
   }
 
   function post(message) {
@@ -120,10 +138,76 @@
 
   function marginColumn(record) {
     var margin = el("div", "entry-margin");
-    margin.appendChild(el("span", null, "Filed in"));
-    margin.appendChild(el("span", "entry-folder", record.folder || "Unsorted"));
+    margin.appendChild(el("span", "entry-filed", "Filed in: " + (record.folder || UNSORTED)));
     margin.appendChild(el("span", "entry-number", "No. " + record.id));
     return margin;
+  }
+
+  // Move and Undo stay visible on every card (FO-05). The select lists only
+  // existing folders; Undo is enabled after a filing or a Move.
+  function cardActions(record, entry) {
+    var controls = el("div", "card-actions");
+    var id = "move-" + record.id + "-" + Math.random().toString(36).slice(2);
+    var label = el("label", "visually-hidden", "Move to folder");
+    label.setAttribute("for", id);
+    var select = document.createElement("select");
+    select.id = id;
+    select.className = "card-move-select";
+    STARTER_FOLDERS.concat([UNSORTED]).forEach(function (name) {
+      var option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      option.selected = name === (record.folder || UNSORTED);
+      select.appendChild(option);
+    });
+    var move = el("button", "btn", "Move");
+    move.type = "button";
+    var undo = el("button", "btn", "Undo");
+    undo.type = "button";
+    undo.disabled = !record.prev_folder;
+    var note = el("p", "card-note");
+    note.hidden = true;
+
+    function setBusy(on) {
+      move.disabled = on;
+      undo.disabled = on || !record.prev_folder;
+      move.textContent = on ? "Moving..." : "Move";
+      undo.textContent = on ? "Undoing..." : "Undo";
+    }
+
+    function failed(err) {
+      setBusy(false);
+      note.textContent = err.message;
+      note.hidden = false;
+    }
+
+    move.addEventListener("click", function () {
+      note.hidden = true;
+      setBusy(true);
+      patchJson("/api/bookmarks/" + record.id, { folder: select.value }).then(
+        function (updated) {
+          entry.replaceWith(cardFor(updated));
+        },
+        failed
+      );
+    });
+    undo.addEventListener("click", function () {
+      note.hidden = true;
+      setBusy(true);
+      postNoBody("/api/bookmarks/" + record.id + "/undo").then(
+        function (updated) {
+          entry.replaceWith(cardFor(updated));
+        },
+        failed
+      );
+    });
+
+    controls.appendChild(label);
+    controls.appendChild(select);
+    controls.appendChild(move);
+    controls.appendChild(undo);
+    controls.appendChild(note);
+    return controls;
   }
 
   // A saved bookmark with a summary.
@@ -150,6 +234,7 @@
       }
       main.appendChild(why);
     }
+    main.appendChild(cardActions(record, entry));
     entry.appendChild(main);
     return entry;
   }
@@ -239,6 +324,7 @@
       );
     });
 
+    main.appendChild(cardActions(record, entry));
     entry.appendChild(main);
     return entry;
   }
