@@ -7,7 +7,7 @@ This file says when a feature and a phase count as done. "Done" means a person h
 
 Each item can be checked by running the command or reading the file. Evidence is what the command printed.
 
-- [x] Tests pass: `uv run pytest` → `314 passed`.
+- [x] Tests pass: `uv run pytest` → `325 passed` (on `phase4`, with the phase 4 tests).
 - [x] Lint and format are clean: `uv run ruff check . && uv run ruff format --check .` → `All checks passed!`, all files already formatted.
 - [x] No broken relative link: `uv run python scripts/check_links.py` → `checked 448 relative links, 0 broken`.
 - [x] The old doc folders are gone: `ls docs/manual-testing docs/reviews docs/feature-specs/test-cases docs/product/plans` → `No such file or directory`.
