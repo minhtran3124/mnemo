@@ -1,12 +1,12 @@
 import pytest
 from fastapi.testclient import TestClient
 
+import ask
 import fetcher
 import save
 import store
 
 FAKE_KEY = "sk-ant-fake-key-for-tests"
-LINKS_ONLY = "I can only save links for now. Asking comes later."
 LONG = "word " * 100
 
 
@@ -30,6 +30,9 @@ def data_dir(monkeypatch, tmp_path):
     monkeypatch.setattr(
         save.client, "parse", lambda messages, output_format, system=None: good()
     )
+    monkeypatch.setattr(
+        ask, "run_ask", lambda question: ask.AskResult(text="nothing found")
+    )
     return tmp_path
 
 
@@ -46,7 +49,7 @@ def test_exchange_appends_both_sides(data_dir):
     lines = store.list_chat()
     assert [(m["role"], m["text"]) for m in lines] == [
         ("user", "hello there"),
-        ("app", LINKS_ONLY),
+        ("app", "nothing found"),
     ]
     assert api.post("/api/chat", json={"message": "  "}).status_code == 400
     assert len(store.list_chat()) == 2
