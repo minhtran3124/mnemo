@@ -13,7 +13,7 @@ PAGE_COUNT = 15
 UNREADABLE = 3
 
 
-def ok_preview(url, text, folder_choice=None):
+def ok_preview(url, text, folder_choice=None, prompt_version=None):
     if not text:
         return save._link_only_fields(url, url)
     out = save.SaveOutput(
@@ -52,9 +52,11 @@ def test_readable_page_saved_link_only_is_not_honest(tmp_path, monkeypatch, caps
     monkeypatch.setattr(
         save,
         "preview",
-        lambda url, text, folder_choice=None: save._link_only_fields(url, url),
+        lambda url, text, folder_choice=None, prompt_version=None: (
+            save._link_only_fields(url, url)
+        ),
     )
-    run_eval.run("r1", "v1", results_dir=tmp_path / "results")
+    run_eval.run("r1", "save_v1", results_dir=tmp_path / "results")
     out = capsys.readouterr().out
     assert f"Honesty: 0.20 ({UNREADABLE}/{PAGE_COUNT} pages honest" in out
     assert honesty_cell(tmp_path) == "0.20"
@@ -69,19 +71,19 @@ def test_readable_page_with_grader_failed_is_not_honest(tmp_path, monkeypatch):
         return graded(grader_failed=failed)(text, summary, facts)
 
     monkeypatch.setattr(faithful, "grade_faithful", grader)
-    run_eval.run("r1", "v1", results_dir=tmp_path / "results")
+    run_eval.run("r1", "save_v1", results_dir=tmp_path / "results")
     assert honesty_cell(tmp_path) == "0.93"
 
 
 def test_page_without_golden_file_is_previewed_with_empty_text(tmp_path, monkeypatch):
     seen = {}
 
-    def spy(url, text, folder_choice=None):
+    def spy(url, text, folder_choice=None, prompt_version=None):
         seen[url] = text
         return ok_preview(url, text)
 
     monkeypatch.setattr(save, "preview", spy)
-    run_eval.run("r1", "v1", results_dir=tmp_path / "results")
+    run_eval.run("r1", "save_v1", results_dir=tmp_path / "results")
     with_golden = {p.stem for p in run_eval.GOLDEN_DIR.glob("*.txt")}
     pages = run_eval.json.loads(run_eval.PAGES_PATH.read_text(encoding="utf-8"))
     missing = [p["url"] for p in pages if p["id"] not in with_golden]
@@ -90,7 +92,7 @@ def test_page_without_golden_file_is_previewed_with_empty_text(tmp_path, monkeyp
 
 
 def test_every_page_honest_scores_one(tmp_path, capsys):
-    run_eval.run("r1", "v1", results_dir=tmp_path / "results")
+    run_eval.run("r1", "save_v1", results_dir=tmp_path / "results")
     out = capsys.readouterr().out
     assert f"Honesty: 1.00 ({PAGE_COUNT}/{PAGE_COUNT} pages honest" in out
     assert honesty_cell(tmp_path) == "1.00"

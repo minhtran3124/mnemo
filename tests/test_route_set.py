@@ -70,7 +70,7 @@ def test_old_rows_get_an_empty_folder_score(tmp_path):
 
 
 def test_eval_prints_and_appends_the_folder_score(tmp_path, monkeypatch, capsys):
-    def fake_preview(url, text, folder_choice=None):
+    def fake_preview(url, text, folder_choice=None, prompt_version=None):
         chosen = "Work" if url == PAGES[0]["url"] else config.UNSORTED
         if folder_choice is not None:
             folder_choice.append(chosen)

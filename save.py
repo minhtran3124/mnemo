@@ -21,7 +21,15 @@ import fetcher
 import store
 import urlclean
 
-PROMPT_FILE = Path(__file__).resolve().parent / "prompts" / "save_system.txt"
+PROMPTS_DIR = Path(__file__).resolve().parent / "prompts"
+
+
+def prompt_file(version: str | None = None) -> Path:
+    """The prompt file for one version, or the default from config.py."""
+    return PROMPTS_DIR / f"{version or config.SAVE_PROMPT_VERSION}.txt"
+
+
+PROMPT_FILE = prompt_file()
 ATTEMPTS = 2
 
 _log = logging.getLogger("mnemo.save")
@@ -100,14 +108,14 @@ def resolve_folder(name: str) -> tuple[str | None, str | None]:
     return None, name
 
 
-def _summarise(text: str) -> SaveOutput | None:
+def _summarise(text: str, prompt_version: str | None = None) -> SaveOutput | None:
     """Ask Claude, with one retry. None means link only.
 
     Transient API errors and invalid output are retried once, then None.
     Permanent API errors (4xx other than 408/409/429) and a missing key
     propagate so a revoked key never looks like an unreadable page.
     """
-    system = PROMPT_FILE.read_text(encoding="utf-8")
+    system = prompt_file(prompt_version).read_text(encoding="utf-8")
     # A literal <page> or </page> in the text must not close or open the wrapper.
     safe = _PAGE_TAG.sub(r"&lt;\1>", text)
     messages = [{"role": "user", "content": f"<page>\n{safe}\n</page>"}]
@@ -188,7 +196,10 @@ def _floor_for(source: str) -> int:
 
 
 def preview(
-    url: str, text: str | None, folder_choice: list[str | None] | None = None
+    url: str,
+    text: str | None,
+    folder_choice: list[str | None] | None = None,
+    prompt_version: str | None = None,
 ) -> dict:
     """Return the record fields save() would store for this text, writing nothing.
 
@@ -213,7 +224,7 @@ def preview(
         if folder_choice is not None:
             folder_choice.append(None)
         return _link_only_fields(url, url_clean)
-    out = _summarise(norm)
+    out = _summarise(norm, prompt_version)
     if out is None:
         if folder_choice is not None:
             folder_choice.append(None)
@@ -224,7 +235,12 @@ def preview(
     return _ok_fields(url, url_clean, out, folder)
 
 
-def save(url: str, pasted_text: str | None = None, private: bool = False) -> dict:
+def save(
+    url: str,
+    pasted_text: str | None = None,
+    private: bool = False,
+    prompt_version: str | None = None,
+) -> dict:
     """Save a bookmark and return the stored record.
 
     A private link is saved as link only before any fetch or Claude call, so
@@ -255,7 +271,7 @@ def save(url: str, pasted_text: str | None = None, private: bool = False) -> dic
     if not text or len(text) < floor:
         return _link_only(url, url_clean)
 
-    out = _summarise(text)
+    out = _summarise(text, prompt_version)
     if out is None:
         return _link_only(url, url_clean)
 

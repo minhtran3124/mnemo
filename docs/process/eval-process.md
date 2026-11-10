@@ -89,6 +89,19 @@ Limits of these numbers:
 - S-08 (YouTube) and S-10 (Airtable developers) failed the live fetch, so they have no text and count as unreadable. The honesty score of 1.00 therefore tests only pages that never reach the model. It does not show that honest failure works on a page that was fetched and then judged unreadable.
 - The grader prompts and the model are unchanged. No prompt was changed in this phase.
 
+## Prompt versions (phase 3)
+Each version changes one thing from the version before it. The run id and the version are logged in `runs.csv`; the eval loads `prompts/<version>.txt`, so a run really uses that prompt.
+
+| Version | One change from the version before | Save quality | Honesty | Folder choice | Tokens |
+| --- | --- | --- | --- | --- | --- |
+| save_v1 | Baseline prompt (no change). | 0.92 | 1.00 | n/a | 124480 / 128626 |
+| save_v2 | Direct first sentence with an action verb: "Save one bookmark from the page text..." | 0.50 | 0.47 | 0.40 | 134575 |
+| save_v3 | Added output rules as numbered steps. | 0.58 | 0.60 | 0.27 | 141693 |
+| save_v4 | Wrapped the task, rules and steps in XML tags. The page text was already inside `<page>` tags. | 0.42 | 0.40 | 0.33 | 137991 |
+| save_v5 | Added two readable examples and one unreadable-page example from the best outputs. | 0.92 | 0.93 | 0.73 | 143109 |
+
+`save_v5` is the default in `config.py`. It ties the baseline save quality (0.92), raises the folder choice from n/a to 0.73, and its honesty (0.93) is one page below the baseline, inside the 0.08 noise level. `save_v2` to `save_v4` lowered save quality and honesty, so they were rejected. The baseline rows predate the folder rule, so the folder choice is only compared between `save_v2` and `save_v5`.
+
 ## Rules
 - Do not improve prompts in phase 2. Build the sets and graders first.
 - Change one thing per run.
