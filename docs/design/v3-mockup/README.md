@@ -2,6 +2,8 @@
 
 Source files of the ten V3 "final" artboards (five screens, light and dark) from the section "Version 3 final: the ledger in light and dark" of the Claude design canvas, saved on 2026-11-05 so the build can read exact values without opening the private canvas: https://claude.ai/artifact/7Q93Na93mLjP5FCbWbeYwz (title "Bookmark Brain Mockup", file `project/<name>.dc.html`).
 
+A clean canvas with only these ten boards, titled "Mnemo V3 Final Design": https://claude.ai/artifact/9uvrP6gXgdiZDnge4nbu6U#page-dcb81aee8d83. Whether its boards equal the files here is **Unverified**.
+
 | Screen | Light board | Dark board | Size |
 | --- | --- | --- | --- |
 | Chat (laptop) | `V3LightChat.dc.html` | `V3DarkChat.dc.html` | 1280 wide |

@@ -36,6 +36,7 @@ Message box, card, "Page not read" card with Paste text field, Move menu, Undo b
 Decision D-016 (Accepted): the visual direction is **V3, the ledger**. Serif headings, the folder in the margin, "guess" labels. Decision D-019 (Accepted): the app has a light theme and a dark theme. The default follows the system setting. Tokens and rules are in [theming-and-design-tokens.md](theming-and-design-tokens.md).
 
 Mockup (light and dark, laptop and phone, Settings screen): https://claude.ai/artifact/7Q93Na93mLjP5FCbWbeYwz
+Clean canvas of the final V3 boards, named Mnemo: https://claude.ai/artifact/9uvrP6gXgdiZDnge4nbu6U#page-dcb81aee8d83
 The built pages must follow the mockup. Its final boards are saved in [design/v3-mockup](../design/v3-mockup/README.md), and [ui-reference.md](ui-reference.md) lists the measurements, the parts not built yet in phase 1, and the open decisions. The mockup was never checked as a rendered page and the link is not a permanent store. The tokens in the spec are the source of truth for colour.
 
 V1, V2, V4 and V5 are dropped. They stay in the mockup file and in the [design review](../research/design-review-v1-v5.md) as history.
