@@ -5,6 +5,7 @@ Every error response uses one JSON shape: {"error": {"code": ..., "message": ...
 
 import html
 import logging
+import re
 import threading
 from pathlib import Path
 from urllib.parse import urlparse, urlsplit
@@ -17,6 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+import ask
 import config
 import importer
 import intent
@@ -455,15 +457,60 @@ class ChatBody(BaseModel):
     pasted_text: str | None = None
 
 
-LINKS_ONLY_TEXT = "I can only save links for now. Asking comes later."
-
-
 def _note_reply(bookmark_id: int | None, text: str | None) -> str:
     if bookmark_id is None or text is None:
         return "What should the reason say? Write note <id> <text>."
     if _set_reason(bookmark_id, text) is None:
         return "I do not have a bookmark with that number."
     return "Reason updated."
+
+
+# Claude is asked to name each bookmark as #<id>. Accept the common variants too.
+_ANSWER_REF = re.compile(r"(?:#|\bbookmark\s+|\bno\.\s*)\s*(\d+)", re.IGNORECASE)
+
+
+def _answer_bookmarks(text: str) -> list[dict]:
+    """Turn the numbers Claude named into up to ASK_ANSWER_LIMIT stored bookmarks.
+
+    Numbers that do not exist are skipped here; ticket #127 adds the check that
+    reports them. The answer keeps the model's text, so the numbers stay visible.
+    """
+    found: list[dict] = []
+    seen: set[int] = set()
+    for match in _ANSWER_REF.finditer(text):
+        bookmark_id = int(match.group(1))
+        if bookmark_id in seen:
+            continue
+        item = store.get_bookmark(bookmark_id)
+        if item is None:
+            continue
+        seen.add(bookmark_id)
+        found.append(
+            {
+                "id": item["id"],
+                "title": item.get("title") or item["url"],
+                "type": item.get("type", ""),
+                "reason": item.get("reason", ""),
+                "reason_source": item.get("reason_source", "guess"),
+            }
+        )
+        if len(found) >= config.ASK_ANSWER_LIMIT:
+            break
+    return found
+
+
+def _ask_reply(question: str) -> dict:
+    """Run the ask loop and turn its text into up to 3 bookmark results."""
+    result = ask.run_ask(question)
+    if result.error:
+        _record_exchange(question, result.text, [])
+        return {"kind": "answer", "text": result.text, "bookmarks": []}
+    bookmarks = _answer_bookmarks(result.text)
+    text = result.text.strip() if bookmarks else "nothing found"
+    if not text:
+        text = f"{len(bookmarks)} bookmarks fit." if bookmarks else "nothing found"
+    _record_exchange(question, text, [item["id"] for item in bookmarks])
+    return {"kind": "answer", "text": text, "bookmarks": bookmarks}
 
 
 @app.post("/api/chat", response_model=None)
@@ -478,8 +525,7 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         _record_exchange(body.message, reply, [])
         return {"kind": "text", "text": reply}
     if not links:
-        _record_exchange(body.message, LINKS_ONLY_TEXT, [])
-        return {"kind": "text", "text": LINKS_ONLY_TEXT}
+        return _ask_reply(body.message)
     cards = []
     failed = []
     last_error = None

@@ -54,6 +54,8 @@ ASK_MAX_ROUNDS = 6
 IMPORT_TOKENS_PER_LINK = 2_000
 IMPORT_PRICE_PER_MILLION_TOKENS = 3.0
 
+# Ask answer (phase 4): at most this many bookmarks in one reply (AA-02).
+ASK_ANSWER_LIMIT = 3
 
 # Fetch limits (page-reading.md, "Fetch limits"). Starting values, tune in phase 1.
 FETCH_CONNECT_TIMEOUT = 5.0

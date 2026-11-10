@@ -54,12 +54,12 @@ Open question: the upload endpoint for PDFs and screenshots.
 
 `uv run python server.py` starts the server on `127.0.0.1` (`HOST` in `server.py`). It never binds to another address.
 
-## POST /api/chat in phase 1
+## POST /api/chat
 
 - Request: `message` (required) and optional `pasted_text`. `pasted_text` applies only to the first link in the same message.
 - A blank or whitespace-only `message` returns 400 with code `empty_message`.
 - A message with one or more distinct links saves each in order (links with the same `url_clean` are saved once) and returns `{"kind": "cards", "cards": [record, ...]}`. If a link fails to store (a `StoreError` or `OSError`) after another saved, the response is still 200 with the saved cards plus `"failed": [link, ...]`, so a retry does not save them twice. If no link saved, the response is the usual 500. Missing key, auth and other permanent errors (the policy in `save.is_permanent_error`: a missing key and any non-transient 4xx from Claude) are never put in `failed`, for any link and in any order: they return the usual JSON 500, even after another link saved. Only storage errors and, after a card saved, other unexpected errors go in `failed`.
-- A message with no link returns `{"kind": "text", "text": "I can only save links for now. Asking comes later."}`. Nothing is sent to Claude.
+- A message with no link that is not `note <id> <text>` goes to `ask.run_ask`. The reply is `{"kind": "answer", "text": "<the model text>", "bookmarks": [{"id": N, "title": "...", "type": "...", "reason": "...", "reason_source": "user" | "guess"}, ...]}` with at most 3 bookmarks. A guessed reason carries `reason_source` = `guess` so the page can mark it. When the list is empty, `text` is `"nothing found"` and `bookmarks` is empty. A Claude error returns the usual JSON 500.
 - Both sides of the exchange are appended to the chat history (see D-029 for the history shape and D-033 for a planned change to `note` with a link).
 
 Page routes (HTML, not API): `GET /` chat, `GET /bookmarks` bookmark page, `GET /settings` settings (D-034).
