@@ -13,10 +13,10 @@ Search your bookmarks from Claude Code.
 3 sessions. Lessons 47-56, 60. Read lesson 57 here (2 minutes).
 
 ## Inputs
-Phase 4 done (tools and `store.py`).
+Phase 4 done (tools and `mnemo/core/store.py`).
 
 ## Tasks
-1. Write `mcp_server.py` with the Python SDK. It must use `store.py` only.
+1. Write `mcp_server.py` with the Python SDK. It must use `mnemo/core/store.py` only.
 2. Add tools `search_bookmarks`, `add_bookmark`, `get_bookmark`.
 3. Add a direct resource that lists bookmarks and a templated resource for one bookmark.
 4. Add a prompt named `find_related_to_task`.

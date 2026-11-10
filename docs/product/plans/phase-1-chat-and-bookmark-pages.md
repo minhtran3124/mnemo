@@ -24,12 +24,12 @@ Each task is one change with its own check, so each can become one ticket. Tasks
 3. Add `client.parse()` next to `ask()`: it calls `client.messages.parse(output_format=<Pydantic model>)` and returns `response.parsed_output`. No prefill, no stop sequence, no beta header ([structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs), D-025). A `refusal` or `max_tokens` stop reason raises a clear error that the caller treats as invalid output. Check: tests with the SDK mocked (and the signature test from task 1).
 
 **Data and reading**
-4. Write `store.py`: the only code that reads or writes `data/bookmarks.json`, `data/pages/<id>.txt`, `data/chat.jsonl` and `data/log.jsonl` (D-012, NF-03). Use the fields from the [data model](../../feature-specs/data-model.md), including `url_clean`, the chat message record and the log events.
+4. Write `mnemo/core/store.py`: the only code that reads or writes `data/bookmarks.json`, `data/pages/<id>.txt`, `data/chat.jsonl` and `data/log.jsonl` (D-012, NF-03). Use the fields from the [data model](../../feature-specs/data-model.md), including `url_clean`, the chat message record and the log events.
 5. Add URL cleaning (remove `fbclid`, `utm_*`) to make `url_clean`. Keep `url` as pasted. See [url cleaning](../../solutions/url-cleaning.md).
-6. Write the fetcher in `fetcher/`: plain pages with the limits in [page reading](../../feature-specs/page-reading.md) ("Fetch limits"), including the address checks, and GitHub repos through the official API (description and README). One retry for transient errors, then fail honestly. Pass our own bytes to `trafilatura.extract()`.
-7. Add the limits to `config.py` (NF-02): the maximum page length (already there) and the other fetch limits, each one as a named constant.
+6. Write the fetcher in `mnemo/fetcher/`: plain pages with the limits in [page reading](../../feature-specs/page-reading.md) ("Fetch limits"), including the address checks, and GitHub repos through the official API (description and README). One retry for transient errors, then fail honestly. Pass our own bytes to `trafilatura.extract()`.
+7. Add the limits to `mnemo/core/config.py` (NF-02): the maximum page length (already there) and the other fetch limits, each one as a named constant.
 8. Honest failure: if the fetch fails or the text is too short, save link only, `page_status = unreadable`, `summary = null`. Never invent a summary (NF-04).
-9. Write `save.py` and its prompt in `prompts/`: system prompt, page text in XML tags, structured output through `client.parse()`. Code checks 3 to 6 tags and 60 words. Invalid output: retry once, then save link only.
+9. Write `mnemo/save/pipeline.py` and its prompt in `mnemo/save/prompts/`: system prompt, page text in XML tags, structured output through `client.parse()`. Code checks 3 to 6 tags and 60 words. Invalid output: retry once, then save link only.
 
 **Server and API**
 10. Start a small FastAPI server bound to `127.0.0.1` only (D-021, [tech stack](../tech-stack.md)). One error format.
@@ -39,7 +39,7 @@ Each task is one change with its own check, so each can become one ticket. Tasks
 14. `POST /api/bookmarks/:id/open` (raises `opened_count`, writes an `open` log line), `GET /api/bookmarks` and `DELETE /api/bookmarks/:id`.
 
 **Pages**
-15. Shape the Chat page and the Bookmark page with `/impeccable` before writing HTML (D-020). The V3 mockup is the design: build to [UI reference](../../feature-specs/ui-reference.md) and the board source in `docs/design/v3-mockup/`. Its decisions are settled; keep any new layout notes in [frontend UI](../../feature-specs/frontend-ui.md). Self-host the three fonts from `web/fonts/` (D-026) and check each licence file.
+15. Shape the Chat page and the Bookmark page with `/impeccable` before writing HTML (D-020). The V3 mockup is the design: build to [UI reference](../../feature-specs/ui-reference.md) and the board source in `docs/design/v3-mockup/`. Its decisions are settled; keep any new layout notes in [frontend UI](../../feature-specs/frontend-ui.md). Self-host the three fonts from `mnemo/api/web/fonts/` (D-026) and check each licence file.
 16. Theme and Settings: the theme control (System, Light, Dark) in the header of every screen, the Settings page on the phone, and the tokens for both themes (UI-08, UI-09, [theming](../../feature-specs/theming-and-design-tokens.md)). The choice is kept on the device.
 17. Chat page: message box, card reply (title, type, 3 tags, summary, reason, bookmark number, "Filed in: Unsorted"), and a "Page not read" card with a Paste text box. No Move or Undo buttons yet: they come in phase 3. The page redraws the saved chat on load.
 18. Bookmark page: list grouped by type with title, type and host, tags, date, the reason when there is one, the "guess" flag and the "page not read" badge. The title opens the link; Delete asks first. Move comes in phase 3. Every bookmark goes to Unsorted. Add the "Needs a look" banner.

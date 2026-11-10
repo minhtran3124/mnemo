@@ -39,7 +39,7 @@ Out: a direct Slack connection (not planned for version 1; it needs app approval
 
 ## Link finder
 
-`importer.py` holds the plain-code link finder used before any Claude call (IM-03):
+`mnemo/chat/importer.py` holds the plain-code link finder used before any Claude call (IM-03):
 
 - `links_from_browser_export(html)` reads the Netscape bookmarks file a browser exports.
 - `links_from_text(text)` finds links in pasted text with `intent.find_links`.

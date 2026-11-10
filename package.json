@@ -7,7 +7,7 @@
     "design:install": "impeccable install --yes --providers=claude-code --project",
     "design:update": "impeccable update",
     "design:check": "impeccable check",
-    "design:detect": "impeccable detect web"
+    "design:detect": "impeccable detect mnemo/api/web"
   },
   "devDependencies": {
     "impeccable": "^4.8.0"

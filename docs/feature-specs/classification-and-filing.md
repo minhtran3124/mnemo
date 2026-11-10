@@ -34,7 +34,7 @@ Out: folder rules in detail (see [folders.md](folders.md)).
 - Reason: optional, one line. If missing, Claude writes a guess and `reason_source` = `guess`. The card shows "guess".
 - Faithful-summary rule: if the page text does not say it, the summary does not say it. A screenshot post that claims "Anthropic published this" is reported as "the post claims it" or left out.
 - Page text is placed inside XML tags in the prompt. Instructions are outside them.
-- Prompts live in `prompts/`, one file per version. Change one thing per run (phase 3).
+- Prompts live in `mnemo/save/prompts/`, one file per version. Change one thing per run (phase 3).
 
 ### Claude output contract
 

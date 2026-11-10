@@ -21,7 +21,7 @@ Four pages draw these docs as pictures. They are snapshots of `main` at commit `
 | --- | --- | --- |
 | [Roadmap](https://claude.ai/artifact/AJJLCpqJSUq927cvXRbBPx) | Phases, releases, sessions, decision points, what to cut | [roadmap](product/roadmap.md), [phases overview](product/phases-overview.md) |
 | [User workflow](https://claude.ai/artifact/PH6PBSCNxy76aeVVijwsgQ) | How you save, find, file and ask; who decides each step | [PRD](product/mnemo-prd.md), [chat and intent](feature-specs/chat-and-intent.md) |
-| [Architecture](https://claude.ai/artifact/HRJ54QxYXpooHoemp6uSgV) | Pages, server, `store.py`, Claude API, MCP; trust boundary; all decisions | [tech stack](product/tech-stack.md), [server API](feature-specs/server-api.md), [privacy](feature-specs/privacy-and-security.md) |
+| [Architecture](https://claude.ai/artifact/HRJ54QxYXpooHoemp6uSgV) | Pages, server, `mnemo/core/store.py`, Claude API, MCP; trust boundary; all decisions | [tech stack](product/tech-stack.md), [server API](feature-specs/server-api.md), [privacy](feature-specs/privacy-and-security.md) |
 | [Data model](https://claude.ai/artifact/RjucLkUNCY5pWzD3RxJkpt) | Records, fields, files, bookmark lifecycle | [data model](feature-specs/data-model.md), [storage](feature-specs/storage.md) |
 
 The design mockup (V3, light and dark) is linked from [frontend UI](feature-specs/frontend-ui.md). Its source is saved in [design/v3-mockup](design/v3-mockup/README.md), and [UI reference](feature-specs/ui-reference.md) says how the build must follow it.

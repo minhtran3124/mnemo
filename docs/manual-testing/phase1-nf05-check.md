@@ -26,7 +26,7 @@ Touch targets, text contrast and visible focus on the five phone screens (UI-ref
 - Touch: every visible `a`, `button`, `input`, `textarea` and radio label was measured with `getBoundingClientRect`; the limit is 44px high and wide.
 - Contrast: every visible text node, plus the composer placeholder, against the real background (alpha blended up the ancestors). The limit is 4.5:1 for all text, including large text.
 - Focus: Tab through the page in order; for each stop the computed outline style, width and colour were read, and the outline colour was compared with the background behind it (the limit is 2px wide and 3:1). On the Page-not-read screen, Enter on "Paste the text" opened the box during the Tab pass.
-- Fix made: the "Mnemo" wordmark link was 69 x 31px on all screens. It now has `min-height: var(--control)` in `web/css/base.css`. All three checks were run again after the fix.
+- Fix made: the "Mnemo" wordmark link was 69 x 31px on all screens. It now has `min-height: var(--control)` in `mnemo/api/web/css/base.css`. All three checks were run again after the fix.
 - Five screens: Chat, Bookmarks (Ledger), Bookmarks (Cards), Settings, and the Page-not-read state. Ledger and Cards are both rows of "Bookmarks, phone".
 - Focus colour: the build uses a 3px `accent` outline on the header and list controls; ui-reference says 2px `ink`. This is a parity item, not an NF-05 failure.
 - Not measured: widths other than 390px, the dark theme, and a real screen reader (parity ticket and later). Contrast of control borders and icons was not measured.

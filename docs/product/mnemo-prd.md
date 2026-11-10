@@ -69,7 +69,7 @@ These jobs are guesses. Edit them if they are wrong.
 | --- | --- |
 | NF-01 | API key only on the server |
 | NF-02 | Cost limits: max_tokens, max page length, spending cap |
-| NF-03 | Bookmarks in plain files; all access through `store.py` ([storage](../feature-specs/storage.md)) |
+| NF-03 | Bookmarks in plain files; all access through `mnemo/core/store.py` ([storage](../feature-specs/storage.md)) |
 | NF-04 | Honesty: no summary of unseen text; guesses marked |
 | NF-05 | UI: touch targets at least 44px, contrast at least 4.5:1, visible focus, works at 390px width |
 

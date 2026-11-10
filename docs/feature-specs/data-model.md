@@ -8,7 +8,7 @@ Visual page: [Data model](https://claude.ai/artifact/RjucLkUNCY5pWzD3RxJkpt). It
 
 ## Purpose
 
-Every phase reads and writes the same bookmark record. If the record changes, all phases change. So we fix it now. Supports NF-03 (plain files) and D-012 (all access through `store.py`, see [storage.md](storage.md)).
+Every phase reads and writes the same bookmark record. If the record changes, all phases change. So we fix it now. Supports NF-03 (plain files) and D-012 (all access through `mnemo/core/store.py`, see [storage.md](storage.md)).
 
 ## Scope
 

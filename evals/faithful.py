@@ -12,10 +12,9 @@ from pathlib import Path
 
 from pydantic import BaseModel, ValidationError
 
-import client
-import config
+from mnemo.core import client, config
 
-PROMPT_FILE = Path(__file__).resolve().parent.parent / "prompts" / "eval_faithful.txt"
+PROMPT_FILE = Path(__file__).resolve().parent / "prompts" / "eval_faithful.txt"
 ATTEMPTS = 2
 _TAG = re.compile(r"<(\s*/?\s*(?:page|summary|key_facts)\s*)>", re.IGNORECASE)
 

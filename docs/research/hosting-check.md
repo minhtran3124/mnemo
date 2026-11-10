@@ -22,8 +22,8 @@ Unverified: Render price and disk persistence.
 Also check the Claude Console spending limit (see [API notes](../reference/api-notes.md)).
 
 ## If the disk is not persistent
-The plan says: replace the inside of `store.py` with a database, and change nothing else (D-012, NF-03).
-1. Ask Claude Code for a plan to swap the storage in `store.py` only.
+The plan says: replace the inside of `mnemo/core/store.py` with a database, and change nothing else (D-012, NF-03).
+1. Ask Claude Code for a plan to swap the storage in `mnemo/core/store.py` only.
 2. Keep the same functions, so no other file changes.
 3. Run the whole [smoke checklist](../manual-testing/smoke-checklist.md).
 4. Add a backup step: export `bookmarks.json` and pages before each deploy.

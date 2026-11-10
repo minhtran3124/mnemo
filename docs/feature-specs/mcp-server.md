@@ -22,7 +22,7 @@ Out: the web server endpoints ([server-api.md](server-api.md)).
 | MC-03 | A direct resource lists bookmarks. |
 | MC-04 | A templated resource returns one bookmark. |
 | MC-05 | A prompt named `find_related_to_task`. |
-| MC-06 | All reads and writes go through the web server's HTTP API, which uses `store.py` ([storage.md](storage.md), [server-api.md](server-api.md)). The MCP server never opens `data/` itself (D-022). |
+| MC-06 | All reads and writes go through the web server's HTTP API, which uses `mnemo/core/store.py` ([storage.md](storage.md), [server-api.md](server-api.md)). The MCP server never opens `data/` itself (D-022). |
 | MC-07 | `mcp_client.py` is used in the app. Then the server is added to Claude Code. |
 | MC-08 | The server holds no more access than needed. It returns bookmarks, not the API key. |
 

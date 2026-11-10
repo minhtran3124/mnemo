@@ -14,5 +14,5 @@ Source files of the ten V3 "final" artboards (five screens, light and dark) from
 - **Default is System.** In the boards one theme option is fixed so light and dark can be compared. In the app, System is the default and follows the device (D-019).
 - These are Design Component files (`<x-dc>`, a `support.js` that is not here). They do not open in a browser on their own. Read them as a source of exact sizes, spacing and wording.
 - They load fonts from Google Fonts. The build does not (D-026: self-host).
-- Do not edit these files and do not copy their markup into `web/`. How the build must follow them is in [UI reference](../../feature-specs/ui-reference.md).
+- Do not edit these files and do not copy their markup into `mnemo/api/web/`. How the build must follow them is in [UI reference](../../feature-specs/ui-reference.md).
 - The earlier boards V1, V2, V4 and V5, and the first V3 boards without a theme control, are dropped (D-016) and are not saved here.

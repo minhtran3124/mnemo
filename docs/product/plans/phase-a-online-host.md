@@ -17,7 +17,7 @@ Phase 4 and the 2-week test done. Budget about 0 per month for hosting and API t
 
 ## Tasks
 1. Host and storage check first. You plan to deploy to Render (Unverified: price and whether the disk keeps files after a deploy). Read the current docs. See [hosting check](../../research/hosting-check.md) and [local vs online](../../research/local-vs-online.md).
-2. If files are not kept, replace the inside of `store.py` with a database. Nothing else may change (D-012).
+2. If files are not kept, replace the inside of `mnemo/core/store.py` with a database. Nothing else may change (D-012).
 3. Add login. Do not skip it.
 4. Add limits: `max_tokens`, maximum page length, request rate limit. Set a spending cap in the Claude Console if offered (Unverified).
 5. Keep the key in the host's secret settings, not in code or the page.
