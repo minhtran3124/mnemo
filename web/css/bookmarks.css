@@ -297,3 +297,73 @@ main {
   border-radius: var(--radius);
   flex-direction: column;
 }
+
+/* Compact: one short line per bookmark. Move and Undo stay out of this view;
+   use Cards or Ledger to file a bookmark. */
+.bm-list.view-compact {
+  display: block;
+}
+
+.bm-list.view-compact .bm-row {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  min-height: var(--control);
+  padding: var(--space-1) 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.bm-list.view-compact .bm-main {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+}
+
+.bm-list.view-compact .bm-main p {
+  margin: 0;
+}
+
+.bm-list.view-compact .bm-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  font-size: var(--text-base);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bm-list.view-compact .bm-meta {
+  flex: none;
+  flex-wrap: nowrap;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+
+.bm-list.view-compact .bm-reason {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 40%;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bm-list.view-compact .bm-filed,
+.bm-list.view-compact .bm-summary,
+.bm-list.view-compact .bm-tags,
+.bm-list.view-compact .bm-actions {
+  display: none;
+}
+
+@media (max-width: 40rem) {
+  .bm-list.view-compact .bm-reason {
+    max-width: 45%;
+  }
+}
