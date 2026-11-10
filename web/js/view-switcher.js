@@ -1,8 +1,12 @@
-// Cards and Ledger view switcher. The choice is kept on this device.
+// Cards, Ledger and Compact view switcher. The choice is kept on this device.
 (function () {
   var STORAGE_KEY = "mnemo.bookmarks.view";
   var DEFAULT_VIEW = "ledger";
-  var CLASSES = { cards: "view-cards", ledger: "view-ledger" };
+  var CLASSES = {
+    cards: "view-cards",
+    ledger: "view-ledger",
+    compact: "view-compact"
+  };
 
   function readStored() {
     try {
@@ -22,7 +26,7 @@
   function apply(view) {
     var lists = document.querySelectorAll(".bm-list");
     for (var i = 0; i < lists.length; i++) {
-      lists[i].classList.remove(CLASSES.cards, CLASSES.ledger);
+      lists[i].classList.remove(CLASSES.cards, CLASSES.ledger, CLASSES.compact);
       lists[i].classList.add(CLASSES[view]);
     }
     var buttons = document.querySelectorAll(".view-btn");

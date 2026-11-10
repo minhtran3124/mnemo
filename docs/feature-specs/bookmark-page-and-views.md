@@ -32,10 +32,10 @@ Out: visual style (see [frontend-ui.md](frontend-ui.md)); how search works (see 
 | --- | --- | --- |
 | Grid | Cover image, title, type, reason or "guess" | Phase 1 |
 | List | One row per bookmark: title, reason or "guess", date, badge, actions | Phase 1 |
-| Compact | Dense rows: title and the most useful fields only | Phase 3 |
+| Compact | One short line per bookmark: title, type, host, date, and the reason with its "guess" flag | Phase 3 |
 
 - Default view: List. In the V3 design it is called Ledger, and Grid is called Cards (D-016).
-- Remembered choice (proposed): the page remembers the last view.
+- Remembered choice: the page remembers the last view in `localStorage` under `mnemo.bookmarks.view` (the V3 name, not the spec label).
 - In phase 1, folders are not real yet: every bookmark is in `Unsorted` and the list is grouped by type. Real folders come in phase 3.
 - A reason marked "guess" is labeled so you can tell your words from the app's.
 - Cover images follow the rule in [frontend-ui.md](frontend-ui.md).
@@ -46,8 +46,15 @@ Out: visual style (see [frontend-ui.md](frontend-ui.md)); how search works (see 
 - Each row shows title, type, host, date, the reason (with a "guess" flag only when `reason_source` is `guess`), a "page not read" badge for unreadable pages (no summary shown), and "Filed in: <folder>" (`Unsorted` when the folder is null). From phase 3 each row has a Move select that lists the starter folders and `Unsorted`, and an Undo button when `prev_folder` is set.
 - Test hooks in the markup: `data-open-url` on the title link, `data-delete-url` and `data-confirm` on the Delete button, `data-move-url` on the Move button, `data-undo-url` on the Undo button, and `.bm-move-select` on the folder select.
 - A "Needs a look" banner shows only when at least one unreadable bookmark exists. After a delete, the page script removes the banner when the last unreadable row is gone, and shows the empty message when the last bookmark is gone.
-- Not built here: the Grid/List switcher, folders panel, filters and search.
+- Not built in phase 1: the Grid/List switcher, folders panel, filters and search (the switcher and folders arrive in phase 3).
 - **Unverified**: the click flow (open logs a count, Delete confirm and row removal, error message) and the 390px layout have not been checked in a real browser.
+
+### Built in phase 3 (views)
+
+- The switcher offers three buttons: Ledger, Cards and Compact. It sets `view-ledger`, `view-cards` or `view-compact` on every `.bm-list`, and keeps the last choice in `localStorage` under `mnemo.bookmarks.view` (Ledger when nothing is stored). Script: `web/js/view-switcher.js`.
+- Compact draws one short line per bookmark: title, type, host, date, and the reason with its "guess" flag when there is one. It hides the summary, tags, "Filed in" line and the row action controls.
+- Move and Undo are **not** shown in Compact. That is out of scope for ticket #112; use Cards or Ledger to file a bookmark.
+- **Unverified**: the Compact line at 390px, the focus ring, and the remembered choice across a real reload have not been checked in a real browser. The CSS keeps the global `:focus-visible` outline and hides nothing focusable in Compact.
 
 ### Mockups
 
@@ -78,5 +85,4 @@ Manual smoke test in `manual-testing`. Data from [data-model.md](data-model.md).
 
 ## Open questions
 
-- Which fields Compact shows.
-- Whether the view choice is remembered, and where.
+- None for the view switcher. Compact shows title, type, host, date and the reason; the choice is remembered in `mnemo.bookmarks.view` on this device.
