@@ -6,7 +6,8 @@ This file says how the built pages must follow the V3 mockup, and lists where th
 
 ## Source of truth
 
-- The mockup is the canvas "Bookmark Brain Mockup" on claude.ai (private). Its five final boards are saved as source in [docs/design/v3-mockup/](../design/v3-mockup/README.md). Read those files for exact sizes, spacing and wording.
+- Open this canvas to see the boards: [Mnemo V3 Final Design](https://claude.ai/artifact/9uvrP6gXgdiZDnge4nbu6U#page-dcb81aee8d83) (claude.ai, same ten V3 boards, five screens in light and dark; the part after `#` is **Unverified**, because the canvas index lists no pages). Whether it matches the saved source files below is **Unverified**.
+- The first mockup is the canvas "Bookmark Brain Mockup" on claude.ai (private). Its five final boards are saved as source in [docs/design/v3-mockup/](../design/v3-mockup/README.md). Read those files for exact sizes, spacing and wording.
 - **Look:** the mockup wins. Sizes, spacing, type, borders, wording of the cards, and where each control sits follow the board.
 - **Behaviour and scope:** the specs and the phase plan win. A board shows the finished app; a phase builds part of it.
 - Colours come only from tokens ([theming](theming-and-design-tokens.md), UI-09). The token table already matches the boards (checked against the `.th` block of the light boards on 2026-11-05).

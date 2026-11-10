@@ -68,15 +68,14 @@ Building the visual pages found seven conflicts. Each was checked against the ot
 | Render disk (storage vs tech stack) | The disk persists under its mount path, on a paid service, one instance (checked on the Render page). Price is still **Unverified**. |
 | Two writers (storage vs D-022) | D-022 wins: the MCP server calls the HTTP API; the web server is the only writer (D-035 lock). |
 | Empty `folder` (data model vs folders) | Already agreed and matches the code: `Unsorted` is stored as `null`; `prev_folder` holds the string `Unsorted`. |
-| What is logged (data model vs folders) | The code writes only `open` and `folder_rejected`. Other events are marked "not written yet". |
-| Duplicate check in import (import vs phase 5) | Proposed D-037: exact repeats are skipped at import in phase 4; near-duplicates stay in phase 5. |
+| What is logged (data model vs folders) | The code writes only `open` and `folder_rejected`. Other events are marked "not written yet". Move and Undo are not logged (D-038). |
+| Duplicate check in import (import vs phase 5) | D-037, accepted: exact repeats are skipped at import in phase 4; near-duplicates stay in phase 5. |
 | Private mode details | Save behaviour is settled and matches the code. What is left is below. |
 
 **Open question**, still for the owner:
-- D-037 is Proposed. Confirm or reject it.
-- Are private bookmarks shown in the digest, the MCP server and search?
-- Should a Move (and Undo) write a `move` event to the log?
-- What are the Anthropic data retention settings, and the company AI policy result?
+- Are private bookmarks shown in the digest, the MCP server and search? A private bookmark is a link saved with `private <link>` in the chat: no page is fetched and no Claude call is made, so it has only the link, a title you give and your own note.
+- The Anthropic data retention settings and the company AI policy result (owner will check later).
+- The Render price (owner will check later).
 
 ## Known gaps
 
