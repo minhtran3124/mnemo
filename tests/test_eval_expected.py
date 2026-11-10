@@ -18,6 +18,7 @@ def _entry(page_id, held_out=False, hard_case=False):
     return {
         "id": page_id,
         "expected_type": "article",
+        "expected_folder": "Unsorted",
         "expected_tags": ["one", "two", "three"],
         "key_facts": ["fact a", "fact b"],
         "held_out": held_out,

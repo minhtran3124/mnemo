@@ -43,7 +43,7 @@ Move shows the list of existing folders. You pick one. The change is saved at on
 
 ### Undo
 
-Undo puts the bookmark back to the folder it had before the last filing or Move. Open question: how many steps back Undo can go. Start with one step.
+Undo puts the bookmark back to the folder it had before the last filing or Move. The record keeps that folder in `prev_folder`; a null `prev_folder` means there is nothing to undo. When the previous folder was `Unsorted`, `prev_folder` holds the string `Unsorted`, so a Move from Unsorted can still be undone. Undo goes back one step only.
 
 ### Folder proposals (phase 7)
 
@@ -77,5 +77,4 @@ Undo puts the bookmark back to the folder it had before the last filing or Move.
 
 ## Open questions
 
-- Undo depth.
 - What happens to bookmarks when a folder is deleted.

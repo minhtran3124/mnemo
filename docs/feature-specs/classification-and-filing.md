@@ -49,7 +49,7 @@ Out: folder rules in detail (see [folders.md](folders.md)).
 
 ### Filing choice
 
-Claude picks from the folders that exist, or `Unsorted`. If unsure, it must choose `Unsorted`. Code rejects any other name. Details: [folders.md](folders.md).
+Claude picks from the folders that exist, or `Unsorted`. If unsure, it must choose `Unsorted`. Code rejects any other name: the bookmark is stored with `folder` = null (Unsorted) and one `folder_rejected` line is written to `log.jsonl` with the rejected name. Details: [folders.md](folders.md).
 
 ## Edge cases
 

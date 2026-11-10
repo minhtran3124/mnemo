@@ -36,6 +36,7 @@ def is_allowed_folder(name: object) -> bool:
     """True for one starter folder or Unsorted, with exact letter case."""
     return isinstance(name, str) and (name in STARTER_FOLDERS or name == UNSORTED)
 
+
 # Fetch limits (page-reading.md, "Fetch limits"). Starting values, tune in phase 1.
 FETCH_CONNECT_TIMEOUT = 5.0
 FETCH_READ_TIMEOUT = 10.0

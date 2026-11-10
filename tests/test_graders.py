@@ -20,6 +20,8 @@ def make_record(**overrides: Any) -> dict[str, Any]:
         "reason": "",
         "reason_source": "user",
         "folder": None,
+        "prev_folder": None,
+        "private": False,
         "opened_count": 0,
     }
     record.update(overrides)

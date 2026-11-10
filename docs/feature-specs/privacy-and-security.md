@@ -24,7 +24,7 @@ Out: legal advice. The plan says: I am not a lawyer.
 | PV-03 | The online server (phase A) needs a login, a `max_tokens` limit, a maximum page length and a spending cap (NF-02). |
 | PV-04 | Public links only while building (D-018). |
 | PV-05 | Check your company's AI policy before saving work links. |
-| PV-06 | Private mode (F-19, D-017, proposed): a link marked private is saved as link only and nothing is sent to the API. |
+| PV-06 | Private mode (F-19, D-017, accepted): a link marked private is saved as link only and nothing is sent to the API. |
 | PV-07 | Never print the key (project rule in `CLAUDE.md`). |
 
 ## What leaves the machine
@@ -45,7 +45,7 @@ Unverified: Anthropic's data retention policy for the API. Read it before saving
 - Local first (D-007). In phase A the host holds the files too. Host storage and rules: Unverified, see [storage.md](storage.md).
 - A public server can spend your money if someone finds it. Do not skip the login.
 - Set a monthly spending limit in the Claude Console. Unverified: whether your account offers a cap.
-- Private mode: the bookmark keeps `private` = true. Details of what remains searchable: Open question.
+- Private mode: write `private <link>` in the chat. Plain code reads the prefix, so the app fetches no page text and makes no Claude call. The bookmark keeps `private` = true and a null summary. The link and its title stay local; `private` with no link is a question, not a save. Details of what remains searchable: Open question.
 - Share endpoint token: see [server-api.md](server-api.md).
 
 ## Edge cases

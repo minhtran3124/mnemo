@@ -23,7 +23,7 @@ Status values: Accepted (agreed), Proposed (suggested, not yet built or agreed),
 | D-014 | The project needed a name. | The name is Mnemo (was Bookmark Brain). | Accepted | Other software uses the name. Re-check before any public release. See [naming](../research/naming.md). |
 | D-015 | People scan lists in different ways. | The bookmark page has a Grid, List and Compact switcher (F-05). In the V3 mockup, List is called Ledger and Grid is called Cards. | Accepted | Grid and List in phase 1; Compact in phase 3. The CSS `:has()` approach is unverified. |
 | D-016 | Five mockups (V1 to V5) exist, and earlier ones felt like "AI slop". | Visual direction is V3, the ledger (serif, folder in the margin, "guess" labels). | Accepted | You chose V3 after seeing it in light and dark. V1, V2, V4, V5 are dropped. Unverified: it was chosen from mockups, not from real links in a running page. Re-check after phase 1. See [design review](../reviews/design-review-v1-v5.md). |
-| D-017 | Page text goes to the API even for links you want to keep private. | Private mode (F-19): a link marked private is saved as link only and nothing is sent to the API. | Proposed | Ships in phase 3 if accepted. Adds a `private` field (proposed). |
+| D-017 | Page text goes to the API even for links you want to keep private. | Private mode (F-19): a link marked private is saved as link only and nothing is sent to the API. The chat prefix is `private <link>`, read by plain code. | Accepted | Built in phase 3. Adds a `private` field. The link and title stay local; what remains searchable is an open question. |
 | D-018 | Page text goes to the API. | Public links only while building. | Accepted | Check your company's AI policy before saving work links. |
 | D-019 | The page must be comfortable in a bright room and at night. | Light and dark themes. Default: follow the system setting. The user can override with Light or Dark, and the choice is remembered on the device. | Accepted | Needs a token set for both themes. See [theming spec](../feature-specs/theming-and-design-tokens.md). Contrast was measured on the mockup colours only; measure again in the real page. |
 | D-020 | The UI needs design checks, and the owner is not a designer. | Use Impeccable (`npx impeccable`) for UI work. `PRODUCT.md` holds product truth for design commands. Its design hook checks UI edits in Claude Code. | Accepted | Node is needed for dev tools only. The server stays Python. Setup: see the README. `DESIGN.md` is not written until a UI exists. The hook's rules must not override D-016 (V3) or UI-09 (tokens). |
@@ -42,6 +42,7 @@ Status values: Accepted (agreed), Proposed (suggested, not yet built or agreed),
 | D-033 | A message such as `note https://example.com ...` starts with `note` but holds a link. | A message with a link is a save, even when it starts with `note`. `note <id> <text>` stays the reason edit. | Proposed | Planned in ticket #70, not built yet. Today the `note` parse wins. |
 | D-034 | The pages need server routes, and the plan named only the API. | `GET /` is the chat page, `GET /bookmarks` is the bookmark page (built on the server from the store) and `GET /settings` is the settings page. All share one header partial. | Accepted | Plain HTML, no build step. See [server API](../feature-specs/server-api.md). |
 | D-035 | Concurrent writes can lose updates (for example `opened_count`). | Phase 1 uses one process-local write lock in `server.py` around every store write. | Accepted | The lock does not cover a second process such as the MCP server. A store-level cross-process lock is still open (see [storage](../feature-specs/storage.md)). |
+| D-036 | Undo needs the folder from before a Move, but a bookmark filed from Unsorted has a null folder. | Keep one step in `prev_folder` on the record. A null `prev_folder` means there is nothing to undo; a Move from Unsorted stores the string `Unsorted`. Undo restores the folder and clears `prev_folder`. | Accepted | Filing a bookmark also stores `prev_folder` = `Unsorted`, so the first folder can be undone. Only one step back. See [folders](../feature-specs/folders.md). |
 
 ## How to change a decision
 1. Write the new row or change the status.
@@ -51,6 +52,6 @@ Status values: Accepted (agreed), Proposed (suggested, not yet built or agreed),
 ## Open items
 - D-016 and D-019 are Accepted. Re-check them after phase 1 with real links in a rendered page.
 - D-020: when the first page is built, run `/impeccable document` to write `DESIGN.md` from the real tokens, and check that the detector does not flag the V3 fonts or tokens.
-- D-013 and D-017 are Proposed. Confirm or reject them before phase 3.
+- D-013 is still Proposed. Confirm or reject it before the phase that needs `docs` and `other`.
 
 Related: [open questions](../research/open-questions.md), [risk review](../reviews/risk-review.md).

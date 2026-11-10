@@ -1,5 +1,5 @@
-// Bookmark page clicks. Rows are drawn by the server; this file only handles
-// opening a link and deleting. Text is set with textContent only.
+// Bookmark page clicks. Rows are drawn by the server; this file handles
+// opening, moving, undoing and deleting. Text is set with textContent only.
 (function () {
   var statusEl = document.getElementById("bm-status");
 
@@ -11,6 +11,21 @@
   function clearError() {
     statusEl.textContent = "";
     statusEl.hidden = true;
+  }
+
+  function messageFrom(body, fallback) {
+    return (body && body.error && body.error.message) || fallback;
+  }
+
+  function readError(response, fallback) {
+    return response.json().then(
+      function (body) {
+        return messageFrom(body, fallback);
+      },
+      function () {
+        return fallback;
+      }
+    );
   }
 
   function onOpen(link) {
@@ -28,15 +43,69 @@
     if (document.querySelector(".bm-row")) {
       return;
     }
-    // No rows left: drop the folder line and show the empty message.
-    var folder = document.getElementById("bm-folder");
-    if (folder) {
-      folder.remove();
-    }
     var empty = document.getElementById("bm-empty");
     if (empty) {
       empty.hidden = false;
     }
+  }
+
+  function onMove(button) {
+    var row = button.closest(".bm-row");
+    var select = row ? row.querySelector(".bm-move-select") : null;
+    if (!select) {
+      return;
+    }
+    clearError();
+    button.disabled = true;
+    button.textContent = "Moving...";
+    function onFailed(message) {
+      button.disabled = false;
+      button.textContent = "Move";
+      showError(message);
+    }
+
+    fetch(button.getAttribute("data-move-url"), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ folder: select.value })
+    }).then(function (response) {
+      if (!response.ok) {
+        return readError(
+          response,
+          "Could not move this bookmark. Nothing was changed. Try again."
+        ).then(onFailed);
+      }
+      // Reload so the row shows the new folder and its Undo control.
+      window.location.reload();
+    }, function () {
+      onFailed("Could not reach the server. Nothing was changed. Try again.");
+    });
+  }
+
+  function onUndo(button) {
+    clearError();
+    button.disabled = true;
+    button.textContent = "Undoing...";
+    function onFailed(message) {
+      button.disabled = false;
+      button.textContent = "Undo";
+      showError(message);
+    }
+
+    fetch(button.getAttribute("data-undo-url"), { method: "POST" }).then(
+      function (response) {
+        if (!response.ok) {
+          return readError(
+            response,
+            "Could not undo. Nothing was changed. Try again."
+          ).then(onFailed);
+        }
+        window.location.reload();
+      },
+      function () {
+        onFailed("Could not reach the server. Nothing was changed. Try again.");
+      }
+    );
   }
 
   function onDelete(button) {
@@ -73,6 +142,16 @@
     var link = event.target.closest("a[data-open-url]");
     if (link) {
       onOpen(link);
+      return;
+    }
+    var move = event.target.closest("button[data-move-url]");
+    if (move) {
+      onMove(move);
+      return;
+    }
+    var undo = event.target.closest("button[data-undo-url]");
+    if (undo) {
+      onUndo(undo);
       return;
     }
     var button = event.target.closest("button[data-delete-url]");

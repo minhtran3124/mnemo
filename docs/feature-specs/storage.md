@@ -42,7 +42,7 @@ Out: the record shape ([data-model.md](data-model.md)).
 | `list_chat(limit)` | Return the latest chat messages, oldest first |
 | `find_by_url_clean(url)` | Used by the duplicate check |
 
-HTTP route `PATCH /api/bookmarks/{id}` takes `{"reason": "<text>"}` and nothing else (other fields are ignored). It sets `reason` and sets `reason_source` to `user`, under the server write lock, through `get_bookmark` and `update_bookmark`. It returns the updated record. A missing, empty or blank reason gives 400 (`empty_reason`, or `bad_request` for a bad body). An unknown id gives 404 `bookmark_not_found`. The chat command `note <id> <text>` uses the same code path.
+HTTP route `PATCH /api/bookmarks/{id}` takes `{"reason": "<text>"}` or `{"folder": "<name>"}`. A reason sets `reason` and `reason_source` to `user`; a folder moves the bookmark and copies the old folder to `prev_folder`. It returns the updated record. An unknown folder gives 400 (`folder_not_found`). A missing, empty or blank reason gives 400 (`empty_reason`, or `bad_request` for a bad body). An unknown id gives 404 `bookmark_not_found`. The chat command `note <id> <text>` uses the same reason path. `POST /api/bookmarks/{id}/undo` restores `prev_folder` and clears it; 409 (`nothing_to_undo`) when `prev_folder` is null.
 
 Errors: `InvalidRecord` (a `ValueError`) for a bad record, `NotFound` for an unknown id, `StoreError` for a corrupt file or a line in `chat.jsonl` or `log.jsonl` that is not JSON. All three share the base `StoreError`. The point is a small, fixed surface.
 
@@ -52,7 +52,7 @@ Errors: `InvalidRecord` (a `ValueError`) for a bad record, `NotFound` for an unk
 - `data/pages/<id>.txt` holds the same text Claude was given: whitespace collapsed once, cut to `MAX_PAGE_CHARS` once. Pasted text under 40 characters is not stored (link only).
 - `bookmarks.json` is `{"next_id": n, "bookmarks": [...]}`. `next_id` only goes up, so an ID is never reused, even after a delete.
 - `DATA_DIR` in `store.py` is read at call time, so tests point it at a temp folder.
-- Undo needs the previous folder to be remembered. Open question: where it is kept (a field or the log).
+- Undo is one step: a Move or a filing copies the old folder to `prev_folder` (with `Unsorted` stored as the string `Unsorted`), and Undo restores it and clears the field. A null `prev_folder` means there is nothing to undo.
 - Backup: copy `data/` regularly. How and how often: Open question. Keep backups out of git if they contain page text.
 
 ### Database swap

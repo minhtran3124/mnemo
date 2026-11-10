@@ -31,10 +31,7 @@ def test_server_uses_the_config_folder_list_and_the_doc_names_it():
     assert not hasattr(server, "UNSORTED_FOLDER")
     assert server.config.UNSORTED is config.UNSORTED
     doc = (
-        Path(__file__).resolve().parent.parent
-        / "docs"
-        / "feature-specs"
-        / "folders.md"
+        Path(__file__).resolve().parent.parent / "docs" / "feature-specs" / "folders.md"
     ).read_text(encoding="utf-8")
     for name in config.STARTER_FOLDERS:
         assert name in doc
