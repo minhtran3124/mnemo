@@ -83,7 +83,7 @@ Stop the server with Ctrl+C.
 ```text
 mnemo/
   core/      config, Claude client, store (the only code that touches data/), URL cleaning
-  chat/      intent, ask loop and tools, link import
+  chat/      intent (link or question); phase 4 adds the ask loop, tools and import
   save/      the save pipeline and its versioned prompts (save/prompts/)
   fetcher/   page fetch and the GitHub API
   api/       FastAPI server and the web pages (api/web/, no build)

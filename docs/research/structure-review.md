@@ -26,7 +26,7 @@ This note records a read of the repo layout right after the move into the `mnemo
 
 - `mnemo/core/store.py` (401 lines) holds bookmarks, the chat log and the event log. That is one door to storage, as `CLAUDE.md` requires. It can become a package later without changing callers.
 - `mnemo/save/pipeline.py` holds preview, save, fill-in and folder resolving. These are one flow.
-- `mnemo/chat/` holds intent, ask loop, tools and link import: all things the chat box does. The content of `importer.py` was **Unverified** (judged from its name).
+- `mnemo/chat/` holds `intent.py` on `main`. Phase 4 adds the ask loop, tools and link import there: all things the chat box does. That phase 4 code was judged from its names only (**Unverified**).
 - `mnemo/fetcher/`, `mnemo/core/urlclean.py`, and `evals/prompts/` vs `mnemo/save/prompts/` each have one clear purpose.
 - `tests/` mirrors `mnemo/`. `PRODUCT.md` stays at the root because the design tooling reads it. `scripts/check_memory.py` is the phase 0 proof and stays.
 
