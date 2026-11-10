@@ -34,6 +34,16 @@ Out: the better search of phase 5 (see [search-no-embeddings.md](search-no-embed
 | `get_bookmark` | Returns one bookmark by number. |
 | `list_tags` | Returns all tags. |
 
+### Built in phase 4
+
+`tools.py` holds both the tool definitions sent to Claude and the functions behind them. Every read goes through `store.py`; it never opens a file in the data folder.
+
+- `search_bookmarks(query)` ignores case and searches title, summary, tags and reason. A link-only bookmark has no summary, so it is searched by the other three. It returns at most `config.SEARCH_RESULT_LIMIT` (10) results, in saved order, as `id`, `title`, `type`, `reason` and `reason_source`.
+- `get_bookmark(id)` returns the record for a number, or a clear error when the number is unknown.
+- `list_tags()` returns each tag once, sorted, with the number of bookmarks using it.
+- Bad input (an empty query, a non-integer id) raises `ToolError` with a readable message. The tool loop sends that message back with `is_error`, so Claude can react.
+
+
 Tools return clear errors. When a tool fails, the loop sends the error back with `is_error` set, so Claude can react.
 
 ## Behavior and rules
