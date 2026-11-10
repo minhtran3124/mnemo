@@ -23,14 +23,14 @@ Out: a direct Slack connection (not planned for version 1; it needs app approval
 | IM-04 | Before it starts, the page shows the number of links and a cost estimate. |
 | IM-05 | Links are processed in batches of about 20. You can stop at any time. |
 | IM-06 | Unreadable links are expected. Each one is saved as link only (F-02). |
-| IM-07 | Duplicates are checked ([duplicates.md](duplicates.md)). |
+| IM-07 | Phase 4 skips a link whose `url_clean` is already saved (exact match, code only, `store.find_by_url_clean`) and shows a count. The near-duplicate warning is phase 5 ([duplicates.md](duplicates.md)). |
 | IM-08 | Imported bookmarks get `source` = `import` (proposed field). |
 
 ## Behavior and rules
 
 1. You choose a file or paste text.
 2. Code finds links and cleans them.
-3. The page shows: "N links found" and an estimated cost. Cost formula: `new links × IMPORT_TOKENS_PER_LINK × IMPORT_PRICE_PER_MILLION_TOKENS / 1,000,000`, in US dollars, kept in `config.py`. Both the per-link token figure (`IMPORT_TOKENS_PER_LINK`) and the price per million tokens (`IMPORT_PRICE_PER_MILLION_TOKENS`) are Unverified and must be checked against the current Claude API prices.
+3. The page shows: "N links found" and an estimated cost. Cost formula: `new links × IMPORT_TOKENS_PER_LINK × IMPORT_PRICE_PER_MILLION_TOKENS / 1,000,000`, in US dollars, kept in `mnemo/core/config.py`. Both the per-link token figure (`IMPORT_TOKENS_PER_LINK`) and the price per million tokens (`IMPORT_PRICE_PER_MILLION_TOKENS`) are Unverified and must be checked against the current Claude API prices.
 4. You press Start. The server processes about 20 links, then reports.
 5. You press Continue or Stop. A stopped import keeps what is already saved.
 
@@ -39,7 +39,7 @@ Out: a direct Slack connection (not planned for version 1; it needs app approval
 
 ## Link finder
 
-`importer.py` holds the plain-code link finder used before any Claude call (IM-03):
+`mnemo/chat/importer.py` holds the plain-code link finder used before any Claude call (IM-03):
 
 - `links_from_browser_export(html)` reads the Netscape bookmarks file a browser exports.
 - `links_from_text(text)` finds links in pasted text with `intent.find_links`.
@@ -74,7 +74,7 @@ Each result is a dict: `{"url": <link as written>, "url_clean": <cleaned link>, 
 
 ## Tests
 
-Use a small export file and one pasted text. Cases: [hard-cases.md](test-cases/hard-cases.md).
+Use a small export file and one pasted text. Cases: [hard-cases.md](../testing/golden-sets/hard-cases.md).
 
 ## Open questions
 

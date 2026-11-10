@@ -79,7 +79,7 @@ Final wording: Open question.
 
 ## Tests
 
-[route-set.md](test-cases/route-set.md), [hard-cases.md](test-cases/hard-cases.md).
+[route-set.md](../testing/golden-sets/route-set.md), [hard-cases.md](../testing/golden-sets/hard-cases.md).
 
 ## Open questions
 

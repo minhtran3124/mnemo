@@ -34,7 +34,7 @@ Out: folder rules in detail (see [folders.md](folders.md)).
 - Reason: optional, one line. If missing, Claude writes a guess and `reason_source` = `guess`. The card shows "guess".
 - Faithful-summary rule: if the page text does not say it, the summary does not say it. A screenshot post that claims "Anthropic published this" is reported as "the post claims it" or left out.
 - Page text is placed inside XML tags in the prompt. Instructions are outside them.
-- Prompts live in `prompts/`, one file per version. Change one thing per run (phase 3).
+- Prompts live in `mnemo/save/prompts/`, one file per version. Change one thing per run (phase 3).
 
 ### Claude output contract
 
@@ -68,14 +68,14 @@ Claude picks from the folders that exist, or `Unsorted`. If unsure, it must choo
 
 | # | Check |
 | --- | --- |
-| 1 | Code check passes for JSON, tags, summary length (see the checks table in [save-golden-set.md](test-cases/save-golden-set.md)). |
+| 1 | Code check passes for JSON, tags, summary length (see the checks table in [save-golden-set.md](../testing/golden-sets/save-golden-set.md)). |
 | 2 | Faithful-summary grader finds 0 unsupported statements. |
 | 3 | Type matches expected type on the Save set. Target: set after first baseline. |
-| 4 | Filing: the Route set scores the folder choice ([route-set.md](test-cases/route-set.md)). |
+| 4 | Filing: the Route set scores the folder choice ([route-set.md](../testing/golden-sets/route-set.md)). |
 
 ## Tests
 
-[save-golden-set.md](test-cases/save-golden-set.md), [route-set.md](test-cases/route-set.md).
+[save-golden-set.md](../testing/golden-sets/save-golden-set.md), [route-set.md](../testing/golden-sets/route-set.md).
 
 ## Open questions
 

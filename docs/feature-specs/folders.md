@@ -39,7 +39,7 @@ A wrong folder hides a bookmark. `Unsorted` does not. So doubt always goes to `U
 
 ### Move
 
-Move shows the list of existing folders. You pick one. The change is saved at once and logged.
+Move shows the list of existing folders. You pick one. The change is saved at once. Move and Undo are not logged (D-038); the log holds only `open` and `folder_rejected` ([data model](data-model.md)).
 
 ### Undo
 
@@ -73,7 +73,7 @@ Undo puts the bookmark back to the folder it had before the last filing or Move.
 
 ## Tests
 
-[route-set.md](test-cases/route-set.md).
+[route-set.md](../testing/golden-sets/route-set.md).
 
 ## Open questions
 

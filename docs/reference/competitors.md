@@ -33,4 +33,4 @@ Do these before phase 5. Write the answer in your session note.
 4. Check price and data policy for any app you would use instead.
 5. Decide: does Mnemo still add something after this check?
 
-Related: [PRD](../product/mnemo-prd.md), [risk review](../reviews/risk-review.md).
+Related: [PRD](../product/mnemo-prd.md), [risk review](../research/risk-review.md).

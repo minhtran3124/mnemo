@@ -9,8 +9,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-import config
-import store
+from mnemo.core import config, store
 
 DEFAULT_PATH = Path(__file__).resolve().parent / "expected.json"
 EXPECTS = {"ok", "unreadable"}

@@ -46,7 +46,7 @@ Out: cover images, a laptop Settings screen (not designed), any other theme.
 | warn | #7A4B00 | #E9C46A | Warning mark |
 | warn-text | #5C3800 | #F3DC9C | Warning text |
 
-Fonts: Newsreader (serif, headings), Public Sans (body), Spline Sans Mono (labels and URLs). Self-host the font files (D-026) so the page works offline and sends nothing to Google. Serve them from `web/fonts/`, and use a fallback stack so text shows before they load. The files are in `web/fonts/` (variable woff2: `Newsreader.woff2`, `PublicSans.woff2`, `SplineSansMono.woff2`), converted from the google/fonts GitHub repo (`ofl/` folders), each with its `*-OFL.txt` next to it. Licence status: the OFL text was fetched from the same repo; it was not compared line by line with the upstream project licence (**Unverified**).
+Fonts: Newsreader (serif, headings), Public Sans (body), Spline Sans Mono (labels and URLs). Self-host the font files (D-026) so the page works offline and sends nothing to Google. Serve them from `mnemo/api/web/fonts/`, and use a fallback stack so text shows before they load. The files are in `mnemo/api/web/fonts/` (variable woff2: `Newsreader.woff2`, `PublicSans.woff2`, `SplineSansMono.woff2`), converted from the google/fonts GitHub repo (`ofl/` folders), each with its `*-OFL.txt` next to it. Licence status: the OFL text was fetched from the same repo; it was not compared line by line with the upstream project licence (**Unverified**).
 
 ## Contrast (measured on the mockup colours)
 
@@ -87,7 +87,7 @@ Notes:
 ## Notes for the build
 
 - Define every token once for light, then redefine for dark under the system media query and under an explicit dark setting. The explicit setting must win over the device setting.
-- Tokens live in `web/css/tokens.css` (the only file with raw colours). Dark is written twice: under `prefers-color-scheme` guarded by `:root:not([data-theme="light"])`, and under `:root[data-theme="dark"]`. `web/js/theme.js` runs in `<head>` before first paint. No flash and storage-unreadable fallback are **Unverified** in a real browser.
+- Tokens live in `mnemo/api/web/css/tokens.css` (the only file with raw colours). Dark is written twice: under `prefers-color-scheme` guarded by `:root:not([data-theme="light"])`, and under `:root[data-theme="dark"]`. `mnemo/api/web/js/theme.js` runs in `<head>` before first paint. No flash and storage-unreadable fallback are **Unverified** in a real browser.
 - Set `color-scheme` so form controls and scrollbars follow the theme.
 - The mockup used the CSS `:has()` selector for the theme control. Plain code with a data attribute on the root element is simpler. `:has()` is unverified in the viewer.
 
@@ -97,4 +97,4 @@ Notes:
 - Whether the accent needs a second colour for success and error states.
 - Font licences: confirm each `*-OFL.txt` against the upstream project (Q-16 itself is answered: self-host).
 
-Related: [frontend UI](frontend-ui.md), [bookmark page](bookmark-page-and-views.md), [decision log](../process/decision-log.md), [design review](../reviews/design-review-v1-v5.md).
+Related: [frontend UI](frontend-ui.md), [bookmark page](bookmark-page-and-views.md), [decision log](../process/decision-log.md), [design review](../research/design-review-v1-v5.md).

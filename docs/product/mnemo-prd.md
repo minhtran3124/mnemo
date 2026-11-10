@@ -69,7 +69,7 @@ These jobs are guesses. Edit them if they are wrong.
 | --- | --- |
 | NF-01 | API key only on the server |
 | NF-02 | Cost limits: max_tokens, max page length, spending cap |
-| NF-03 | Bookmarks in plain files; all access through `store.py` ([storage](../feature-specs/storage.md)) |
+| NF-03 | Bookmarks in plain files; all access through `mnemo/core/store.py` ([storage](../feature-specs/storage.md)) |
 | NF-04 | Honesty: no summary of unseen text; guesses marked |
 | NF-05 | UI: touch targets at least 44px, contrast at least 4.5:1, visible focus, works at 390px width |
 
@@ -85,7 +85,7 @@ These jobs are guesses. Edit them if they are wrong.
 | Do I come back? | "Read next" items opened | Set after first digest |
 | Worth the cost? | API spend per week | Under a limit you set |
 
-See [two-week user test](../manual-testing/two-week-user-test.md).
+See [two-week user test](../testing/two-week-user-test.md).
 
 ## 8. Assumptions
 Python; Claude Code writes most code; 30-minute sessions, about 3 per week (real number unknown); public links only; page fetcher written with Claude Code (GitHub repos via the official GitHub API); models set in one config file; search with Claude API only (no embeddings, D-006); storage in JSON and text files.
@@ -94,7 +94,7 @@ Python; Claude Code writes most code; 30-minute sessions, about 3 per week (real
 Budget about $10 per month for hosting and API together (Unverified). 30-minute sessions. Python. Claude API only (D-001). Public links only while building (D-018).
 
 ## 10. Top 5 risks
-1. You stop using the app. 2. One wrong summary breaks trust. 3. The reason field stays empty. 4. Many pages cannot be read. 5. An online server spends your money. Details: [risk review](../reviews/risk-review.md).
+1. You stop using the app. 2. One wrong summary breaks trust. 3. The reason field stays empty. 4. Many pages cannot be read. 5. An online server spends your money. Details: [risk review](../research/risk-review.md).
 
 ## 11. Open questions
 See [open questions](../research/open-questions.md). Examples: starter folders, real sessions per week, laptop Settings screen and cover images (Q-15).

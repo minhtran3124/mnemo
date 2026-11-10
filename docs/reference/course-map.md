@@ -41,7 +41,7 @@ Four more lessons are used only in the optional phase 10:
 | 65 | Agents and tools |
 | 66 | Environment inspection |
 
-If you cut phase 10, you lose all hands-on practice with a real agent. Phases 7 and 8 use workflows, which are not agents. If agents matter most to you, keep phase 10 and choose the dead-link doctor (see [phase 10 plan](../product/plans/phase-10-agent-optional.md)).
+If you cut phase 10, you lose all hands-on practice with a real agent. Phases 7 and 8 use workflows, which are not agents. If agents matter most to you, keep phase 10 and choose the dead-link doctor (see [phase 10 plan](../plans/phase-10-agent-optional.md)).
 
 Lessons 34 to 36 (embeddings) are read only, because Mnemo does not use embeddings. See [embeddings alternatives](../research/embeddings-alternatives.md).
 

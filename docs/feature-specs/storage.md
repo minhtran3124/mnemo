@@ -1,4 +1,4 @@
-# Storage (`store.py`)
+# Storage (`mnemo/core/store.py`)
 
 Status: Draft v0.1 · Owner: KhoiTran · Phase: 1, A
 
@@ -8,7 +8,7 @@ Visual page: [Data model](https://claude.ai/artifact/RjucLkUNCY5pWzD3RxJkpt). It
 
 ## Purpose
 
-All access to bookmarks goes through `store.py` (NF-03, D-012). Then the inside can change from files to a database and nothing else changes.
+All access to bookmarks goes through `mnemo/core/store.py` (NF-03, D-012). Then the inside can change from files to a database and nothing else changes.
 
 ## Scope
 
@@ -23,7 +23,7 @@ Out: the record shape ([data-model.md](data-model.md)).
 | ST-02 | Storage is plain JSON and text files in version 1. No database. |
 | ST-03 | Writes are atomic: write a temporary file, then rename it, so a crash cannot leave half a file. |
 | ST-04 | Data is backed up. |
-| ST-05 | `store.py` validates records before writing ([data-model.md](data-model.md)). |
+| ST-05 | `mnemo/core/store.py` validates records before writing ([data-model.md](data-model.md)). |
 
 ## Interface
 
@@ -51,29 +51,29 @@ Errors: `InvalidRecord` (a `ValueError`) for a bad record, `NotFound` for an unk
 - Files: `data/bookmarks.json`, `data/pages/<id>.txt`, `data/chat.jsonl`, `data/log.jsonl`.
 - `data/pages/<id>.txt` holds the same text Claude was given: whitespace collapsed once, cut to `MAX_PAGE_CHARS` once. Pasted text under 40 characters is not stored (link only).
 - `bookmarks.json` is `{"next_id": n, "bookmarks": [...]}`. `next_id` only goes up, so an ID is never reused, even after a delete.
-- `DATA_DIR` in `store.py` is read at call time, so tests point it at a temp folder.
+- `DATA_DIR` in `mnemo/core/store.py` is read at call time, so tests point it at a temp folder.
 - Undo is one step: a Move or a filing copies the old folder to `prev_folder` (with `Unsorted` stored as the string `Unsorted`), and Undo restores it and clears the field. A null `prev_folder` means there is nothing to undo.
 - Backup: copy `data/` regularly. How and how often: Open question. Keep backups out of git if they contain page text.
 
 ### Database swap
 
-Phase A: you plan to use Render. Unverified: Render price and whether its disk keeps files between deploys. Check before phase A ([hosting-check.md](../research/hosting-check.md)). If the disk is not persistent, replace the inside of `store.py` with a database and change nothing else. The budget in the plan is about $10 per month for hosting and the API together (unverified prices).
+Phase A: you plan to use Render. Checked on the [Render disks page](https://render.com/docs/disks): a disk keeps files across deploys and restarts, but only under its mount path, only on a paid service, and for one instance. Unverified: the price (the page lists none). See [hosting-check.md](../research/hosting-check.md). If the disk ever stops fitting, replace the inside of `mnemo/core/store.py` with a database and change nothing else. The budget in the plan is about $10 per month for hosting and the API together (unverified prices).
 
 ## Edge cases
 
 | Case | Behavior |
 | --- | --- |
 | Crash during a write | Old file is still whole (atomic write). |
-| Two writes at once | Open question: a lock, or one worker only. |
+| Two writes at once | One process-local write lock in the web server (D-035). The web server is the only writer; the MCP server calls its HTTP API (D-022). |
 | Missing page file | `read_page` returns nothing; the record stays. |
-| Bad line in `chat.jsonl` or `log.jsonl` | `store.py` raises `StoreError`. There is no crash recovery for a half-written line. Chat lines are never deleted, so the next chat `id` is the highest `id` in the file plus 1. |
-| Corrupt `bookmarks.json` | `store.py` raises `StoreError` with a clear message and never overwrites the file; restore from backup. |
+| Bad line in `chat.jsonl` or `log.jsonl` | `mnemo/core/store.py` raises `StoreError`. There is no crash recovery for a half-written line. Chat lines are never deleted, so the next chat `id` is the highest `id` in the file plus 1. |
+| Corrupt `bookmarks.json` | `mnemo/core/store.py` raises `StoreError` with a clear message and never overwrites the file; restore from backup. |
 
 ## Acceptance criteria
 
 | # | Check |
 | --- | --- |
-| 1 | A search of the code finds no direct open of `data/` outside `store.py`. |
+| 1 | A search of the code finds no direct open of `data/` outside `mnemo/core/store.py`. |
 | 2 | A test that kills the process during a write leaves a valid file. |
 | 3 | An invalid record is rejected. |
 | 4 | A backup can be restored in a test. |
@@ -85,6 +85,6 @@ Unit tests per function. A shared test set can run against both file and databas
 
 ## Open questions
 
-- Render disk behavior and price.
+- Render disk price.
 - Backup method.
-- Lock for two writers.
+- A cross-process lock in `mnemo/core/store.py`: needed only if a second process ever writes files directly.

@@ -65,7 +65,7 @@ Final wording: Open question.
 
 ## Tests
 
-[hard-cases.md](test-cases/hard-cases.md) (repeat link, Brotli pair). Sources: [sample-links.md](../reference/sample-links.md).
+[hard-cases.md](../testing/golden-sets/hard-cases.md) (repeat link, Brotli pair). Sources: [sample-links.md](../reference/sample-links.md).
 
 ## Open questions
 

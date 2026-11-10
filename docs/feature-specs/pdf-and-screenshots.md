@@ -18,7 +18,7 @@ Out: quotes in answers ([ask-and-answers.md](ask-and-answers.md)).
 | ID | Requirement |
 | --- | --- |
 | PS-01 | Code checks the page count and file size before the API call. |
-| PS-02 | The limits are in `config.py`. Unverified: current API limits for pages and size. Check lesson 41 and the official docs in phase 6. |
+| PS-02 | The limits are in `mnemo/core/config.py`. Unverified: current API limits for pages and size. Check lesson 41 and the official docs in phase 6. |
 | PS-03 | A big PDF: send only the first pages and the table of contents. |
 | PS-04 | The card then says "summary from the first pages only". |
 | PS-05 | A screenshot is sent as an image block. Type is `image`. |
@@ -68,7 +68,7 @@ This is a hard check in the faithful-summary grader.
 
 ## Tests
 
-[hard-cases.md](test-cases/hard-cases.md). Samples: [sample-links.md](../reference/sample-links.md).
+[hard-cases.md](../testing/golden-sets/hard-cases.md). Samples: [sample-links.md](../reference/sample-links.md).
 
 ## Open questions
 

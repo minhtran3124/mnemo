@@ -19,7 +19,7 @@ Out: the MCP interface ([mcp-server.md](mcp-server.md)).
 
 | ID | Requirement |
 | --- | --- |
-| SA-01 | All data access goes through `store.py` ([storage.md](storage.md)). |
+| SA-01 | All data access goes through `mnemo/core/store.py` ([storage.md](storage.md)). |
 | SA-02 | The server never returns the API key. |
 | SA-03 | From phase A (and phase B), every call needs a token. On the local server in phase 1 there is no login yet. |
 | SA-04 | Errors use one format. |
@@ -52,7 +52,7 @@ Open question: the upload endpoint for PDFs and screenshots.
 
 ## Start command
 
-`uv run python server.py` starts the server on `127.0.0.1` (`HOST` in `server.py`). It never binds to another address.
+`uv run python -m mnemo.api.server` starts the server on `127.0.0.1` (`HOST` in `mnemo/api/server.py`). It never binds to another address.
 
 ## POST /api/chat
 
@@ -67,9 +67,9 @@ Page routes (HTML, not API): `GET /` chat, `GET /bookmarks` bookmark page, `GET 
 ## POST /api/import/preview
 
 - Request: `file` (the browser export HTML) or `text` (pasted text). `file` wins when both are present; neither gives the no-links result. A Pydantic JSON body.
-- The route runs the link finder from `importer.py`, then asks `store.find_by_url_clean` whether each link is already saved. It makes no fetch and no Claude call.
+- The route runs the link finder from `mnemo/chat/importer.py`, then asks `store.find_by_url_clean` whether each link is already saved. It makes no fetch and no Claude call.
 - Response fields: `found` (every link found), `new` (links not already saved), `already_saved` (links with a matching `url_clean`), `slack` (found links that are Slack archive links, saved or not), `estimate` (a number in US dollars) and `message`.
-- `estimate = round(new × IMPORT_TOKENS_PER_LINK × IMPORT_PRICE_PER_MILLION_TOKENS / 1_000_000, 6)`. Both constants live in `config.py`. Unverified: the per-link token figure and the current Claude API prices; check both against the official pricing page.
+- `estimate = round(new × IMPORT_TOKENS_PER_LINK × IMPORT_PRICE_PER_MILLION_TOKENS / 1_000_000, 6)`. Both constants live in `mnemo/core/config.py`. Unverified: the per-link token figure and the current Claude API prices; check both against the official pricing page.
 - No links found returns `found` = 0, `estimate` = 0.0 and the message `"No links found."`; otherwise the message is `"N links found."`.
 
 ## Error format (proposed)
@@ -111,7 +111,7 @@ Page routes (HTML, not API): `GET /` chat, `GET /bookmarks` bookmark page, `GET 
 
 ## Tests
 
-Automated tests for each endpoint. Phone test: `manual-testing`.
+Automated tests for each endpoint. Phone test: `testing/`.
 
 ## Open questions
 
