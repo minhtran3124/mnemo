@@ -14,7 +14,7 @@ A feature is done when all rows are true.
 | 4 | An error shows a clear message in plain English, not a crash. |
 | 5 | The API key is not in any new file, log line or page. |
 | 6 | Cost limits still apply: `max_tokens` and a maximum page length (NF-02). |
-| 7 | Bookmarks are read and written only through `store.py` (NF-03). |
+| 7 | Bookmarks are read and written only through `mnemo/core/store.py` (NF-03). |
 | 8 | A guess is marked as a guess (NF-04). |
 | 9 | The [smoke checklist](../manual-testing/smoke-checklist.md) passes. |
 | 10 | The change is committed, with a note in the session log. |

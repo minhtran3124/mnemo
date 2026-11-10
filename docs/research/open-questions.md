@@ -24,7 +24,7 @@ This file lists every question that is still open. No question blocks phase 0.
 
 ## Already answered (from the plan)
 - Language of summaries: English only in version 1 (D-011).
-- Storage: JSON and text files, through `store.py` (D-012).
+- Storage: JSON and text files, through `mnemo/core/store.py` (D-012).
 - Search: Claude API only, no embeddings (D-006).
 - The 20 sample links are in [sample links](../reference/sample-links.md).
 

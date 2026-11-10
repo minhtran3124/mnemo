@@ -57,7 +57,7 @@ Test the runner with the API mocked: `uv run pytest tests/test_run_eval.py -q`. 
 | --- | --- |
 | run_id | A unique number or name |
 | prompt_version | For example save_v2 |
-| model | The model name from `config.py` |
+| model | The model name from `mnemo/core/config.py` |
 | save_quality | Score 1: share of readable pages that pass the code checks |
 | honesty | Score 2: the share of all pages in `evals/pages.json` that are honest. The count of readable pages with zero unsupported statements is written to `notes`. The run prints the share and the pages honest out of all pages. |
 | find_rate | Score 3. Empty until phase 4 |
@@ -90,7 +90,7 @@ Limits of these numbers:
 - The grader prompts and the model are unchanged. No prompt was changed in this phase.
 
 ## Prompt versions (phase 3)
-Each version changes one thing from the version before it. The run id and the version are logged in `runs.csv`; the eval loads `prompts/<version>.txt`, so a run really uses that prompt.
+Each version changes one thing from the version before it. The run id and the version are logged in `runs.csv`; the eval loads `mnemo/save/prompts/<version>.txt`, so a run really uses that prompt.
 
 | Version | One change from the version before | Save quality | Honesty | Folder choice | Tokens |
 | --- | --- | --- | --- | --- | --- |
@@ -100,7 +100,7 @@ Each version changes one thing from the version before it. The run id and the ve
 | save_v4 | Wrapped the task, rules and steps in XML tags. The page text was already inside `<page>` tags. | 0.42 | 0.40 | 0.33 | 137991 |
 | save_v5 | Added two readable examples and one unreadable-page example from the best outputs. | 0.92 | 0.93 | 0.73 | 143109 |
 
-`save_v5` is the default in `config.py`. It ties the baseline save quality (0.92), raises the folder choice from n/a to 0.73, and its honesty (0.93) is one page below the baseline, inside the 0.08 noise level. `save_v2` to `save_v4` lowered save quality and honesty, so they were rejected. The baseline rows predate the folder rule, so the folder choice is only compared between `save_v2` and `save_v5`.
+`save_v5` is the default in `mnemo/core/config.py`. It ties the baseline save quality (0.92), raises the folder choice from n/a to 0.73, and its honesty (0.93) is one page below the baseline, inside the 0.08 noise level. `save_v2` to `save_v4` lowered save quality and honesty, so they were rejected. The baseline rows predate the folder rule, so the folder choice is only compared between `save_v2` and `save_v5`.
 
 ## Rules
 - Do not improve prompts in phase 2. Build the sets and graders first.

@@ -20,7 +20,7 @@ Phase 2 done with a baseline. You wrote 5-6 starter folders (open question; "Uns
 2. Add output rules and numbered steps. Run the eval.
 3. Add XML tags. Run the eval.
 4. Add 2-3 examples from your best outputs, including one unreadable page. Run the eval. Keep at least 3 compared versions.
-5. Write the starter folders in `config.py`.
+5. Write the starter folders in `mnemo/core/config.py`.
 6. Filing step: return one existing folder or Unsorted when unsure. Code rejects unknown folders (D-005). Search ignores folders.
 7. Show "Filed in: ..." on the card with Move and Undo always visible. See [safe auto-filing](../../solutions/safe-auto-filing.md). Phase 1 has no Move or Undo, so this is where they start.
 8. Add the Move and Undo actions: `PATCH /api/bookmarks/:id` (Move to an existing folder, unknown folder gives 400) and `POST /api/bookmarks/:id/undo` ([server API](../../feature-specs/server-api.md)). Add Move to every row on the bookmark page (BP-05). Decide where the previous folder is kept for Undo, in the record or in the log (open question in [storage](../../feature-specs/storage.md)).

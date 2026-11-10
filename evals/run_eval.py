@@ -22,10 +22,9 @@ from pathlib import Path
 
 import anthropic
 
-import client
-import config
-import save
 from evals import faithful, golden, graders
+from mnemo.core import client, config
+from mnemo.save import pipeline as save
 
 EVALS_DIR = Path(__file__).resolve().parent
 PAGES_PATH = EVALS_DIR / "pages.json"

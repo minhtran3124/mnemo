@@ -16,7 +16,7 @@ Ask questions in the chat, import your old pile, save screenshots.
 Phase 3 done. 15 questions you wrote plus 3 trick questions: [ask golden set](../../feature-specs/test-cases/ask-golden-set.md). A browser bookmarks export and some pasted text from Slack or notes.
 
 ## Tasks
-1. Write tools `search_bookmarks` (keyword search over title, summary, tags, reason), `get_bookmark`, `list_tags`, all through `store.py`. Give clear errors.
+1. Write tools `search_bookmarks` (keyword search over title, summary, tags, reason), `get_bookmark`, `list_tags`, all through `mnemo/core/store.py`. Give clear errors.
 2. Write the tool loop: continue while `stop_reason` is `tool_use`. Answer every tool call; send `is_error` on failure.
 3. Route in the chat: URL pattern means save, otherwise ask (D-004).
 4. Stream the final answer: up to 3 bookmarks with reasons; say "nothing found" when nothing fits.

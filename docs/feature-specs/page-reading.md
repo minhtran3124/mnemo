@@ -17,17 +17,17 @@ Out: PDFs and screenshots (see [pdf-and-screenshots.md](pdf-and-screenshots.md))
 
 | ID | Requirement |
 | --- | --- |
-| PR-01 | The fetcher is code in `fetcher/`. Claude Code writes it. |
+| PR-01 | The fetcher is code in `mnemo/fetcher/`. Claude Code writes it. |
 | PR-02 | For GitHub repos, use the official GitHub API: description and README. |
 | PR-03 | If a fetch fails with a transient error (timeout, connection error, HTTP 500, 502, 503, 504), retry once. Do not retry other errors (4xx, too many redirects, a refused address, a refused type or size). Then show the honest failure card. |
 | PR-04 | If the text is shorter than a minimum length, treat the page as unreadable. Pasted text uses a floor of 40 characters. |
-| PR-05 | Cut page text at a maximum page length (NF-02). Both limits live in `config.py`. |
+| PR-05 | Cut page text at a maximum page length (NF-02). Both limits live in `mnemo/core/config.py`. |
 | PR-06 | An unreadable page is saved as link only: `page_status` = `unreadable`, `summary` = `null`. |
 | PR-07 | For YouTube, use only the video description. The card says so. |
 | PR-08 | Clean tracking parts from the link before saving (see below). |
 | PR-09 | The fetcher refuses unsafe targets and oversized or non-text responses (see "Fetch limits"). |
 
-The limits are in "Fetch limits" below. They are starting values: put each in `config.py` and tune them in phase 1.
+The limits are in "Fetch limits" below. They are starting values: put each in `mnemo/core/config.py` and tune them in phase 1.
 
 ## Behavior and rules
 
@@ -38,14 +38,14 @@ The limits are in "Fetch limits" below. They are starting values: put each in `c
 
 ### Fetch limits (starting values)
 
-Researched on 2026-11-05 by a read-only sub-agent. **Every number is a starting value and Unverified as a fact.** Tune them in phase 1 and write the final values in `config.py`. Sources: the [OWASP SSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html), the [GitHub REST API rate limits](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api) and the Python [`ipaddress`](https://docs.python.org/3/library/ipaddress.html) docs. The httpx2 defaults were read from its wheel source, not from its docs site, so check them with a test fetch.
+Researched on 2026-11-05 by a read-only sub-agent. **Every number is a starting value and Unverified as a fact.** Tune them in phase 1 and write the final values in `mnemo/core/config.py`. Sources: the [OWASP SSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html), the [GitHub REST API rate limits](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api) and the Python [`ipaddress`](https://docs.python.org/3/library/ipaddress.html) docs. The httpx2 defaults were read from its wheel source, not from its docs site, so check them with a test fetch.
 
 | Item | Starting value |
 | --- | --- |
 | Minimum text, HTML page | 300 characters after whitespace is collapsed (PR-04). Trafilatura passes almost any text, so this floor is ours. |
 | Minimum text, GitHub | 40 characters, description and README together |
 | Calibrate | Run the links in [sample-links.md](../reference/sample-links.md), log the extracted length of each, and set the floor between the shortest readable page and the longest unreadable one |
-| Maximum text | `MAX_PAGE_CHARS` = 20,000 (already in `config.py`) |
+| Maximum text | `MAX_PAGE_CHARS` = 20,000 (already in `mnemo/core/config.py`) |
 | Timeouts | connect 5 s, read 10 s, write 5 s, pool 5 s, and an own 15 s cap per attempt. httpx has no total timeout, so the read loop checks elapsed time |
 | Retry | Once, after 1 s, same GET (PR-03). A 429 is not retried |
 | Maximum download | 2,000,000 decoded bytes. Refuse early if `Content-Length` is larger. Stream and stop at the cap |
@@ -62,7 +62,7 @@ Researched on 2026-11-05 by a read-only sub-agent. **Every number is a starting 
 
 GitHub README rules: a repo with no README (404) keeps its description. A README larger than the maximum download is cut at that size, and the description plus the cut README are used. A transient README error (5xx or timeout) is retried once on the README call alone, so the repo call is never repeated and the hourly rate limit is not spent twice. Any other README failure, or a transient one that fails again, fails the whole fetch with a reason (the bookmark is saved link only). It is never treated as a missing README and the description is not used alone.
 
-Constants in `config.py` (built in `fetcher/`, #30): `FETCH_CONNECT_TIMEOUT`, `FETCH_READ_TIMEOUT`, `FETCH_WRITE_TIMEOUT`, `FETCH_POOL_TIMEOUT`, `FETCH_ATTEMPT_SECONDS`, `FETCH_RETRY_DELAY`, `FETCH_MAX_BYTES`, `FETCH_CONTENT_TYPES`, `FETCH_MAX_REDIRECTS`, `FETCH_ALLOWED_PORTS`, `FETCH_MAX_URL_CHARS`, `FETCH_DNS_TIMEOUT`, `MIN_TEXT_CHARS_HTML`, `MIN_TEXT_CHARS_GITHUB`, `USER_AGENT`, `GITHUB_API_BASE`. `fetch(url)` returns `FetchOk(text, source)` or `FetchFail(reason)` and does not raise for expected failures. It does not cut text to `MAX_PAGE_CHARS` and does not judge "too short": `save.py` does both, using the two `MIN_TEXT_CHARS_*` floors. Redirects are followed by hand so the checks run on every hop. The calibration of the text floors against the sample links is still **Unverified**.
+Constants in `mnemo/core/config.py` (built in `mnemo/fetcher/`, #30): `FETCH_CONNECT_TIMEOUT`, `FETCH_READ_TIMEOUT`, `FETCH_WRITE_TIMEOUT`, `FETCH_POOL_TIMEOUT`, `FETCH_ATTEMPT_SECONDS`, `FETCH_RETRY_DELAY`, `FETCH_MAX_BYTES`, `FETCH_CONTENT_TYPES`, `FETCH_MAX_REDIRECTS`, `FETCH_ALLOWED_PORTS`, `FETCH_MAX_URL_CHARS`, `FETCH_DNS_TIMEOUT`, `MIN_TEXT_CHARS_HTML`, `MIN_TEXT_CHARS_GITHUB`, `USER_AGENT`, `GITHUB_API_BASE`. `fetch(url)` returns `FetchOk(text, source)` or `FetchFail(reason)` and does not raise for expected failures. It does not cut text to `MAX_PAGE_CHARS` and does not judge "too short": `mnemo/save/pipeline.py` does both, using the two `MIN_TEXT_CHARS_*` floors. Redirects are followed by hand so the checks run on every hop. The calibration of the text floors against the sample links is still **Unverified**.
 
 **Decision (phase 1):** the DNS rebinding gap below is accepted. The app is local, single-user and bound to `127.0.0.1`. Revisit before the server is reachable from a network.
 
