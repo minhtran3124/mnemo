@@ -23,7 +23,7 @@ Out: a direct Slack connection (not planned for version 1; it needs app approval
 | IM-04 | Before it starts, the page shows the number of links and a cost estimate. |
 | IM-05 | Links are processed in batches of about 20. You can stop at any time. |
 | IM-06 | Unreadable links are expected. Each one is saved as link only (F-02). |
-| IM-07 | Duplicates are checked ([duplicates.md](duplicates.md)). |
+| IM-07 | Phase 4 skips a link whose `url_clean` is already saved (exact match, code only, `store.find_by_url_clean`) and shows a count. The near-duplicate warning is phase 5 ([duplicates.md](duplicates.md)). |
 | IM-08 | Imported bookmarks get `source` = `import` (proposed field). |
 
 ## Behavior and rules

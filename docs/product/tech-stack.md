@@ -106,7 +106,7 @@ The module path `app.main:app` is a proposal. Keep it in sync with the real layo
 
 - **Phase 0 to 4:** run on your own computer, bound to `127.0.0.1` (D-007).
 - **Phase A:** Render, as planned. Verified in [Render persistent disks](https://render.com/docs/disks): the disk attaches to a paid web service, keeps files across deploys and restarts (only under the mount path), takes a snapshot every 24 hours, keeps snapshots 7 days, and allows only one instance. Price: Unverified (Q-01); the official page lists no per-GB price.
-- **Data risk:** the disk persists, but `bookmarks.json` is rewritten whole on each save. Use one worker plus a file lock in `mnemo/core/store.py`, and export data off the host on a schedule (storage.md).
+- **Data risk:** the disk persists, but `bookmarks.json` is rewritten whole on each save. Run one worker with the process-local write lock (D-035), and export data off the host on a schedule (storage.md).
 - **Backups:** copy `data/` on a schedule. How often is an open question (storage.md).
 - **Secrets:** the key is an environment variable on the host, never in the repo (NF-01). A pre-commit hook (`.githooks/pre-commit`) blocks a commit that stages a key; see git-and-secrets.md.
 - **CI:** `.github/workflows/ci.yml` (added in phase 0, #9) runs `uv sync --locked`, `ruff check`, `ruff format --check` and `pytest` on every pull request and on pushes to `main`. The autopilot merge gate needs a CI check on each PR.
@@ -115,7 +115,7 @@ The module path `app.main:app` is a proposal. Keep it in sync with the real layo
 
 - **PyMuPDF licence:** AGPL-3.0 or commercial. This is why pypdf is chosen.
 - **pypdf licence:** BSD-3-Clause (checked in the wheel metadata).
-- **Two writers:** the MCP server (phase 9) runs as a separate process. If it writes through `mnemo/core/store.py` while the web server runs, `mnemo/core/store.py` needs a lock or the MCP server must call the HTTP API instead. Open question.
+- **Two writers:** the MCP server (phase 9) runs as a separate process and calls the web server's HTTP API, so the web server stays the only writer (D-022). The process-local write lock (D-035) is enough. A cross-process lock in `mnemo/core/store.py` is needed only if a second process ever writes files directly.
 - **Claude JSON output:** use structured outputs (`client.messages.parse(output_format=Model)`; D-025) instead of prefill. Checked on the [official page](https://platform.claude.com/docs/en/build-with-claude/structured-outputs): `claude-haiku-5-5` is supported, no beta header is needed, and prefill is incompatible with JSON outputs. The schema cannot enforce string length or array size, so code still checks them.
 - **Temperature:** `Messages.create()` and `Messages.parse()` in the installed `anthropic` 2.4.0 have no `temperature` parameter (checked by inspecting the SDK; passing it raises `TypeError`). Do not set it. Whether the HTTP API itself accepts it for current models is unverified.
 - **Phase A login:** not chosen. SA-03 and PV-03 need a method (for example one token checked by middleware).

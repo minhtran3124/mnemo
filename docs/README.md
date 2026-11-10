@@ -26,7 +26,7 @@ Four pages draw these docs as pictures. They are snapshots of `main` at commit `
 
 The design mockup (V3, light and dark) is linked from [frontend UI](feature-specs/frontend-ui.md). Its source is saved in [design/v3-mockup](design/v3-mockup/README.md), and [UI reference](feature-specs/ui-reference.md) says how the build must follow it.
 
-Building these pages found conflicts between docs. They are listed under [Open question: conflicts between docs](#open-question-conflicts-between-docs).
+Building these pages found conflicts between docs. They are settled under [Conflicts between docs](#conflicts-between-docs).
 
 ## Folder map
 
@@ -58,9 +58,25 @@ Where does a new doc go? A requirement goes in `feature-specs/`. A way to check 
 - Anything not checked is marked **Unverified** or **Open question**. Do not treat it as fact.
 - If a doc and the code disagree, fix the doc in the same session.
 
-## Open question: conflicts between docs
+## Conflicts between docs
 
-Building these pages found conflicts between docs. They are not fixed yet: JSON output method (classification vs tech stack), Render disk (storage vs tech stack), two writers (storage vs D-022), empty `folder` (data model vs folders), what is logged (data model vs folders), duplicate check in import (import vs phase 5), private mode details. **Open question**: fix them in a separate PR. Not resolved here.
+Building the visual pages found seven conflicts. Each was checked against the other doc, the decision log and the code, and is now settled:
+
+| Conflict | Resolution |
+| --- | --- |
+| JSON output method (classification vs tech stack) | Already agreed: structured outputs with `messages.parse()` (D-025). |
+| Render disk (storage vs tech stack) | The disk persists under its mount path, on a paid service, one instance (checked on the Render page). Price is still **Unverified**. |
+| Two writers (storage vs D-022) | D-022 wins: the MCP server calls the HTTP API; the web server is the only writer (D-035 lock). |
+| Empty `folder` (data model vs folders) | Already agreed and matches the code: `Unsorted` is stored as `null`; `prev_folder` holds the string `Unsorted`. |
+| What is logged (data model vs folders) | The code writes only `open` and `folder_rejected`. Other events are marked "not written yet". |
+| Duplicate check in import (import vs phase 5) | Proposed D-037: exact repeats are skipped at import in phase 4; near-duplicates stay in phase 5. |
+| Private mode details | Save behaviour is settled and matches the code. What is left is below. |
+
+**Open question**, still for the owner:
+- D-037 is Proposed. Confirm or reject it.
+- Are private bookmarks shown in the digest, the MCP server and search?
+- Should a Move (and Undo) write a `move` event to the log?
+- What are the Anthropic data retention settings, and the company AI policy result?
 
 ## Known gaps
 

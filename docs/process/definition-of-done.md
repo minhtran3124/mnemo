@@ -12,7 +12,7 @@ Each item can be checked by running the command or reading the file. Evidence is
 - [x] No broken relative link: `uv run python scripts/check_links.py` → `checked 448 relative links, 0 broken`.
 - [x] The old doc folders are gone: `ls docs/manual-testing docs/reviews docs/feature-specs/test-cases docs/product/plans` → `No such file or directory`.
 - [x] Every folder in `docs/` has a row in the folder map of [docs/README.md](../README.md): `for d in docs/*/; do grep -q "\`$(basename $d)/\`" docs/README.md || echo MISSING $d; done` → prints nothing.
-- [x] The known conflicts are still listed, as an **Open question**, in [docs/README.md](../README.md) (section "Open question: conflicts between docs"). Not resolved.
+- [x] The seven known conflicts are settled or listed as an **Open question** in [docs/README.md](../README.md) (section "Conflicts between docs"): `grep -c "Open question" docs/README.md` prints a number above 0.
 - [x] No old-layout path is left: `grep -rnE "python server\.py|save\.py" README.md CLAUDE.md docs evals mnemo tests --include='*.md' --include='*.py'` → hits only in `decision-log.md` (history), the structure review and this file, which quote the old names.
 - [x] Storage goes only through the store: `grep -rn "data/" mnemo --include='*.py' | grep -v core/store.py` → one hit, a comment in `mnemo/core/config.py`, no file access.
 - [x] The structure review is written down: [structure-review](../research/structure-review.md).
