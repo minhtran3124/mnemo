@@ -44,6 +44,9 @@ SAVE_PROMPT_VERSION = "save_v5"
 # Ask tools (phase 4): the most results one keyword search returns.
 SEARCH_RESULT_LIMIT = 10
 
+# Ask loop (phase 4): stop a tool loop that never ends.
+ASK_MAX_ROUNDS = 6
+
 
 # Fetch limits (page-reading.md, "Fetch limits"). Starting values, tune in phase 1.
 FETCH_CONNECT_TIMEOUT = 5.0
