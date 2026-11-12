@@ -11,7 +11,8 @@ The name was chosen by you. Other software already uses "mnemo" (see [naming](re
 1. [Pre-start checklist](process/pre-start-checklist.md): what must be true before phase 0.
 2. [PRD](product/mnemo-prd.md): what we build and why.
 3. [Roadmap](product/roadmap.md) and [phases overview](product/phases-overview.md): in what order.
-4. [Open questions](research/open-questions.md): what you still need to answer. None blocks phase 0.
+4. [AI feature map](product/ai-feature-map.md): every feature, its screen, its spec and its Claude API cost. Finish its checklist before feature code.
+5. [Open questions](research/open-questions.md): what you still need to answer. None blocks phase 0.
 
 ## Visual pages
 
@@ -34,7 +35,7 @@ Each folder answers one question. A new doc goes in the folder whose question it
 
 | Folder | Purpose (one line) |
 | --- | --- |
-| [`product/`](product/) | What we build and why: PRD, roadmap, phases overview, tech stack. |
+| [`product/`](product/) | What we build and why: PRD, roadmap, phases overview, tech stack, AI feature map. |
 | [`plans/`](plans/) | What we do next: one plan per phase (0 to 10, A, B, C). |
 | [`feature-specs/`](feature-specs/) | What each feature must do: one spec per feature area. |
 | [`testing/`](testing/) | How we check the app: test strategy, manual checks, eval process. [`golden-sets/`](testing/golden-sets/) has the golden sets and hard cases. |
