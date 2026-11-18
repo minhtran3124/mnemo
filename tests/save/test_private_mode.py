@@ -3,6 +3,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from mnemo.chat import ask
 from mnemo.core import store
 from mnemo.save import pipeline as save
 
@@ -13,6 +14,9 @@ FAKE_KEY = "sk-ant-fake-key-for-tests"
 def api(monkeypatch, tmp_path):
     monkeypatch.setenv("ANTHROPIC_API_KEY", FAKE_KEY)
     monkeypatch.setattr(store, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(
+        ask, "run_ask", lambda question: ask.AskResult(text="nothing found")
+    )
     from mnemo.api import server
 
     return TestClient(server.app)
@@ -89,8 +93,9 @@ def test_private_without_a_link_is_a_question(api):
     response = api.post("/api/chat", json={"message": "private"})
 
     assert response.json() == {
-        "kind": "text",
-        "text": "I can only save links for now. Asking comes later.",
+        "kind": "answer",
+        "text": "nothing found",
+        "bookmarks": [],
     }
     assert store.list_bookmarks() == []
 

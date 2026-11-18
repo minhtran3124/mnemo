@@ -30,12 +30,27 @@ Out: a direct Slack connection (not planned for version 1; it needs app approval
 
 1. You choose a file or paste text.
 2. Code finds links and cleans them.
-3. The page shows: "N links found" and an estimated cost. Cost formula: Open question. Unverified: current Claude API prices.
+3. The page shows: "N links found" and an estimated cost. Cost formula: `new links × IMPORT_TOKENS_PER_LINK × IMPORT_PRICE_PER_MILLION_TOKENS / 1,000,000`, in US dollars, kept in `mnemo/core/config.py`. Both the per-link token figure (`IMPORT_TOKENS_PER_LINK`) and the price per million tokens (`IMPORT_PRICE_PER_MILLION_TOKENS`) are Unverified and must be checked against the current Claude API prices.
 4. You press Start. The server processes about 20 links, then reports.
 5. You press Continue or Stop. A stopped import keeps what is already saved.
 
 - Pasting Slack text is fine because the Slack workspace is personal. A Slack message link cannot be read; paste the message text instead.
 - Mind privacy: only public links while building (D-018). Imports can contain work links. See [privacy-and-security.md](privacy-and-security.md).
+
+## Link finder
+
+`mnemo/chat/importer.py` holds the plain-code link finder used before any Claude call (IM-03):
+
+- `links_from_browser_export(html)` reads the Netscape bookmarks file a browser exports.
+- `links_from_text(text)` finds links in pasted text with `intent.find_links`.
+
+Both clean each link with `urlclean.clean_url`, drop duplicates on the cleaned link, keep first-seen order and reject non-web links (`about:`, `javascript:`, `file:`, or a link with no host). A non-string input raises `ValueError`; empty text or a file with no links returns an empty list.
+
+Each result is a dict: `{"url": <link as written>, "url_clean": <cleaned link>, "slack": <bool>}`. `slack` is true when the link is a `*.slack.com/archives/...` message link, so the page can tell you it cannot be read.
+
+## Preview before any import
+
+`POST /api/import/preview` returns `found`, `new`, `already_saved`, `slack`, `estimate` and `message` before anything is sent to Claude (IM-04). It runs the link finder, drops links already saved (`store.find_by_url_clean` on `url_clean`) from `new`, and computes the estimate from the `config.py` constants. `slack` counts every found Slack archive link, whether or not it is already saved. The route makes no fetch and no Claude call.
 
 ## Edge cases
 

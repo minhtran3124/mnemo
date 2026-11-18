@@ -5,6 +5,7 @@ Every error response uses one JSON shape: {"error": {"code": ..., "message": ...
 
 import html
 import logging
+import re
 import threading
 from pathlib import Path
 from urllib.parse import urlparse, urlsplit
@@ -17,7 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from mnemo.chat import intent
+from mnemo.chat import ask, importer, intent
 from mnemo.core import config, store, urlclean
 from mnemo.save import pipeline as save
 
@@ -382,12 +383,74 @@ def undo_bookmark(bookmark_id: int) -> dict | JSONResponse:
         )
 
 
+class ImportPreviewBody(BaseModel):
+    # `file` is the browser export HTML; `text` is pasted text. `file` wins.
+    file: str | None = None
+    text: str | None = None
+
+
+def _import_estimate(new: int) -> float:
+    """The cost estimate in dollars for `new` links (IM-04).
+
+    Unverified: the token figure and the price live in mnemo/core/config.py and must be
+    checked against the current Claude API prices.
+    """
+    return round(
+        new
+        * config.IMPORT_TOKENS_PER_LINK
+        * config.IMPORT_PRICE_PER_MILLION_TOKENS
+        / 1_000_000,
+        6,
+    )
+
+
+def _links_message(count: int) -> str:
+    return f"{count} link{'' if count == 1 else 's'} found."
+
+
+@app.post("/api/import/preview")
+def import_preview(body: ImportPreviewBody) -> dict:
+    """Count the links and estimate the cost before any import API call (IM-04).
+
+    Reads the browser export (`file`) or the pasted text (`text`); `file` wins
+    when both are present. Links already saved are counted but left out of
+    `new`. `slack` counts found Slack archive links, saved or not. No page is
+    fetched and no Claude call is made.
+    """
+    if body.file is not None:
+        links = importer.links_from_browser_export(body.file)
+    elif body.text is not None:
+        links = importer.links_from_text(body.text)
+    else:
+        links = []
+
+    found = len(links)
+    if found == 0:
+        return {
+            "found": 0,
+            "new": 0,
+            "already_saved": 0,
+            "slack": 0,
+            "estimate": 0.0,
+            "message": "No links found.",
+        }
+    already_saved = sum(
+        1 for link in links if store.find_by_url_clean(link["url_clean"]) is not None
+    )
+    new = found - already_saved
+    return {
+        "found": found,
+        "new": new,
+        "already_saved": already_saved,
+        "slack": sum(1 for link in links if link["slack"]),
+        "estimate": _import_estimate(new),
+        "message": _links_message(found),
+    }
+
+
 class ChatBody(BaseModel):
     message: str
     pasted_text: str | None = None
-
-
-LINKS_ONLY_TEXT = "I can only save links for now. Asking comes later."
 
 
 def _note_reply(bookmark_id: int | None, text: str | None) -> str:
@@ -396,6 +459,54 @@ def _note_reply(bookmark_id: int | None, text: str | None) -> str:
     if _set_reason(bookmark_id, text) is None:
         return "I do not have a bookmark with that number."
     return "Reason updated."
+
+
+# Claude is asked to name each bookmark as #<id>. Accept the common variants too.
+_ANSWER_REF = re.compile(r"(?:#|\bbookmark\s+|\bno\.\s*)\s*(\d+)", re.IGNORECASE)
+
+
+def _answer_bookmarks(text: str) -> list[dict]:
+    """Turn the numbers Claude named into up to ASK_ANSWER_LIMIT stored bookmarks.
+
+    Numbers that do not exist are skipped here; ticket #127 adds the check that
+    reports them. The answer keeps the model's text, so the numbers stay visible.
+    """
+    found: list[dict] = []
+    seen: set[int] = set()
+    for match in _ANSWER_REF.finditer(text):
+        bookmark_id = int(match.group(1))
+        if bookmark_id in seen:
+            continue
+        item = store.get_bookmark(bookmark_id)
+        if item is None:
+            continue
+        seen.add(bookmark_id)
+        found.append(
+            {
+                "id": item["id"],
+                "title": item.get("title") or item["url"],
+                "type": item.get("type", ""),
+                "reason": item.get("reason", ""),
+                "reason_source": item.get("reason_source", "guess"),
+            }
+        )
+        if len(found) >= config.ASK_ANSWER_LIMIT:
+            break
+    return found
+
+
+def _ask_reply(question: str) -> dict:
+    """Run the ask loop and turn its text into up to 3 bookmark results."""
+    result = ask.run_ask(question)
+    if result.error:
+        _record_exchange(question, result.text, [])
+        return {"kind": "answer", "text": result.text, "bookmarks": []}
+    bookmarks = _answer_bookmarks(result.text)
+    text = result.text.strip() if bookmarks else "nothing found"
+    if not text:
+        text = f"{len(bookmarks)} bookmarks fit." if bookmarks else "nothing found"
+    _record_exchange(question, text, [item["id"] for item in bookmarks])
+    return {"kind": "answer", "text": text, "bookmarks": bookmarks}
 
 
 @app.post("/api/chat", response_model=None)
@@ -410,8 +521,7 @@ def chat(body: ChatBody) -> dict | JSONResponse:
         _record_exchange(body.message, reply, [])
         return {"kind": "text", "text": reply}
     if not links:
-        _record_exchange(body.message, LINKS_ONLY_TEXT, [])
-        return {"kind": "text", "text": LINKS_ONLY_TEXT}
+        return _ask_reply(body.message)
     cards = []
     failed = []
     last_error = None

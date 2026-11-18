@@ -95,6 +95,52 @@ def ask(
     return text
 
 
+def create_message(
+    messages: list[dict],
+    *,
+    tools: list[dict] | None = None,
+    system: str | None = None,
+    model: str | None = None,
+) -> anthropic.types.Message:
+    """Send a conversation with optional tools and return the raw response.
+
+    Used by the ask loop, which needs content blocks and stop_reason instead of
+    parsed output. A refusal or a reply cut off at max_tokens raises
+    InvalidOutput, so a tool loop never treats a cut answer as final.
+    """
+    model = model or config.MODEL
+    kwargs: dict = {
+        "model": model,
+        "max_tokens": config.MAX_TOKENS,
+        "messages": messages,
+    }
+    if tools is not None:
+        kwargs["tools"] = tools
+    if system is not None:
+        kwargs["system"] = system
+
+    sdk = _get_client()
+    start = time.perf_counter()
+    response = sdk.messages.create(**kwargs)
+    latency_ms = round((time.perf_counter() - start) * 1000)
+
+    _log.info(
+        "claude call model=%s input_tokens=%s output_tokens=%s latency_ms=%s",
+        model,
+        response.usage.input_tokens,
+        response.usage.output_tokens,
+        latency_ms,
+    )
+
+    if response.stop_reason == "refusal":
+        raise InvalidOutput("Claude refused the request; treat the output as invalid")
+    if response.stop_reason == "max_tokens":
+        raise InvalidOutput(
+            f"Claude reply hit max_tokens={config.MAX_TOKENS}; treat the output as invalid"
+        )
+    return response
+
+
 class Usage(NamedTuple):
     """Token counts for one call. Tokens only, no money."""
 
